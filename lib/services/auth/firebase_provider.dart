@@ -7,7 +7,7 @@ import 'package:gymtracker/services/auth/firebase_auth_user.dart';
 import '../../firebase_options.dart';
 import 'auth_provider.dart';
 
-class FireBaseProvider implements AuthProvider {
+class FirebaseProvider implements AuthProvider {
   @override
   Future<AuthUser> createUser(
       {required String email, required String password}) async {
