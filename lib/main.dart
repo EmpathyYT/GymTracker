@@ -3,9 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
-import 'package:gymtracker/services/auth/firebase_provider.dart';
+import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
+import 'package:gymtracker/views/login_page.dart';
+
+import 'helpers/loading/LoadingScreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,16 +20,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = View.of(context).platformDispatcher.platformBrightness;
     TextTheme textTheme = createTextTheme(context, "Montserrat", "Oswald");
-
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
+      theme: theme.dark(),
       home: BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(FirebaseProvider()),
+        create: (context) => AuthBloc(FirebaseAuthProvider()),
         child: const HomePage(),
       ),
     );
@@ -39,8 +40,29 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialize());
-    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-      return const Scaffold(body: CircularProgressIndicator());
-    });
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.isLoading) {
+          LoadingScreen().show(context: context, text: state.loadingText);
+        } else {
+          LoadingScreen().hide();
+        }
+      },
+      builder: (context, state) {
+        if (state is AuthStateUnauthenticated) {
+          return const LoginView();
+          // } else if (state is AuthStateNeedsVerification) {
+          //   return const VerifyEmailPage();
+          // } else if (state is AuthStateAuthenticated) {
+          //   return const NotesView();
+          // } else if (state is AuthStateRegistering) {
+          //   return const RegisterPage();
+          // } else if (state is AuthStateForgotPassword) {
+          //   return const ForgotPasswordView();
+        } else {
+          return const Scaffold(body: CircularProgressIndicator());
+        }
+      },
+    );
   }
 }

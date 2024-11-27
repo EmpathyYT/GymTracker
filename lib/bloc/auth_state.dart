@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:gymtracker/services/auth/auth_user.dart';
+import 'package:flutter/foundation.dart';
+
+import '../services/auth/auth_user.dart';
 
 @immutable
 abstract class AuthState {
@@ -11,48 +12,46 @@ abstract class AuthState {
       {required this.isLoading, this.loadingText = 'Please wait a moment'});
 }
 
-class AuthUninitialized extends AuthState {
-  const AuthUninitialized({required super.isLoading});
+class AuthStateUninitialized extends AuthState {
+  const AuthStateUninitialized({required super.isLoading});
 }
 
-class AuthRegistering extends AuthState {
+class AuthStateRegistering extends AuthState {
   final Exception? exception;
 
-  const AuthRegistering({
+  const AuthStateRegistering({
     required this.exception,
     required super.isLoading,
   });
 }
 
-class AuthAuthenticated extends AuthState {
+class AuthStateAuthenticated extends AuthState {
   final AuthUser user;
 
-  const AuthAuthenticated({required this.user, required super.isLoading});
+  const AuthStateAuthenticated({required this.user, required super.isLoading});
 }
 
-class AuthUnauthenticated extends AuthState with EquatableMixin {
+class AuthStateUnauthenticated extends AuthState with EquatableMixin {
   final Exception? exception;
 
-  const AuthUnauthenticated(
+  const AuthStateUnauthenticated(
       {required this.exception, required super.isLoading, super.loadingText});
 
   @override
   List<Object?> get props => [exception, isLoading, loadingText];
 }
 
-class AuthForgotPassword extends AuthState {
+class AuthStateForgotPassword extends AuthState {
   final Exception? exception;
   final bool hasSentEmail;
 
-  const AuthForgotPassword(
+  const AuthStateForgotPassword(
       {required super.isLoading,
       super.loadingText,
       required this.exception,
       required this.hasSentEmail});
 }
 
-class AuthNeedsVerification extends AuthState {
-  const AuthNeedsVerification({required super.isLoading});
+class AuthStateNeedsVerification extends AuthState {
+  const AuthStateNeedsVerification({required super.isLoading});
 }
-
-

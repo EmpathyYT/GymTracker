@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 @immutable
 abstract class AuthEvent {
@@ -38,5 +38,12 @@ class AuthEventSignOut extends AuthEvent {
 class AuthEventForgotPassword extends AuthEvent {
   final String? email;
 
+
   const AuthEventForgotPassword({this.email});
+
 }
+
+
+
+
+

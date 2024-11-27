@@ -1,25 +1,35 @@
+class UserNotFoundAuthException implements Exception {
+  final String message = 'User not found';
+}
+
+class WrongPasswordAuthException implements Exception {
+  final String message = 'Wrong password';
+}
+
+
+
+class WeakPasswordAuthException implements Exception {
+  final String message = 'Weak password';
+}
+
+class EmailAlreadyInUseAuthException implements Exception {
+  final String message = 'Email already in use';
+}
+
+class InvalidEmailAuthException implements Exception {
+  final String message = 'Invalid email';
+}
+
+
+
 class GenericAuthException implements Exception {
-  final String message;
-
-  GenericAuthException({this.message='An error occurred'});
+  final String message = 'An error occurred';
 }
 
-class AuthEmailAlreadyInUseException extends GenericAuthException {
-  AuthEmailAlreadyInUseException() : super(message: 'Email is already in use');
+class UserNotLoggedInException implements Exception {
+  final String message = 'User not logged in';
 }
 
-class AuthInvalidEmailException extends GenericAuthException {
-  AuthInvalidEmailException() : super(message: 'Invalid email');
-}
-
-class AuthWeakPasswordException extends GenericAuthException {
-  AuthWeakPasswordException() : super(message: 'Weak password');
-}
-
-class UserNotFoundAuthException extends GenericAuthException {
-  UserNotFoundAuthException() : super(message: 'User not found');
-}
-
-class WrongPasswordAuthException extends GenericAuthException {
-  WrongPasswordAuthException() : super(message: 'Wrong password');
+class EmptyCredentialsAuthException implements Exception {
+  final String message = 'Please fill in the fields';
 }

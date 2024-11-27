@@ -1,45 +1,41 @@
-import 'package:gymtracker/services/auth/auth_provider.dart';
-import 'package:gymtracker/services/auth/auth_user.dart';
-import 'package:gymtracker/services/auth/firebase_provider.dart';
+import 'auth_user.dart';
+import 'auth_provider.dart';
+import 'firebase_auth_provider.dart';
 
-class AuthService extends AuthProvider {
+class AuthService implements AuthProvider {
   final AuthProvider provider;
 
   AuthService(this.provider);
 
-  factory AuthService.firebase() => AuthService(FirebaseProvider());
-
-  @override
-  Future<AuthUser> createUser(
-      {required String email, required String password}) {
-    return provider.createUser(email: email, password: password);
-  }
+  factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
 
   @override
   AuthUser? get currentUser => provider.currentUser;
 
   @override
-  Future<void> initialize() {
-    return provider.initialize();
-  }
+  Future<AuthUser> createUser({
+    required String email,
+    required String password,
+  }) =>
+      provider.createUser(email: email, password: password);
 
   @override
-  Future<AuthUser> logIn({required String email, required String password}) {
-    return provider.logIn(email: email, password: password);
-  }
+  Future<AuthUser> logIn({
+    required String email,
+    required String password,
+  }) =>
+      provider.logIn(email: email, password: password);
 
   @override
-  Future<void> logOut() {
-    return provider.logOut();
-  }
+  Future<void> logOut() => provider.logOut();
 
   @override
-  Future<void> sendEmailVerification() {
-    return provider.sendEmailVerification();
-  }
+  Future<void> sendEmailVerification() => provider.sendEmailVerification();
 
   @override
-  Future<void> sendPasswordReset({required String email}) {
-    return provider.sendPasswordReset(email: email);
-  }
+  Future<void> initialize() => provider.initialize();
+
+  @override
+  Future<void> sendPasswordReset({required String email}) =>
+      provider.sendPasswordReset(email: email);
 }
