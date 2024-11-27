@@ -50,11 +50,11 @@ class FirebaseAuthProvider implements AuthProvider {
           .signInWithEmailAndPassword(email: email, password: password);
       return currentUser!;
     } on FirebaseAuthException catch (e) {
-
+      log(e.code);
 
       if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
-      } else if (e.code == 'wrong-password') {
+      } else if (e.code == 'invalid-credential') {
         throw WrongPasswordAuthException();
       } else if (e.code == 'invalid-email') {
         throw InvalidEmailAuthException();

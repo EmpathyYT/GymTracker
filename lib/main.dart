@@ -8,7 +8,6 @@ import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
 import 'package:gymtracker/views/login_page.dart';
 
-import 'helpers/loading/LoadingScreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,11 +41,11 @@ class HomePage extends StatelessWidget {
     context.read<AuthBloc>().add(const AuthEventInitialize());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.isLoading) {
-          LoadingScreen().show(context: context, text: state.loadingText);
-        } else {
-          LoadingScreen().hide();
-        }
+      //   if (state.isLoading) {
+      //     LoadingScreen().show(context: context, text: state.loadingText);
+      //   } else {
+      //     LoadingScreen().hide();
+      //   }
       },
       builder: (context, state) {
         if (state is AuthStateUnauthenticated) {

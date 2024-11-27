@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
 
@@ -56,43 +58,86 @@ class _LoginViewState extends State<LoginView> {
         }
       },
       child: Scaffold(
-
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                autocorrect: false,
-                controller: _email,
-                decoration: const InputDecoration(labelText: 'Email'),
-              ),
-              TextField(
-                autocorrect: false,
-                controller: _password,
-                decoration: const InputDecoration(labelText: 'Password'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context
-                      .read<AuthBloc>()
-                      .add(AuthEventSignIn(_email.text, _password.text));
-                },
-                child: const Text('Login'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(const AuthEventForgotPassword());
-                },
-                child: const Text('Forgot Password?'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(const AuthEventShouldRegister());
-                },
-                child: const Text('Register'),
-              ),
-            ],
-          ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 90,
+                      child: DefaultTextStyle(
+                        style: GoogleFonts.oswald(
+                          fontSize: 50,
+                        ),
+                        child: AnimatedTextKit(
+                          pause: const Duration(milliseconds: 400),
+                          repeatForever: true,
+                          animatedTexts: [
+                            RotateAnimatedText('CRUSH'),
+                            RotateAnimatedText('OR'),
+                            RotateAnimatedText('GET CRUSHED'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Add some space between the texts
+                  ],
+                ),
+                TextField(
+                  autocorrect: false,
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+                TextField(
+                  autocorrect: false,
+                  controller: _password,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  // Center the Row content
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        context
+                            .read<AuthBloc>()
+                            .add(AuthEventSignIn(_email.text, _password.text));
+                      },
+                      child:
+                          const Text('Login', style: TextStyle(fontSize: 20)),
+                    ),
+                  ],
+                ),
+              ],
+            )),
+        bottomNavigationBar:
+            BottomAppBar( child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 170,
+                  child: TextButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                    },
+                    child: const Text('Forgot Password', style: TextStyle(fontSize: 15)),
+                  ),
+                ),
+                SizedBox(
+                  width: 170,
+                  child: TextButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                    },
+                    child: const Text('Register', style: TextStyle(fontSize: 15)),
+                  ),
+                ),
+              ],
+            )
         ),
       ),
     );
