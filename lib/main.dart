@@ -6,7 +6,10 @@ import 'package:gymtracker/bloc/auth_state.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
+import 'package:gymtracker/views/forgot_password.dart';
 import 'package:gymtracker/views/login_page.dart';
+
+import 'views/register_page.dart';
 
 
 void main() {
@@ -54,10 +57,10 @@ class HomePage extends StatelessWidget {
           //   return const VerifyEmailPage();
           // } else if (state is AuthStateAuthenticated) {
           //   return const NotesView();
-          // } else if (state is AuthStateRegistering) {
-          //   return const RegisterPage();
-          // } else if (state is AuthStateForgotPassword) {
-          //   return const ForgotPasswordView();
+          } else if (state is AuthStateRegistering) {
+             return const RegisterPage();
+          } else if (state is AuthStateForgotPassword) {
+             return const ForgotPassword();
         } else {
           return const Scaffold(body: CircularProgressIndicator());
         }

@@ -26,7 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
-        emit(AuthStateUnauthenticated(
+        emit(AuthStateRegistering(
             exception: e as Exception, isLoading: false));
       }
     });
