@@ -8,7 +8,9 @@ import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
 import 'package:gymtracker/views/forgot_password.dart';
 import 'package:gymtracker/views/login_page.dart';
+import 'package:gymtracker/views/verify_email_page.dart';
 
+import 'helpers/loading/loading_dialog.dart';
 import 'views/register_page.dart';
 
 
@@ -44,18 +46,18 @@ class HomePage extends StatelessWidget {
     context.read<AuthBloc>().add(const AuthEventInitialize());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-      //   if (state.isLoading) {
-      //     LoadingScreen().show(context: context, text: state.loadingText);
-      //   } else {
-      //     LoadingScreen().hide();
-      //   }
+        if (true) {
+          LoadingScreen().show(context: context, text: state.loadingText);
+        } else {
+          LoadingScreen().hide();
+        }
       },
       builder: (context, state) {
         if (state is AuthStateUnauthenticated) {
           return const LoginView();
-          // } else if (state is AuthStateNeedsVerification) {
-          //   return const VerifyEmailPage();
-          // } else if (state is AuthStateAuthenticated) {
+           } else if (state is AuthStateNeedsVerification) {
+            return const VerifyEmailPage();
+          //} else if (state is AuthStateAuthenticated) {
           //   return const NotesView();
           } else if (state is AuthStateRegistering) {
              return const RegisterPage();

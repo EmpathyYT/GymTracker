@@ -86,6 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextField(
                   autocorrect: false,
+                  obscureText: true,
                   controller: _password,
                   decoration: const InputDecoration(labelText: 'Password'),
                 ),
