@@ -8,6 +8,7 @@ import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
 import 'package:gymtracker/views/forgot_password.dart';
 import 'package:gymtracker/views/login_page.dart';
+import 'package:gymtracker/views/main_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 
 import 'helpers/loading/loading_dialog.dart';
@@ -46,7 +47,7 @@ class HomePage extends StatelessWidget {
     context.read<AuthBloc>().add(const AuthEventInitialize());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (true) {
+        if (state.isLoading) {
           LoadingScreen().show(context: context, text: state.loadingText);
         } else {
           LoadingScreen().hide();
@@ -57,8 +58,8 @@ class HomePage extends StatelessWidget {
           return const LoginView();
            } else if (state is AuthStateNeedsVerification) {
             return const VerifyEmailPage();
-          //} else if (state is AuthStateAuthenticated) {
-          //   return const NotesView();
+          } else if (state is AuthStateAuthenticated) {
+              return const MainPage();
           } else if (state is AuthStateRegistering) {
              return const RegisterPage();
           } else if (state is AuthStateForgotPassword) {
