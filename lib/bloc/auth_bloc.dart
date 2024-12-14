@@ -1,8 +1,4 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
-import 'package:gymtracker/Exceptions/auth_exceptions.dart';
-
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';

@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
-import 'package:gymtracker/main.dart';
+import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
+import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,6 +16,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
+  String title = "";
+  Widget currentWidget = const Placeholder();
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +28,23 @@ class _MainPageState extends State<MainPage> {
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
+            title = "Squad Selector";
           } else if (state is AddWarrior) {
             currentIndex = 1;
+            title = "Add Warrior";
           } else if (state is NewSquad) {
             currentIndex = 2;
+            title = "Squad Creator";
           } else if (state is Settings) {
             currentIndex = 3;
+            title = "Settings";
           } else {
             currentIndex = 0;
           }
-
-
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                "Squad Selector",
+                title,
                 style: GoogleFonts.oswald(
                   fontSize: 30,
                 ),
@@ -63,11 +68,11 @@ class _MainPageState extends State<MainPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: () {
                   if (state is SquadSelector) {
-                    return const Text("Squad Selector");
+                    return const SquadSelectorWidget();
                   } else if (state is AddWarrior) {
                     return const Text("Add Warrior");
                   } else if (state is NewSquad) {
-                    return const Text("New Squad");
+                    return const SquadCreatorWidget();
                   } else if (state is Settings) {
                     return const Text("Settings");
                   } else {
