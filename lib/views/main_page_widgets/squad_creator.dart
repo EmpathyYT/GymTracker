@@ -14,24 +14,35 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          const Text("Squad Creator"),
-          const Text("Name:"),
-          TextFormField(),
-          const Text("Description:"),
-          TextFormField(),
-          const Text("Warriors:"),
-          TextFormField(),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState?.validate() ?? false) {
-                //TODO Create Squad
-              }
-            }, child: const Text("Create Squad"),
-          ),
-        ],
+      child: Align(
+        alignment: Alignment.topLeft, // Aligns the content to the top-left
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Ensures children align to the left within the Column
+          mainAxisSize: MainAxisSize.min, // Minimizes the Column's height
+          children: [
+            const Text("Name:"),
+            TextFormField(),
+            const SizedBox(height: 10), // Optional spacing between fields
+            const Text("Description:"),
+            TextFormField(),
+            const SizedBox(height: 10), // Optional spacing
+            const Text("Warriors:"),
+            TextFormField(),
+            const SizedBox(height: 20), // Optional spacing before button
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    // TODO Create Squad
+                  }
+                },
+                child: const Text("Create Squad"),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+
   }
 }
