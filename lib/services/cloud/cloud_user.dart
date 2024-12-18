@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gymtracker/services/cloud/cloud_squds.dart';
+import 'package:gymtracker/services/cloud/cloud_squads.dart';
 
 import 'cloud_contraints.dart';
 
