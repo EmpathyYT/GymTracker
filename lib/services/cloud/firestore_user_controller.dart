@@ -4,29 +4,27 @@ import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 import '../../exceptions/cloud_exceptions.dart';
 
-class FireStoreUserController {
+class FirestoreUserController {
   final users = FirebaseFirestore.instance.collection('users');
 
-  static final FireStoreUserController _instance = FireStoreUserController
-      ._internal();
+  static final FirestoreUserController _instance =
+      FirestoreUserController._internal();
 
-  FireStoreUserController._internal();
+  FirestoreUserController._internal();
 
-  factory FireStoreUserController() => _instance;
+  factory FirestoreUserController() => _instance;
 
   Future<void> createUser({
     required String userId,
     required String name,
     //required String photoUrl,
-
   }) async {
     try {
       await users.doc(userId).set({
-        'name': name,
-        'squads': [],
-        'friends': [],
-        'time_created': DateTime.now(),
-        'user_name': name,
+        squadFieldName: [],
+        friendsFieldName: [],
+        timeCreatedFieldName: DateTime.now(),
+        nameFieldName: name,
       });
     } catch (e) {
       throw CouldNotCreateUserException();
@@ -37,7 +35,6 @@ class FireStoreUserController {
     required String fieldName,
     required String userId,
     required dynamic value,
-
   }) async {
     try {
       switch (fieldName) {
@@ -59,8 +56,6 @@ class FireStoreUserController {
           });
           break;
       }
-
-
     } catch (e) {
       throw CouldNotUpdateUserException();
     }
@@ -73,15 +68,16 @@ class FireStoreUserController {
       throw CouldNotDeleteUserException();
     }
   }
-}
 
-Future<CloudUser> fetchUser(String userId) async {
-  final user = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-  return CloudUser(
-    name: user.data()![nameFieldName],
-    squads: user.data()![squadFieldName],
-    friends: user.data()![friendsFieldName],
-    timeCreated: user.data()![timeCreatedFieldName],
-    documentId: userId,
-  );
+  Future<CloudUser> fetchUser(String userId) async {
+    final user =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return CloudUser(
+      name: user.data()![nameFieldName],
+      squads: user.data()![squadFieldName],
+      friends: user.data()![friendsFieldName],
+      timeCreated: user.data()![timeCreatedFieldName],
+      documentId: userId,
+    );
+  }
 }

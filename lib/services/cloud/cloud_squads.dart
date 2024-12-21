@@ -8,7 +8,7 @@ import 'cloud_contraints.dart';
 class CloudSquad {
   final String documentId;
   final String name;
-  final List<CloudUser> members;
+  final List<String> members;
   final String timeCreated;
   final String ownerId;
 
@@ -20,11 +20,10 @@ class CloudSquad {
     required this.ownerId,
   });
 
-  CloudSquad.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
+  CloudSquad.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
-        name = snapshot.data()[squadNameFieldName] as String,
-        members = snapshot.data()[membersFieldName] as List<CloudUser>,
-        timeCreated = snapshot.data()[timeCreatedFieldName] as String,
-        ownerId = snapshot.data()[ownerUserFieldId] as String;
-
+        name = snapshot.data()?[squadNameFieldName] as String,
+        members = snapshot.data()?[membersFieldName] as List<String>,
+        timeCreated = snapshot.data()?[timeCreatedFieldName] as String,
+        ownerId = snapshot.data()?[ownerUserFieldId] as String;
 }
