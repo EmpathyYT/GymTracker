@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
@@ -71,3 +73,5 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+//TODO when making a request make the backend check for a user

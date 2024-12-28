@@ -29,15 +29,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   void _startEmailVerificationCheck() {
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      await AuthService.firebase().currentUser?.reload();
-      final user = AuthService.firebase().currentUser;
-      if (user!.isEmailVerified) {
-        timer.cancel();
-        setState(() {});
-        if (mounted) {
-          context.read<AuthBloc>().add(const AuthEventInitialize());
-        }
-      }
+      context.read<AuthBloc>().add(const AuthEventReloadUser());
     });
   }
 

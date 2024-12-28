@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +8,7 @@ import '../../firebase_options.dart';
 import 'auth_user.dart';
 
 class FirebaseAuthProvider implements AuthProvider {
+
   @override
   AuthUser? get currentUser {
     final user = FirebaseAuth.instance.currentUser;
@@ -22,11 +22,15 @@ class FirebaseAuthProvider implements AuthProvider {
   Future<AuthUser> createUser({
     required String email,
     required String password,
+    required String name,
   }) async {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      return AuthUser.fromFirebaseUser(userCredential.user!);
+
+      final user = AuthUser.fromFirebaseUser(userCredential.user!);
+
+      return user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw WeakPasswordAuthException();
@@ -97,9 +101,8 @@ class FirebaseAuthProvider implements AuthProvider {
   Future<void> sendPasswordReset({required String email}) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-
     } on FirebaseAuthException catch (e) {
-      switch(e.code) {
+      switch (e.code) {
         case 'firebase_auth/user-not-found':
           throw UserNotFoundAuthException();
         case 'firebase_auth/invalid-email':

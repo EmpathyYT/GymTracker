@@ -19,18 +19,21 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  late final TextEditingController _name;
 
   @override
   void initState() {
     super.initState();
     _email = TextEditingController();
     _password = TextEditingController();
+    _name = TextEditingController();
   }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _name.dispose();
     super.dispose();
   }
 
@@ -50,6 +53,9 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (state.exception is EmptyCredentialsAuthException) {
             await showErrorDialog(
                 context, "Email and Password cannot be empty.");
+          } else if (state.exception is InvalidUserNameFormatAuthException) {
+            await showErrorDialog(
+                context, "Invalid Username. Please try again.");
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(
                 context, "An error occurred. Please try again.");
@@ -71,13 +77,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: GoogleFonts.oswald(
                           fontSize: 30,
                         ),
-                        child: const Text(
-                            "Show them what you're made of"),
+                        child: const Text("Show them what you're made of"),
                       ),
                     ),
                     const SizedBox(width: 10),
                     // Add some space between the texts
                   ],
+                ),
+                TextField(
+                  autocorrect: false,
+                  controller: _name,
+                  decoration: const InputDecoration(labelText: 'User Name'),
                 ),
                 TextField(
                   autocorrect: false,
@@ -90,15 +100,18 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _password,
                   decoration: const InputDecoration(labelText: 'Password'),
                 ),
-                const SizedBox(width: 10, height: 10,),
+                const SizedBox(
+                  width: 10,
+                  height: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   // Center the Row content
                   children: [
                     TextButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(
-                            AuthEventRegister(_email.text, _password.text));
+                        context.read<AuthBloc>().add(AuthEventRegister(
+                            _email.text, _password.text, _name.text));
                       },
                       child: const Text('Register',
                           style: TextStyle(fontSize: 20)),

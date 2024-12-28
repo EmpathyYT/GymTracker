@@ -6,8 +6,6 @@ class WrongPasswordAuthException implements Exception {
   final String message = 'Wrong password';
 }
 
-
-
 class WeakPasswordAuthException implements Exception {
   final String message = 'Weak password';
 }
@@ -20,8 +18,6 @@ class InvalidEmailAuthException implements Exception {
   final String message = 'Invalid email';
 }
 
-
-
 class GenericAuthException implements Exception {
   final String message = 'An error occurred';
 }
@@ -32,4 +28,8 @@ class UserNotLoggedInException implements Exception {
 
 class EmptyCredentialsAuthException implements Exception {
   final String message = 'Please fill in the fields';
+}
+
+class InvalidUserNameFormatAuthException implements Exception {
+  final String message = 'Invalid username format';
 }

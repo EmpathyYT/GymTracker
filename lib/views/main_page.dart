@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +20,20 @@ class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
   String title = "";
   Widget currentWidget = const Placeholder();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    _startAuthCheck();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -108,4 +124,12 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
+
+
+  void _startAuthCheck() {
+    _timer = Timer.periodic(const Duration(seconds: 7), (timer) async {
+      context.read<AuthBloc>().add(const AuthEventReloadUser());
+    });
+  }
+
 }

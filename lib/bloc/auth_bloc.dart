@@ -1,10 +1,15 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/exceptions/auth_exceptions.dart';
+import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  late final FirestoreUserController userController;
+
   AuthBloc(AuthProvider provider)
       : super(const AuthStateUninitialized(isLoading: true)) {
     on<AuthEventSendEmailVerification>((event, emit) async {
@@ -12,19 +17,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(state);
     });
 
+    on<AuthEventReloadUser>((event, emit) async {
+      await provider.currentUser?.reload();
+      if (provider.currentUser == null) {
+        emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
+      } else {
+        if (provider.currentUser!.isEmailVerified) {
+          if (state is AuthStateNeedsVerification) {
+            emit(AuthStateAuthenticated(
+                user: provider.currentUser!, isLoading: false));
+          } else {
+            emit(state);
+          }
+        } else {
+          emit(const AuthStateNeedsVerification(isLoading: false));
+        }
+      }
+    });
+
     on<AuthEventRegister>((event, emit) async {
       final email = event.email;
       final password = event.password;
+      final name = event.name;
 
       try {
         emit(const AuthStateRegistering(exception: null, isLoading: true));
-        await provider.createUser(email: email, password: password);
+        checkValidUsername(name);
+        final user = await provider.createUser(
+            email: email, password: password, name: name);
+        await userController.createUser(userId: user.id, name: name);
         await provider.sendEmailVerification();
 
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
-        emit(AuthStateRegistering(
-            exception: e as Exception, isLoading: false));
+        emit(AuthStateRegistering(exception: e as Exception, isLoading: false));
       }
     });
 
@@ -34,8 +60,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventInitialize>((event, emit) async {
       await provider.initialize();
-
+      userController = FirestoreUserController();
       final user = provider.currentUser;
+
       if (user == null) {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } else if (!user.isEmailVerified) {
@@ -115,5 +142,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         hasSentEmail: didSendEmail,
       ));
     });
+  }
+
+  void checkValidUsername(String username) {
+    if (RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(username) &&
+        RegExp(r'[a-zA-Z]').allMatches(username).length >= 3 &&
+        username.length <= 15) {
+      return;
+    }
+    throw InvalidUserNameFormatAuthException();
   }
 }
