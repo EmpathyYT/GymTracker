@@ -1,3 +1,7 @@
+class GenericCloudException implements Exception {
+  final String message = 'An error occurred';
+}
+
 class CouldNotCreateUserException implements Exception {
   final String message = 'Could not create user';
 }
@@ -28,4 +32,12 @@ class CouldNotAddMemberToSquadException implements Exception {
 
 class CouldNotRemoveMemberFromSquadException implements Exception {
   final String message = 'Could not remove member from squad';
+}
+
+class ReachedSquadLimitException implements Exception {
+  final String message = 'Reached squad limit';
+}
+
+class CouldNotFetchSquadException implements Exception {
+  final String message = 'Could not fetch squad';
 }

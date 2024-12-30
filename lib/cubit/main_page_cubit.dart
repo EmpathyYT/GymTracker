@@ -1,10 +1,17 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
+import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
+import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 
 part 'main_page_state.dart';
 
 class MainPageCubit extends Cubit<MainPageState> {
   MainPageCubit() : super(const SquadSelector());
+  final FirestoreUserController _firestoreUserController =
+  FirestoreUserController();
+  final FirestoreSquadController _firestoreSquadController =
+  FirestoreSquadController();
+  final FirebaseAuthProvider _firebaseAuthProvider = FirebaseAuthProvider();
 
   void changePage(int index) {
     switch (index) {
@@ -22,6 +29,21 @@ class MainPageCubit extends Cubit<MainPageState> {
         break;
       default:
         emit(const SquadSelector());
+    }
+  }
+
+  Future<void> createSquad(
+      {required String name, required String description}) async {
+    final currentUser = _firebaseAuthProvider.currentUser;
+    try {
+      await _firestoreSquadController.createSquad(
+          name: name,
+          creatorId: currentUser!.id,
+          description: description
+      );
+      emit(state);
+    } catch (e) {
+      emit(SquadSelector(exception: e as Exception));
     }
   }
 }

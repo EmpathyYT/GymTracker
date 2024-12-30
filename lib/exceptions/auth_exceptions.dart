@@ -33,3 +33,7 @@ class EmptyCredentialsAuthException implements Exception {
 class InvalidUserNameFormatAuthException implements Exception {
   final String message = 'Invalid username format';
 }
+
+class UserAlreadyInSquadException implements Exception {
+  final String message = 'User already in squad';
+}

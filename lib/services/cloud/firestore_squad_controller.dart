@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 
@@ -9,7 +10,7 @@ class FirestoreSquadController {
   final squads = FirebaseFirestore.instance.collection('squads');
 
   static final FirestoreSquadController _instance =
-      FirestoreSquadController._internal();
+  FirestoreSquadController._internal();
 
   FirestoreSquadController._internal();
 
@@ -18,14 +19,24 @@ class FirestoreSquadController {
   Future<void> createSquad({
     required String name,
     required String creatorId,
+    required String description,
   }) async {
     try {
-      await squads.doc().set({
+      if (await reachedSquadLimit(userId: creatorId)) {
+        throw ReachedSquadLimitException();
+      }
+      final squadSnapshot = await squads.add({
         squadNameFieldName: name,
         ownerUserFieldId: creatorId,
         membersFieldName: [],
         timeCreatedFieldName: DateTime.now(),
+        squadDescriptionFieldName: description,
       });
+
+      final squad = CloudSquad.fromSnapshot(await squadSnapshot.get());
+
+      await addUserToSquad(squadId: squad.documentId, memberId: squad.ownerId);
+
     } catch (e) {
       throw CouldNotCreateSquadException();
     }
@@ -66,17 +77,24 @@ class FirestoreSquadController {
   }) async {
     try {
       await squads.doc(squadId).delete();
-
     } catch (e) {
       throw CouldNotDeleteSquadException();
     }
   }
 
-  Future<void> addMemberToSquad({
+  Future<void> addUserToSquad({
     required String squadId,
     required String memberId,
   }) async {
     try {
+      if (await isUserInSquad(squadId: squadId, userId: memberId)) {
+        throw UserAlreadyInSquadException();
+      }
+
+      if (await reachedSquadLimit(userId: memberId)) {
+        throw ReachedSquadLimitException();
+      }
+
       final squad = await squads.doc(squadId).get();
       final members = squad.get(membersFieldName) as List<String>;
       members.add(memberId);
@@ -116,11 +134,11 @@ class FirestoreSquadController {
       await userController.updateUser(
         fieldName: squadFieldName,
         userId: memberId,
-        value: (await userController.fetchUser(memberId)).squads
+        value: (await userController.fetchUser(memberId))
+            .squads
             .where((element) => element != squadId)
             .toList(),
       );
-
     } catch (e) {
       throw CouldNotRemoveMemberFromSquadException();
     }
@@ -148,8 +166,32 @@ class FirestoreSquadController {
       final squad = await squads.doc(squadId).get();
       return CloudSquad.fromSnapshot(squad);
     } catch (e) {
-      throw CouldNotDeleteSquadException();
+      throw CouldNotFetchSquadException();
     }
   }
 
+  Future<bool> isUserInSquad({
+    required String squadId,
+    required String userId,
+  }) async {
+    try {
+      final squad = await squads.doc(squadId).get();
+      final members = squad.get(membersFieldName) as List<String>;
+      return members.contains(userId);
+    } catch (e) {
+      throw GenericCloudException();
+    }
+  }
+
+  Future<bool> reachedSquadLimit({
+    required String userId,
+  }) async {
+    try {
+      final userController = FirestoreUserController();
+      final user = await userController.fetchUser(userId);
+      return user.squadLimit >= user.squads.length;
+    } catch (e) {
+      throw GenericCloudException();
+    }
+  }
 }

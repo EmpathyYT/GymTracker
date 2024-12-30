@@ -14,7 +14,7 @@ class FirestoreUserController {
 
   factory FirestoreUserController() => _instance;
 
-  Future<void> createUser({
+  Future<CloudUser> createUser({
     required String userId,
     required String name,
     //required String photoUrl,
@@ -25,7 +25,18 @@ class FirestoreUserController {
         friendsFieldName: [],
         timeCreatedFieldName: DateTime.now(),
         nameFieldName: name,
+        squadLimitFieldName: standardSquadLimit,
       });
+
+      return CloudUser(
+        name: name,
+        squads: const [],
+        friends: const [],
+        timeCreated: DateTime.now().toIso8601String(),
+        documentId: userId,
+        squadLimit: standardSquadLimit,
+      );
+
     } catch (e) {
       throw CouldNotCreateUserException();
     }
@@ -78,6 +89,7 @@ class FirestoreUserController {
       friends: user.data()![friendsFieldName],
       timeCreated: user.data()![timeCreatedFieldName],
       documentId: userId,
+      squadLimit: user.data()![squadLimitFieldName],
     );
   }
 }

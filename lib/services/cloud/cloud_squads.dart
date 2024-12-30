@@ -10,6 +10,7 @@ class CloudSquad {
   final List<String> members;
   final String timeCreated;
   final String ownerId;
+  final String description;
 
   const CloudSquad({
     required this.documentId,
@@ -17,6 +18,7 @@ class CloudSquad {
     required this.members,
     required this.timeCreated,
     required this.ownerId,
+    required this.description,
   });
 
   CloudSquad.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
@@ -24,5 +26,6 @@ class CloudSquad {
         name = snapshot.data()?[squadNameFieldName] as String,
         members = snapshot.data()?[membersFieldName] as List<String>,
         timeCreated = snapshot.data()?[timeCreatedFieldName] as String,
-        ownerId = snapshot.data()?[ownerUserFieldId] as String;
+        ownerId = snapshot.data()?[ownerUserFieldId] as String,
+        description = snapshot.data()?[squadDescriptionFieldName] as String;
 }
