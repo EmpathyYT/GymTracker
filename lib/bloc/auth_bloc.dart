@@ -8,7 +8,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  late final FirestoreUserController userController;
+  FirestoreUserController? userController;
 
   AuthBloc(AuthProvider provider)
       : super(const AuthStateUninitialized(isLoading: true)) {
@@ -45,7 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         checkValidUsername(name);
         final user = await provider.createUser(
             email: email, password: password, name: name);
-        await userController.createUser(userId: user.id, name: name);
+        await userController!.createUser(userId: user.id, name: name);
         await provider.sendEmailVerification();
 
         emit(const AuthStateNeedsVerification(isLoading: false));
@@ -60,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventInitialize>((event, emit) async {
       await provider.initialize();
-      userController = FirestoreUserController();
+      userController ??= FirestoreUserController();
       final user = provider.currentUser;
 
       if (user == null) {

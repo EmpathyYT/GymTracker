@@ -41,3 +41,7 @@ class ReachedSquadLimitException implements Exception {
 class CouldNotFetchSquadException implements Exception {
   final String message = 'Could not fetch squad';
 }
+
+class InvalidSquadEntriesException implements Exception {
+  final String message = 'Invalid squad entries';
+}

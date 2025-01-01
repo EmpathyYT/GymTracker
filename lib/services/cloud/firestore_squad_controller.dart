@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
@@ -10,7 +12,7 @@ class FirestoreSquadController {
   final squads = FirebaseFirestore.instance.collection('squads');
 
   static final FirestoreSquadController _instance =
-  FirestoreSquadController._internal();
+      FirestoreSquadController._internal();
 
   FirestoreSquadController._internal();
 
@@ -25,18 +27,25 @@ class FirestoreSquadController {
       if (await reachedSquadLimit(userId: creatorId)) {
         throw ReachedSquadLimitException();
       }
+
+      if (!validSquadEntries(name: name, description: description)) {
+        throw InvalidSquadEntriesException();
+      }
+
       final squadSnapshot = await squads.add({
         squadNameFieldName: name,
         ownerUserFieldId: creatorId,
         membersFieldName: [],
-        timeCreatedFieldName: DateTime.now(),
+        timeCreatedFieldName: Timestamp.now(),
         squadDescriptionFieldName: description,
       });
-
       final squad = CloudSquad.fromSnapshot(await squadSnapshot.get());
 
       await addUserToSquad(squadId: squad.documentId, memberId: squad.ownerId);
-
+    } on ReachedSquadLimitException {
+      throw ReachedSquadLimitException();
+    } on InvalidSquadEntriesException {
+      throw InvalidSquadEntriesException();
     } catch (e) {
       throw CouldNotCreateSquadException();
     }
@@ -68,6 +77,7 @@ class FirestoreSquadController {
           break;
       }
     } catch (e) {
+      log(e.toString());
       throw CouldNotUpdateSquadException();
     }
   }
@@ -96,7 +106,9 @@ class FirestoreSquadController {
       }
 
       final squad = await squads.doc(squadId).get();
-      final members = squad.get(membersFieldName) as List<String>;
+      final members = (squad.get(membersFieldName) as List<dynamic>?)
+              ?.map((e) => e as String).toList() ??
+          [];
       members.add(memberId);
       await updateSquad(
         fieldName: membersFieldName,
@@ -110,8 +122,8 @@ class FirestoreSquadController {
         userId: memberId,
         value: [...(await userController.fetchUser(memberId)).squads, squadId],
       );
-
     } catch (e) {
+      log(e.toString());
       throw CouldNotAddMemberToSquadException();
     }
   }
@@ -176,7 +188,9 @@ class FirestoreSquadController {
   }) async {
     try {
       final squad = await squads.doc(squadId).get();
-      final members = squad.get(membersFieldName) as List<String>;
+      final members = (squad.get(membersFieldName) as List<dynamic>?)
+              ?.map((e) => e as String).toList() ??
+          [];
       return members.contains(userId);
     } catch (e) {
       throw GenericCloudException();
@@ -189,9 +203,17 @@ class FirestoreSquadController {
     try {
       final userController = FirestoreUserController();
       final user = await userController.fetchUser(userId);
-      return user.squadLimit >= user.squads.length;
+      return !(user.squadLimit >= user.squads.length);
     } catch (e) {
       throw GenericCloudException();
     }
   }
+
+  bool validSquadEntries({required String name, required String description}) {
+    return name.isNotEmpty &&
+        description.isNotEmpty &&
+        name.length <= 20 &&
+        description.split(" ").length <= 100;
+  }
+
 }

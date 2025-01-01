@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/services/cloud/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
@@ -32,7 +34,7 @@ class FirestoreUserController {
         name: name,
         squads: const [],
         friends: const [],
-        timeCreated: DateTime.now().toIso8601String(),
+        timeCreated: Timestamp.now(),
         documentId: userId,
         squadLimit: standardSquadLimit,
       );
@@ -82,14 +84,8 @@ class FirestoreUserController {
 
   Future<CloudUser> fetchUser(String userId) async {
     final user =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    return CloudUser(
-      name: user.data()![nameFieldName],
-      squads: user.data()![squadFieldName],
-      friends: user.data()![friendsFieldName],
-      timeCreated: user.data()![timeCreatedFieldName],
-      documentId: userId,
-      squadLimit: user.data()![squadLimitFieldName],
-    );
+        await users.doc(userId).get();
+
+    return CloudUser.fromSnapshot(user);
   }
 }

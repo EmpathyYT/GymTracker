@@ -9,7 +9,7 @@ class CloudUser with EquatableMixin {
   final List<String> friends;
   final List<String> squads;
   final String name;
-  final String timeCreated;
+  final Timestamp timeCreated;
   final int squadLimit;
 
   const CloudUser({
@@ -24,9 +24,13 @@ class CloudUser with EquatableMixin {
   CloudUser.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
         name = snapshot.data()?[nameFieldName] as String,
-        friends = snapshot.data()?[friendsFieldName] as List<String>,
-        timeCreated = snapshot.data()?[timeCreatedFieldName] as String,
-        squads = snapshot.data()?[squadFieldName] as List<String>,
+        friends = (snapshot.data()?[friendsFieldName] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList() ?? [],
+        timeCreated = snapshot.data()?[timeCreatedFieldName] as Timestamp,
+        squads = (snapshot.data()?[squadFieldName] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList() ?? [],
         squadLimit = snapshot.data()?[squadLimitFieldName] as int;
 
   @override

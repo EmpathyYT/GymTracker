@@ -16,6 +16,7 @@ class LoadingScreen {
     _controller = null;
   }
 
+
   void show({required BuildContext context, required String text}) {
     if (_controller?.update(text) ?? false) {
       return;
@@ -81,7 +82,7 @@ class LoadingScreen {
       },
       update: (String text) {
         text0.add(text);
-        return false;
+        return true;
       },
     );
   }

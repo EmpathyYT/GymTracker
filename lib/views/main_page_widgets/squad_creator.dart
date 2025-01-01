@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
+import 'package:gymtracker/helpers/loading/loading_controller.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 
 import '../../cubit/main_page_cubit.dart';
+import '../../helpers/loading/loading_dialog.dart';
 
 class SquadCreatorWidget extends StatefulWidget {
   const SquadCreatorWidget({super.key});
@@ -36,12 +40,23 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
   Widget build(BuildContext context) {
     return BlocListener<MainPageCubit, MainPageState>(
       listener: (context, state) async {
+        if (state.isLoading) {
+          if (context.mounted) {
+            LoadingScreen().show(context: context, text: "Creating Squad...");
+          }
+        } else {
+          LoadingScreen().hide();
+        }
+
         if (state.exception is ReachedSquadLimitException) {
           await showErrorDialog(context,
               "You reached the limit of squads you can create or join for your current plan.");
         } else if (state.exception is CouldNotCreateSquadException) {
           await showErrorDialog(
               context, "Could not create squad. Please try again.");
+        } else if (state.exception is InvalidSquadEntriesException) {
+          await showErrorDialog(
+              context, "Invalid squad entries. Please try again.");
         } else if (state.exception is Exception) {
           await showErrorDialog(
               context, "An error occurred. Please try again.");
@@ -77,6 +92,7 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
                           );
                       _nameController.clear();
                       _descriptionController.clear();
+                      //TODO if it succeeds make it teleport to the squad
                     }
                   },
                   child: const Text("Create Squad"),

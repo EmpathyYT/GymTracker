@@ -127,7 +127,7 @@ class _MainPageState extends State<MainPage> {
 
 
   void _startAuthCheck() {
-    _timer = Timer.periodic(const Duration(seconds: 7), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       context.read<AuthBloc>().add(const AuthEventReloadUser());
     });
   }

@@ -34,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _email.dispose();
     _password.dispose();
     _name.dispose();
+
     super.dispose();
   }
 
