@@ -42,7 +42,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       try {
         emit(const AuthStateRegistering(exception: null, isLoading: true));
-        checkValidUsername(name);
+        if (!await checkValidUsername(name)) {
+         throw InvalidUserNameFormatAuthException();
+        }
         final user = await provider.createUser(
             email: email, password: password, name: name);
         await userController!.createUser(userId: user.id, name: name);
@@ -144,12 +146,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  void checkValidUsername(String username) {
-    if (RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(username) &&
+  Future<bool> checkValidUsername(String username) async {
+    return RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(username) &&
         RegExp(r'[a-zA-Z]').allMatches(username).length >= 3 &&
-        username.length <= 15) {
-      return;
-    }
-    throw InvalidUserNameFormatAuthException();
+        username.length <= 15 &&
+        await userController!.userExists(username);
   }
 }

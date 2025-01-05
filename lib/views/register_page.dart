@@ -56,7 +56,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 context, "Email and Password cannot be empty.");
           } else if (state.exception is InvalidUserNameFormatAuthException) {
             await showErrorDialog(
-                context, "Invalid Username. Please try again.");
+            context, "Invalid Username. Please try again.");
+          } else if (state.exception is InvalidUserNameFormatAuthException) {
+            await showErrorDialog(
+              context, "Username already used. Please use another username.");
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(
                 context, "An error occurred. Please try again.");

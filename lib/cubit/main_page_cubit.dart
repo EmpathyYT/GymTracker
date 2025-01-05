@@ -38,7 +38,7 @@ class MainPageCubit extends Cubit<MainPageState> {
       {required String name, required String description}) async {
     final currentUser = _firebaseAuthProvider.currentUser;
     try {
-      emit(const NewSquad(isLoading: true));
+      emit(const NewSquad(isLoading: true, loadingText: "Creating Squad..."));
       await _firestoreSquadController.createSquad(
           name: name,
           creatorId: currentUser!.id,

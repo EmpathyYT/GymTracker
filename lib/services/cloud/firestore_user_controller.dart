@@ -83,9 +83,23 @@ class FirestoreUserController {
   }
 
   Future<CloudUser> fetchUser(String userId) async {
-    final user =
-        await users.doc(userId).get();
+    final user = await users.doc(userId).get();
+
 
     return CloudUser.fromSnapshot(user);
+  }
+
+  Future<bool> userExists(String userName) {
+    return users.where(nameFieldName, isEqualTo: userName).get().then((value) {
+      return value.docs.isNotEmpty;
+    });
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(String userName) {
+    return users
+        .where("username", isGreaterThanOrEqualTo: userName)
+        .where("username", isLessThanOrEqualTo: '$userName\uf8ff')
+        .snapshots();
+
   }
 }

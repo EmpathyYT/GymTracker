@@ -6,8 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
+
+import '../helpers/loading/loading_dialog.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -39,7 +42,14 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MainPageCubit(),
-      child: BlocBuilder<MainPageCubit, MainPageState>(
+      child: BlocConsumer<MainPageCubit, MainPageState>(
+        listener: (context, state) {
+          if (state.isLoading) {
+              LoadingScreen().show(context: context, text: state.loadingText);
+          } else {
+            LoadingScreen().hide();
+          }
+        },
         builder: (context, state) {
           int currentIndex;
           if (state is SquadSelector) {
@@ -86,7 +96,7 @@ class _MainPageState extends State<MainPage> {
                   if (state is SquadSelector) {
                     return const SquadSelectorWidget();
                   } else if (state is AddWarrior) {
-                    return const Text("Add Warrior");
+                    return const AddWarriorWidget();
                   } else if (state is NewSquad) {
                     return const SquadCreatorWidget();
                   } else if (state is Settings) {
