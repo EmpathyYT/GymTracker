@@ -22,6 +22,7 @@ class FirestoreUserController {
     //required String photoUrl,
   }) async {
     try {
+      name = name.trim().toLowerCase();
       await users.doc(userId).set({
         squadFieldName: [],
         friendsFieldName: [],
@@ -97,8 +98,8 @@ class FirestoreUserController {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(String userName) {
     return users
-        .where("username", isGreaterThanOrEqualTo: userName)
-        .where("username", isLessThanOrEqualTo: '$userName\uf8ff')
+        .where("user_name", isGreaterThanOrEqualTo: userName)
+        .where("user_name", isLessThanOrEqualTo: '$userName\uf8ff')
         .snapshots();
 
   }
