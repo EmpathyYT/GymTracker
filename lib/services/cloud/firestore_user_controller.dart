@@ -100,6 +100,7 @@ class FirestoreUserController {
     return users
         .where("user_name", isGreaterThanOrEqualTo: userName)
         .where("user_name", isLessThanOrEqualTo: '$userName\uf8ff')
+        .limit(7)
         .snapshots();
 
   }

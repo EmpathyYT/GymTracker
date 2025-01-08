@@ -2,7 +2,9 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gymtracker/services/cloud/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:gymtracker/utils/dialogs/user_info_card_dialog.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AddWarriorWidget extends StatefulWidget {
@@ -84,9 +86,22 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     final user = users[index];
+
                     return ListTile(
-                      title: Text(user.data()['user_name']),
-                      onTap: () {},
+                      title: Text(user.data()[nameFieldName],),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.person_add),
+                        onPressed: () {
+
+                        },
+
+                      ),
+                      onTap: () async {
+                        await showUserCard(
+                          context: context,
+                          userData: user.data(),
+                        );
+                      },
                     );
                   },
                 );
