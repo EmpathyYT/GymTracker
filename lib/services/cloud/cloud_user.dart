@@ -11,6 +11,8 @@ class CloudUser with EquatableMixin {
   final String name;
   final Timestamp timeCreated;
   final int squadLimit;
+  final String bio;
+  final int level;
 
   const CloudUser({
     required this.documentId,
@@ -19,6 +21,8 @@ class CloudUser with EquatableMixin {
     required this.friends,
     required this.timeCreated,
     required this.squadLimit,
+    required this.bio,
+    required this.level,
   });
 
   CloudUser.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
@@ -31,7 +35,11 @@ class CloudUser with EquatableMixin {
         squads = (snapshot.data()?[squadFieldName] as List<dynamic>?)
             ?.map((e) => e as String)
             .toList() ?? [],
-        squadLimit = snapshot.data()?[squadLimitFieldName] as int;
+        squadLimit = snapshot.data()?[squadLimitFieldName] as int,
+        bio = snapshot.data()?[bioFieldName] as String,
+        level = snapshot.data()?[levelFieldName] as int;
+
+
 
   @override
   List<Object?> get props => [documentId, name, squads, friends, timeCreated];

@@ -45,3 +45,15 @@ class CouldNotFetchSquadException implements Exception {
 class InvalidSquadEntriesException implements Exception {
   final String message = 'Invalid squad entries';
 }
+
+class CouldNotAddFriendException implements Exception {
+  final String message = 'Could not add friend';
+}
+
+class UserAlreadyFriendException implements Exception {
+  final String message = 'User already a friend';
+}
+
+class AlreadySentFriendRequestException implements Exception {
+  final String message = 'Already sent friend request';
+}

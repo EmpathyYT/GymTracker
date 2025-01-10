@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
@@ -10,9 +8,9 @@ part 'main_page_state.dart';
 class MainPageCubit extends Cubit<MainPageState> {
   MainPageCubit() : super(const SquadSelector());
   final FirestoreUserController _firestoreUserController =
-  FirestoreUserController();
+      FirestoreUserController();
   final FirestoreSquadController _firestoreSquadController =
-  FirestoreSquadController();
+      FirestoreSquadController();
   final FirebaseAuthProvider _firebaseAuthProvider = FirebaseAuthProvider();
 
   void changePage(int index) {
@@ -34,23 +32,33 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-  Future<void> createSquad(
-      {required String name, required String description}) async {
+  Future<void> createSquad({
+    required String name,
+    required String description,
+  }) async {
     final currentUser = _firebaseAuthProvider.currentUser;
     try {
       emit(const NewSquad(isLoading: true, loadingText: "Creating Squad..."));
       await _firestoreSquadController.createSquad(
-          name: name,
-          creatorId: currentUser!.id,
-          description: description
-      );
+          name: name, creatorId: currentUser!.id, description: description);
       emit(const NewSquad());
     } catch (e) {
       emit(NewSquad(exception: e as Exception));
     }
   }
 
-
-
-
+  Future<void> addUserReq({
+    required String userToAddId,
+  }) async {
+    try {
+      emit(const AddWarrior(isLoading: true, loadingText: "Adding Warrior..."));
+      await _firestoreUserController.sendFriendReq(
+          userId: _firebaseAuthProvider.currentUser!.id,
+          friendId: userToAddId
+      );
+      emit(const AddWarrior(success: true));
+    } catch (e) {
+      emit(AddWarrior(exception: e as Exception));
+    }
+  }
 }
