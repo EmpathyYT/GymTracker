@@ -3,6 +3,7 @@ import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
+import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
@@ -141,8 +142,9 @@ class FirestoreUserController {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(String userName) {
     return users
-        .where("user_name", isGreaterThanOrEqualTo: userName)
-        .where("user_name", isLessThanOrEqualTo: '$userName\uf8ff')
+        .where(nameFieldName, isGreaterThanOrEqualTo: userName)
+        .where(nameFieldName, isLessThanOrEqualTo: '$userName\uf8ff')
+        .where(FieldPath.documentId, isNotEqualTo: FirebaseAuthProvider().currentUser!.id)
         .limit(7)
         .snapshots();
 

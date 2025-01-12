@@ -101,7 +101,6 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                   }
 
                   final users = snapshot.data!.docs;
-                  //TODO not let your user appear
                   if (users.isEmpty) {
                     return const Center(
                       child: Text('No users found'),
