@@ -169,12 +169,10 @@ class FirestoreUserController {
         value: [...userFriends, userId],
       );
 
+    } on AlreadySentFriendRequestException {
+      rethrow;
     } catch (e) {
-      if (e is AlreadySentFriendRequestException) {
-        rethrow;
-      } else {
-        throw GenericCloudException();
-      }
+      throw GenericCloudException();
     }
   }
 

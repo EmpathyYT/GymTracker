@@ -41,11 +41,12 @@ Future<void> showUserCard({
                 ),
                 borderRadius: BorderRadius.circular(4.0),
               ),
-              child: const Text("Bio Area",
+              child: Text(userData[bioFieldName] ?? 'No bio',
                 textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 18,
+                style: const TextStyle(
+                  fontSize: 16,
                   fontWeight: FontWeight.w100,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ),
