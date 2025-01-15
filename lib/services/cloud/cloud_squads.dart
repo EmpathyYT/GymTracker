@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'cloud_contraints.dart';
+import '../../constants/cloud_contraints.dart';
 
 @immutable
 class CloudSquad {

@@ -6,7 +6,7 @@ import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 
 import '../../exceptions/cloud_exceptions.dart';
-import 'cloud_contraints.dart';
+import '../../constants/cloud_contraints.dart';
 
 class FirestoreSquadController {
   final squads = FirebaseFirestore.instance.collection('squads');

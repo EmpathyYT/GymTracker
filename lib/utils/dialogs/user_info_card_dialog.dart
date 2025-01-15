@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gymtracker/services/cloud/cloud_contraints.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 
 typedef AddUserAction = void Function();
 

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
-import 'package:gymtracker/services/cloud/cloud_contraints.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 import 'package:gymtracker/utils/dialogs/success_dialog.dart';

@@ -4,7 +4,7 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
-import 'package:gymtracker/services/cloud/cloud_contraints.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 import '../../exceptions/cloud_exceptions.dart';
@@ -36,16 +36,7 @@ class FirestoreUserController {
         levelFieldName: 1,
       });
 
-      return CloudUser(
-        name: name,
-        squads: const [],
-        friends: const [],
-        timeCreated: Timestamp.now(),
-        documentId: userId,
-        squadLimit: standardSquadLimit,
-        bio: '',
-        level: 1,
-      );
+      return CloudUser.newUser(userId, name);
 
     } catch (e) {
       throw CouldNotCreateUserException();

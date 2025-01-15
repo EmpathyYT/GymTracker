@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
+import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/extensions/map_extension.dart';
 import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
@@ -20,16 +22,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int currentIndex = 0;
+  final Map<String, List<String>> notifications = {};
+  final int currentIndex = 0;
   String title = "";
-  Widget currentWidget = const Placeholder();
   Timer? _timer;
-
-  @override
-  void initState() {
-    _startAuthCheck();
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -51,6 +47,9 @@ class _MainPageState extends State<MainPage> {
           }
         },
         builder: (context, state) {
+          if (_timer == null) {
+            _startAppLoop(state);
+          }
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
@@ -80,7 +79,10 @@ class _MainPageState extends State<MainPage> {
                     icon: const Icon(Icons.notifications),
                     iconSize: 30,
                     onPressed: () {
-                      //TODO Add Notifications
+                      Navigator.of(context).pushNamed(
+                          notificationsRoute,
+                          arguments: notifications
+                      );
                     }),
                 IconButton(
                     icon: const Icon(Icons.logout),
@@ -136,10 +138,17 @@ class _MainPageState extends State<MainPage> {
   }
 
 
-  void _startAuthCheck() {
+  void _startAppLoop(MainPageState state) {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       context.read<AuthBloc>().add(const AuthEventReloadUser());
+      final notifs = await context.read<MainPageCubit>().getNotifications();
+      final notifDiff = notifs.difference(notifications);
+      if (notifDiff.isNotEmpty && mounted) {
+        context.read<MainPageCubit>().newNotifications(state, notifDiff);
+      }
     });
   }
+
+
 
 }

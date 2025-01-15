@@ -1,0 +1,1 @@
+const notificationsRoute = "main_page/notifications";

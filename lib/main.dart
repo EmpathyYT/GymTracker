@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
+import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
@@ -14,6 +15,7 @@ import 'package:gymtracker/views/main_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 
 import 'helpers/loading/loading_dialog.dart';
+import 'views/main_page_widgets/routes/notifications.dart';
 import 'views/register_page.dart';
 
 
@@ -37,6 +39,9 @@ class MyApp extends StatelessWidget {
         create: (context) => AuthBloc(FirebaseAuthProvider()),
         child: const HomePage(),
       ),
+      routes: {
+        notificationsRoute: (context) => const NotificationsRoute(),
+      },
     );
   }
 }

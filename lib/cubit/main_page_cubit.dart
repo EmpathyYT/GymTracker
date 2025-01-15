@@ -53,12 +53,29 @@ class MainPageCubit extends Cubit<MainPageState> {
     try {
       emit(const AddWarrior(isLoading: true, loadingText: "Adding Warrior..."));
       await _firestoreUserController.sendFriendReq(
-          userId: _firebaseAuthProvider.currentUser!.id,
-          friendId: userToAddId
-      );
+          userId: _firebaseAuthProvider.currentUser!.id, friendId: userToAddId);
       emit(const AddWarrior(success: true));
     } catch (e) {
       emit(AddWarrior(exception: e as Exception));
     }
+  }
+
+  Future<Map<String, List<String>>> getNotifications() async {
+    final Map<String, List<String>> notifications = {};
+
+    notifications['FRQ'] = await getFriendRequests();
+    //notifications['SRQ'] = await getServerAddRequests();
+    return notifications;
+  }
+
+  Future<List<String>> getFriendRequests() async {
+    final user = await _firestoreUserController
+        .fetchUser(_firebaseAuthProvider.currentUser!.id);
+    return user.pendingFrq;
+
+  }
+
+  void newNotifications(MainPageState state, Map<String, List<String>> notifDiff) {
+    emit(state.copyWith(notifications: notifDiff));
   }
 }
