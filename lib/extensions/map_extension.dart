@@ -3,7 +3,7 @@ extension MapDifference<T> on Map<String, List<T>> {
     final Map<String, List<T>> differences = {};
 
     forEach((key, value) {
-      final otherList = map2[key] ?? []; // Handle missing keys by defaulting to an empty list
+      final otherList = map2[key] ?? [];
       final difference = value.toSet().difference(otherList.toSet()).toList();
       differences[key] = difference;
     });

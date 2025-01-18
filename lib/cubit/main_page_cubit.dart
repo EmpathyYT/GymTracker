@@ -3,6 +3,8 @@ import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 
+import '../constants/cloud_contraints.dart';
+
 part 'main_page_state.dart';
 
 class MainPageCubit extends Cubit<MainPageState> {
@@ -63,8 +65,8 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<Map<String, List<String>>> getNotifications() async {
     final Map<String, List<String>> notifications = {};
 
-    notifications['FRQ'] = await getFriendRequests();
-    //notifications['SRQ'] = await getServerAddRequests();
+    notifications[pendingFRQFieldName] = await getFriendRequests();
+    //notifications[pendingSquadReqFieldName] = await getServerAddRequests();
     return notifications;
   }
 
