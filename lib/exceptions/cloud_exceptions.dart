@@ -42,6 +42,10 @@ class CouldNotFetchSquadException implements Exception {
   final String message = 'Could not fetch squad';
 }
 
+class CouldNotFetchUserException implements Exception {
+  final String message = 'Could not fetch user';
+}
+
 class InvalidSquadEntriesException implements Exception {
   final String message = 'Invalid squad entries';
 }
@@ -56,4 +60,8 @@ class UserAlreadyFriendException implements Exception {
 
 class AlreadySentFriendRequestException implements Exception {
   final String message = 'Already sent friend request';
+}
+
+class CouldNotDeleteFriendRequestException implements Exception {
+  final String message = 'Could not delete friend request';
 }

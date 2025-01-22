@@ -71,10 +71,9 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   Future<List<String>> getFriendRequests() async {
-    final user = await _firestoreUserController
-        .fetchUser(_firebaseAuthProvider.currentUser!.id);
-    return user.pendingFrq;
-
+    return _firestoreUserController.fetchUserFriendRequests(
+        _firebaseAuthProvider.currentUser!.id
+    );
   }
 
   void newNotifications(MainPageState state, Map<String, List<String>> notifDiff) {

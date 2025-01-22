@@ -88,7 +88,7 @@ class FirestoreSquadController {
     try {
       await squads.doc(squadId).delete();
     } catch (e) {
-      throw CouldNotDeleteSquadException();
+      throw CouldNotDeleteSquadException(); // TODO make this delete the squad from the user too
     }
   }
 
@@ -117,11 +117,7 @@ class FirestoreSquadController {
       );
 
       final userController = FirestoreUserController();
-      await userController.updateUser(
-        fieldName: squadFieldName,
-        userId: memberId,
-        value: [...(await userController.fetchUser(memberId)).squads, squadId],
-      );
+      userController.addSquad(memberId, squadId);
     } catch (e) {
       log(e.toString());
       throw CouldNotAddMemberToSquadException();
@@ -143,14 +139,7 @@ class FirestoreSquadController {
       );
 
       final userController = FirestoreUserController();
-      await userController.updateUser(
-        fieldName: squadFieldName,
-        userId: memberId,
-        value: (await userController.fetchUser(memberId))
-            .squads
-            .where((element) => element != squadId)
-            .toList(),
-      );
+      await userController.removeSquad(memberId, squadId);
     } catch (e) {
       throw CouldNotRemoveMemberFromSquadException();
     }
@@ -202,8 +191,8 @@ class FirestoreSquadController {
   }) async {
     try {
       final userController = FirestoreUserController();
-      final user = await userController.fetchUser(userId);
-      return !(user.squadLimit >= user.squads.length);
+      final user = await userController.fetchUser(userId, isPersonal: true);
+      return !(user.squadLimit >= user.squads!.length);
     } catch (e) {
       throw GenericCloudException();
     }

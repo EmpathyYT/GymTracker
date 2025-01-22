@@ -1,10 +1,6 @@
-import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gymtracker/exceptions/auth_exceptions.dart';
-import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
+import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 import '../../exceptions/cloud_exceptions.dart';
@@ -27,8 +23,6 @@ class FirestoreUserController {
     try {
       name = name.trim().toLowerCase();
       await users.doc(userId).set({
-        squadFieldName: [],
-        friendsFieldName: [],
         timeCreatedFieldName: DateTime.now(),
         nameFieldName: name,
         squadLimitFieldName: standardSquadLimit,
@@ -36,8 +30,16 @@ class FirestoreUserController {
         levelFieldName: 1,
       });
 
-      return CloudUser.newUser(userId, name);
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(sensitiveInformationDocumentName)
+          .set({
+        squadFieldName: [],
+        friendsFieldName: [],
+      });
 
+      return CloudUser.newUser(userId, name);
     } catch (e) {
       throw CouldNotCreateUserException();
     }
@@ -51,13 +53,21 @@ class FirestoreUserController {
     try {
       switch (fieldName) {
         case squadFieldName:
-          await users.doc(userId).update({
+          await users
+              .doc(userId)
+              .collection(userId)
+              .doc(sensitiveInformationDocumentName)
+              .update({
             squadFieldName: value as List<String>,
           });
           break;
 
         case friendsFieldName:
-          await users.doc(userId).update({
+          await users
+              .doc(userId)
+              .collection(userId)
+              .doc(sensitiveInformationDocumentName)
+              .update({
             friendsFieldName: value as List<String>,
           });
           break;
@@ -85,18 +95,6 @@ class FirestoreUserController {
             squadLimitFieldName: value as int,
           });
           break;
-
-        case pendingFRQFieldName:
-          await users.doc(userId).update({
-            pendingFRQFieldName: value as List<String>,
-          });
-          break;
-
-        case pendingSquadReqFieldName:
-          await users.doc(userId).update({
-            pendingSquadReqFieldName: value as List<String>,
-          });
-          break;
       }
     } catch (e) {
       throw CouldNotUpdateUserException();
@@ -111,18 +109,64 @@ class FirestoreUserController {
     }
   }
 
-  Future<CloudUser> fetchUser(String userId) async {
-    final user = await users.doc(userId).get();
+  Future<CloudUser> fetchUser(String userId, {bool isPersonal = false}) async {
+    try {
+      final publicSnapshot = await users.doc(userId).get();
+      final sensitiveSnapshot = await users
+          .doc(userId)
+          .collection(userId)
+          .doc(sensitiveInformationDocumentName)
+          .get();
 
-
-    return CloudUser.fromSnapshot(user);
+      if (isPersonal) {
+        return CloudUser.privateUserFromSnapshot(
+          publicSnapshot,
+          sensitiveSnapshot,
+        );
+      } else {
+        return CloudUser.publicUserFromSnapshot(publicSnapshot);
+      }
+    } catch (e) {
+      throw CouldNotFetchUserException();
+    }
   }
 
   Future<List<String>> fetchUserFriendRequests(String userId) async {
-    final user = await users.doc(userId).get();
-    return (user.data()?[pendingFRQFieldName] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList() ?? [];
+    if (FirebaseAuthProvider().currentUser!.id != userId) {
+      throw CouldNotFetchUserException();
+    }
+
+    final List<String> frqs = [];
+
+    final userfrqs = await users
+        .doc(userId)
+        .collection(userId)
+        .doc(requestsDocumentName)
+        .collection(pendingFRQFieldName)
+        .get();
+
+    for (final doc in userfrqs.docs) {
+      if (doc.data()[sendingUserFieldName] != null) {
+        frqs.add(doc.data()[sendingUserFieldName]);
+      }
+    }
+    return frqs;
+  }
+
+  Future<bool> isUserSentFriendRequest(String userId, String friendId) async {
+    try {
+      final userfrq = await users
+          .doc(friendId)
+          .collection(friendId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(userId)
+          .get();
+
+      return userfrq.exists && userfrq.data()!.containsKey(isAccepted);
+    } catch (e) {
+      throw CouldNotFetchUserException();
+    }
   }
 
   Future<bool> userExists(String userName) {
@@ -131,20 +175,21 @@ class FirestoreUserController {
     });
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(String userName) {
+  Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(
+      String userName) {
     return users
         .where(nameFieldName, isGreaterThanOrEqualTo: userName)
         .where(nameFieldName, isLessThanOrEqualTo: '$userName\uf8ff')
-        .where(FieldPath.documentId, isNotEqualTo: FirebaseAuthProvider().currentUser!.id)
+        .where(FieldPath.documentId,
+            isNotEqualTo: FirebaseAuthProvider().currentUser!.id)
         .limit(7)
         .snapshots();
-
   }
 
   Future<void> sendFriendReq({
     required String userId,
     required String friendId,
-}) async {
+  }) async {
     try {
       if (userId == friendId) {
         throw CouldNotAddFriendException();
@@ -154,12 +199,30 @@ class FirestoreUserController {
         throw AlreadySentFriendRequestException();
       }
 
-      await updateUser(
-        fieldName: pendingFRQFieldName,
-        userId: friendId,
-        value: [...userFriends, userId],
-      );
+      if (await isUserSentFriendRequest(userId, friendId)) {
+        addFriend(userId: userId, friendId: friendId);
+      }
 
+      await users
+          .doc(friendId)
+          .collection(friendId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(userId)
+          .set({
+        sendingUserFieldName: userId,
+      });
+
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(friendId)
+          .set({
+        recipientFieldName: userId,
+        isAccepted: false,
+      });
     } on AlreadySentFriendRequestException {
       rethrow;
     } catch (e) {
@@ -167,32 +230,124 @@ class FirestoreUserController {
     }
   }
 
-  Future<void> addFriend({
-    required String userId,
-    required String friendId,
-  }) async {
+  Future<void> acceptFrq(String userId, String friendId) async {
     try {
-      final user = await fetchUser(userId);
-      final friend = await fetchUser(friendId);
+      final frq = await users
+          .doc(friendId)
+          .collection(friendId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(userId)
+          .get();
 
-      if (user.friends.contains(friendId)) {
+      if (frq.exists) {
+        frq.reference.update({
+          isAccepted: true,
+        });
+      }
+    } catch (e) {
+      throw GenericCloudException();
+    }
+  }
+
+  Future<void> deleteFRQ(String userId, String friendId) async {
+    try {
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(friendId)
+          .delete();
+    } catch (e) {
+      throw CouldNotDeleteFriendRequestException();
+    }
+  }
+
+  Future<void> updateFriends(String userId, String newFriendId) async {
+    try {
+      final user = await fetchUser(userId, isPersonal: true);
+      if (user.friends!.contains(newFriendId)) {
         throw UserAlreadyFriendException();
       }
 
-      await updateUser(
-        fieldName: friendsFieldName,
-        userId: userId,
-        value: [...user.friends, friendId],
-      );
-
-      await updateUser(
-        fieldName: friendsFieldName,
-        userId: friendId,
-        value: [...friend.friends, userId],
-      );
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(sensitiveInformationDocumentName)
+          .update({
+        friendsFieldName: [...?user.friends, newFriendId],
+      });
     } catch (e) {
       throw CouldNotAddFriendException();
     }
   }
 
+  Future<void> addSquad(String userId, String squadId) async {
+    try {
+      if (userId != FirebaseAuthProvider().currentUser!.id) {
+        throw CouldNotAddMemberToSquadException();
+      }
+      final user = await fetchUser(userId, isPersonal: true);
+      if (user.squads!.contains(squadId)) {
+        throw GenericCloudException();
+      }
+
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(sensitiveInformationDocumentName)
+          .update({
+        squadFieldName: [...?user.squads, squadId],
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> removeSquad(String userId, String squadId) async {
+    try {
+      if (userId != FirebaseAuthProvider().currentUser!.id) {
+        throw CouldNotRemoveMemberFromSquadException();
+      }
+      final user = await fetchUser(userId, isPersonal: true);
+      if (!user.squads!.contains(squadId)) {
+        throw GenericCloudException();
+      }
+
+      await users
+          .doc(userId)
+          .collection(userId)
+          .doc(sensitiveInformationDocumentName)
+          .update({
+        squadFieldName: [...user.squads!.where((element) => element != squadId)],
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+
+  Future<void> addFriend({
+    required String userId,
+    required String friendId,
+  }) async {
+    try {
+      final user = await fetchUser(userId, isPersonal: true);
+
+      if (user.friends!.contains(friendId)) {
+        throw UserAlreadyFriendException();
+      }
+
+      await deleteFRQ(userId, friendId);
+
+      if (await isUserSentFriendRequest(userId, friendId)) {
+        await acceptFrq(userId, friendId);
+      }
+
+      await updateFriends(userId, friendId);
+    } catch (e) {
+      throw CouldNotAddFriendException();
+    }
+  }
 }
