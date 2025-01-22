@@ -82,16 +82,6 @@ class FirestoreSquadController {
     }
   }
 
-  Future<void> deleteSquad({
-    required String squadId,
-  }) async {
-    try {
-      await squads.doc(squadId).delete();
-    } catch (e) {
-      throw CouldNotDeleteSquadException(); // TODO make this delete the squad from the user too
-    }
-  }
-
   Future<void> addUserToSquad({
     required String squadId,
     required String memberId,
@@ -154,7 +144,7 @@ class FirestoreSquadController {
       for (final member in members) {
         await removeMemberFromSquad(squadId: squadId, memberId: member);
       }
-      await deleteSquad(squadId: squadId);
+      await squads.doc(squadId).delete();
     } catch (e) {
       throw CouldNotDeleteSquadException();
     }
