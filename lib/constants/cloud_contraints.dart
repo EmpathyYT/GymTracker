@@ -26,6 +26,7 @@ const titleFieldName = 'title';
 const bodyFieldName = 'message';
 const timestampFieldName = 'timestamp';
 const readFieldName = 'read';
+const notificationTypeFieldName = 'type';
 //^ The Notification Constraints
 
 

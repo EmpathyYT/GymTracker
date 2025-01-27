@@ -2,30 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
+import 'package:workmanager/workmanager.dart';
+typedef NotificationsType = Map<String, List<CloudNotification>>;
 
-class NotificationController {
+class FirestoreNotificationsController {
   final notificationCollection =
       FirebaseFirestore.instance.collection('notifications');
 
-  NotificationController._privateConstructor();
-  static final NotificationController _instance =
-      NotificationController._privateConstructor();
-  factory NotificationController() => _instance;
+  FirestoreNotificationsController._privateConstructor();
+  static final FirestoreNotificationsController _instance =
+      FirestoreNotificationsController._privateConstructor();
+  factory FirestoreNotificationsController() => _instance;
 
-  Future<void> sendNotification(String userId, String title, String body) async {
-    final notificationRef = FirebaseFirestore.instance.collection('notifications');
-    await notificationRef.add({
-      fromUserIdFieldName: userId,
-      toUserIdFieldName: userId,
-      titleFieldName: title,
-      bodyFieldName: body,
+  Future<void> sendNotification(String senderId, String receiverId, int type) async {
+    await notificationCollection.add({
+      fromUserIdFieldName: senderId,
+      toUserIdFieldName: receiverId,
       timestampFieldName: FieldValue.serverTimestamp(),
+      notificationTypeFieldName: type,
     });
   }
 
   Stream<List<CloudNotification>> getNotifications(String userId) {
-    return FirebaseFirestore.instance
-        .collection('notifications')
+    return notificationCollection
         .where(toUserIdFieldName, isEqualTo: userId)
         .where(readFieldName, isEqualTo: false)
         .snapshots()
@@ -34,10 +33,9 @@ class NotificationController {
   }
 
   Future<void> markNotificationAsRead(CloudNotification notification) async {
-    await FirebaseFirestore.instance
-        .collection('notifications')
+    await notificationCollection
         .doc(notification.notificationId)
         .update({'read': true});
   }
-  //TODO work on notifications, use workmanager.
+
 }

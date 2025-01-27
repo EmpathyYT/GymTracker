@@ -5,9 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/extensions/map_extension.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
@@ -22,17 +24,22 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final Map<String, List<String>> notifications = {};
-  final int currentIndex = 0;
-  String title = "";
+  String _title = "";
   Timer? _timer;
+  Stream<List<CloudNotification>>? _notifStream;
+  StreamSubscription<List<CloudNotification>>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _timer?.cancel();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -41,48 +48,53 @@ class _MainPageState extends State<MainPage> {
       child: BlocConsumer<MainPageCubit, MainPageState>(
         listener: (context, state) {
           if (state.isLoading) {
-              LoadingScreen().show(context: context, text: state.loadingText);
+            LoadingScreen().show(context: context, text: state.loadingText);
           } else {
             LoadingScreen().hide();
           }
+          _listenForNotifications(state);
         },
         builder: (context, state) {
           if (_timer == null) {
-            _startAppLoop(state);
+            _startAppLoop();
           }
+          _notifStream ??= context.read<MainPageCubit>().notificationsStream();
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
-            title = "Squad Selector";
+            _title = "Squad Selector";
           } else if (state is AddWarrior) {
             currentIndex = 1;
-            title = "Add Warrior";
+            _title = "Add Warrior";
           } else if (state is NewSquad) {
             currentIndex = 2;
-            title = "Squad Creator";
+            _title = "Squad Creator";
           } else if (state is Settings) {
             currentIndex = 3;
-            title = "Settings";
+            _title = "Settings";
           } else {
             currentIndex = 0;
           }
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                title,
+                _title,
                 style: GoogleFonts.oswald(
                   fontSize: 30,
                 ),
               ),
               actions: [
                 IconButton(
-                    icon: const Icon(Icons.notifications),
+                    icon: state.notifications!.isNotEmpty
+                        ? const Icon(
+                            Icons.notifications_active,
+                            color: Colors.red,
+                          )
+                        : const Icon(Icons.notifications),
                     iconSize: 30,
                     onPressed: () {
-                      Navigator.of(context).pushNamed(
-                          notificationsRoute,
-                          arguments: notifications
-                      );
+                      Navigator.of(context).pushNamed(notificationsRoute,
+                          arguments: state.notifications);
                     }),
                 IconButton(
                     icon: const Icon(Icons.logout),
@@ -137,18 +149,32 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-
-  void _startAppLoop(MainPageState state) {
+  void _startAppLoop() {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       context.read<AuthBloc>().add(const AuthEventReloadUser());
-      final notifs = await context.read<MainPageCubit>().getNotifications();
-      final notifDiff = notifs.difference(notifications);
-      if (notifDiff.isNotEmpty && mounted) {
-        context.read<MainPageCubit>().newNotifications(state, notifDiff);
-      }
     });
   }
 
-
-
+  void _listenForNotifications(MainPageState state) async {
+    _subscription = _notifStream?.listen((event) {
+      final notifs = <String, List<CloudNotification>>{
+        pendingFRQFieldName: [],
+        pendingSquadReqFieldName: []
+      };
+      for (final element in event) {
+        switch (element.type) {
+          case 0:
+            notifs[pendingFRQFieldName]?.add(element);
+            break;
+          case 1:
+            notifs[pendingSquadReqFieldName]?.add(element);
+            break;
+        }
+      }
+      final diff = state.notifications?.difference(notifs) ?? {};
+      if (diff.isNotEmpty && mounted) {
+        context.read<MainPageCubit>().newNotifications(state, diff);
+      }
+    });
+  }
 }

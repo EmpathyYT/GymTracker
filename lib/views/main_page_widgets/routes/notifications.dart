@@ -17,7 +17,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   @override
   void initState() {
     //notifications =
-        //flattenNotifications(context.arguments<Map<String, List<String>>>());
+        //flattenNotifications(context.arguments<NotificationsType>());
     notifications = [
       {pendingFRQFieldName, "friend"},
       {pendingSquadReqFieldName, "server"},
@@ -88,7 +88,4 @@ List<Set<String>> flattenNotifications(
   });
   return flattened;
 }
-
-//TODO create a new collection for friend requests and make the user can have access to.
-//TODO also make a public info collection to separate public info from private.
 

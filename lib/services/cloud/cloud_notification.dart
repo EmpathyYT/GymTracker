@@ -7,8 +7,7 @@ class CloudNotification {
   final String notificationId;
   final String fromUserId;
   final String toUserId;
-  final String title;
-  final String body;
+  final int type;
   final bool read;
   final Timestamp time;
 
@@ -16,8 +15,7 @@ class CloudNotification {
     required this.notificationId,
     required this.fromUserId,
     required this.toUserId,
-    required this.title,
-    required this.body,
+    required this.type,
     required this.read,
     required this.time,
   });
@@ -26,8 +24,7 @@ class CloudNotification {
       : notificationId = snapshot.id,
         fromUserId = snapshot[fromUserIdFieldName],
         toUserId = snapshot[toUserIdFieldName],
-        title = snapshot[titleFieldName],
-        body = snapshot[bodyFieldName],
+        type = snapshot[notificationTypeFieldName],
         read = snapshot[readFieldName],
         time = snapshot[timestampFieldName] as Timestamp;
 

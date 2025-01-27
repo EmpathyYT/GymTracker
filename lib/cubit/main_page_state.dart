@@ -1,13 +1,15 @@
 part of 'main_page_cubit.dart';
 
+
+
 abstract class MainPageState {
   final Exception? exception;
   final bool isLoading;
   final String loadingText;
   final bool success;
-  final Map<String, List<String>>? notifications;
+  final NotificationsType? notifications;
 
-  MainPageState copyWith({Map<String, List<String>>? notifications});
+  MainPageState copyWith({NotificationsType? notifications});
 
   const MainPageState(
       {
@@ -15,7 +17,7 @@ abstract class MainPageState {
         this.isLoading = false,
         this.loadingText = "",
         this.success = false,
-        this.notifications
+        this.notifications = const {}
       });
 
 
@@ -28,11 +30,11 @@ final class SquadSelector extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications,
+        super.notifications = const {},
       });
 
   @override
-  SquadSelector copyWith({Map<String, List<String>>? notifications}) {
+  SquadSelector copyWith({NotificationsType? notifications}) {
     return SquadSelector(
       exception: exception,
       isLoading: isLoading,
@@ -52,11 +54,11 @@ final class AddWarrior extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications,
+        super.notifications = const {},
       });
 
   @override
-  AddWarrior copyWith({Map<String, List<String>>? notifications}) {
+  AddWarrior copyWith({NotificationsType? notifications}) {
     return AddWarrior(
       exception: exception,
       isLoading: isLoading,
@@ -75,11 +77,11 @@ final class NewSquad extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications,
+        super.notifications = const {},
       });
 
   @override
-  NewSquad copyWith({Map<String, List<String>>? notifications}) {
+  NewSquad copyWith({NotificationsType? notifications}) {
     return NewSquad(
       exception: exception,
       isLoading: isLoading,
@@ -98,11 +100,11 @@ final class Settings extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications,
+        super.notifications = const {},
       });
 
   @override
-  Settings copyWith({Map<String, List<String>>? notifications}) {
+  Settings copyWith({NotificationsType? notifications}) {
     return Settings(
       exception: exception,
       isLoading: isLoading,
