@@ -17,8 +17,8 @@ Future<void> showUserCard({
             Text(
               userData[nameFieldName],
               style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const Spacer(),
@@ -41,10 +41,13 @@ Future<void> showUserCard({
                 ),
                 borderRadius: BorderRadius.circular(4.0),
               ),
-              child: Text(userData[bioFieldName] ?? 'No bio',
+              child: Text(
+                (userData[bioFieldName] as String).isNotEmpty
+                    ? userData[bioFieldName]
+                    : 'This user does not have a bio',
                 textAlign: TextAlign.left,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.w100,
                   fontStyle: FontStyle.italic,
                 ),

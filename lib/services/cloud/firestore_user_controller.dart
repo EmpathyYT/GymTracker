@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
@@ -112,13 +114,14 @@ class FirestoreUserController {
   Future<CloudUser> fetchUser(String userId, {bool isPersonal = false}) async {
     try {
       final publicSnapshot = await users.doc(userId).get();
-      final sensitiveSnapshot = await users
-          .doc(userId)
-          .collection(userId)
-          .doc(sensitiveInformationDocumentName)
-          .get();
 
       if (isPersonal) {
+        final sensitiveSnapshot = await users
+            .doc(userId)
+            .collection(userId)
+            .doc(sensitiveInformationDocumentName)
+            .get();
+
         return CloudUser.privateUserFromSnapshot(
           publicSnapshot,
           sensitiveSnapshot,
@@ -131,26 +134,18 @@ class FirestoreUserController {
     }
   }
 
-  Future<List<String>> fetchUserFriendRequests(String userId) async {
+  Future<List<String>> fetchUserFriends(String userId) async {
     if (FirebaseAuthProvider().currentUser!.id != userId) {
       throw CouldNotFetchUserException();
     }
 
-    final List<String> frqs = [];
-
-    final userfrqs = await users
+    final userfrs = await users
         .doc(userId)
         .collection(userId)
-        .doc(requestsDocumentName)
-        .collection(pendingFRQFieldName)
+        .doc(sensitiveInformationDocumentName)
         .get();
 
-    for (final doc in userfrqs.docs) {
-      if (doc.data()[sendingUserFieldName] != null) {
-        frqs.add(doc.data()[sendingUserFieldName]);
-      }
-    }
-    return frqs;
+    return userfrs.data()![friendsFieldName] as List<String>;
   }
 
   Future<bool> isUserSentFriendRequest(String userId, String friendId) async {
@@ -175,6 +170,19 @@ class FirestoreUserController {
     });
   }
 
+  Future<bool> isAlreadySentFriendRequest(
+      String userId, String friendId) async {
+    final userfrq = await users
+        .doc(friendId)
+        .collection(friendId)
+        .doc(requestsDocumentName)
+        .collection(pendingFRQFieldName)
+        .doc(userId)
+        .get();
+
+    return userfrq.exists && !userfrq.data()!.containsKey(isAccepted);
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> fetchUsersForSearch(
       String userName) {
     return users
@@ -190,12 +198,18 @@ class FirestoreUserController {
     required String userId,
     required String friendId,
   }) async {
+
     try {
       if (userId == friendId) {
         throw CouldNotAddFriendException();
       }
-      final userFriends = await fetchUserFriendRequests(userId);
-      if (userFriends.contains(friendId)) {
+
+      final userFriends = await fetchUser(userId, isPersonal: true);
+      if (userFriends.friends!.contains(friendId)) {
+        throw UserAlreadyFriendException();
+      }
+
+      if (await isAlreadySentFriendRequest(userId, friendId)) {
         throw AlreadySentFriendRequestException();
       }
 
@@ -223,6 +237,8 @@ class FirestoreUserController {
         recipientFieldName: userId,
         isAccepted: false,
       });
+    } on UserAlreadyFriendException {
+      rethrow;
     } on AlreadySentFriendRequestException {
       rethrow;
     } catch (e) {
@@ -320,13 +336,14 @@ class FirestoreUserController {
           .collection(userId)
           .doc(sensitiveInformationDocumentName)
           .update({
-        squadFieldName: [...user.squads!.where((element) => element != squadId)],
+        squadFieldName: [
+          ...user.squads!.where((element) => element != squadId)
+        ],
       });
     } catch (e) {
       rethrow;
     }
   }
-
 
   Future<void> addFriend({
     required String userId,

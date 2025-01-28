@@ -20,6 +20,14 @@ class CloudNotification {
     required this.time,
   });
 
+  CloudNotification.testingNotif() :
+        notificationId = "test",
+        fromUserId = "test",
+        toUserId = "test",
+        time = Timestamp.now(),
+        type = 0,
+        read = true;
+
   CloudNotification.fromSnapshot(QueryDocumentSnapshot snapshot)
       : notificationId = snapshot.id,
         fromUserId = snapshot[fromUserIdFieldName],

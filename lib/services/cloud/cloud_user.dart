@@ -54,8 +54,14 @@ class CloudUser with EquatableMixin {
       DocumentSnapshot<Map<String, dynamic>> sensitiveInfoSnapshot)
       : documentId = userSnapshot.id,
         name = userSnapshot.data()?[nameFieldName] as String,
-        friends = sensitiveInfoSnapshot.data()?[friendsFieldName] as List<String>,
-        squads = sensitiveInfoSnapshot.data()?[squadFieldName] as List<String>,
+        friends =
+            (sensitiveInfoSnapshot.data()?[friendsFieldName] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList(),
+        squads =
+            (sensitiveInfoSnapshot.data()?[squadFieldName] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList(),
         timeCreated = userSnapshot.data()?[timeCreatedFieldName] as Timestamp,
         squadLimit = userSnapshot.data()?[squadLimitFieldName] as int,
         bio = userSnapshot.data()?[bioFieldName] as String,

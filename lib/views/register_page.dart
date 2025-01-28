@@ -57,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (state.exception is InvalidUserNameFormatAuthException) {
             await showErrorDialog(
             context, "Invalid Username. Please try again.");
-          } else if (state.exception is InvalidUserNameFormatAuthException) {
+          } else if (state.exception is UsernameAlreadyUsedAuthException) {
             await showErrorDialog(
               context, "Username already used. Please use another username.");
           } else if (state.exception is GenericAuthException) {

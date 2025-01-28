@@ -46,7 +46,6 @@ dependencies:
   animated_text_kit: ^4.2.2
   rxdart: ^0.28.0
   firebase_messaging: ^15.2.0
-  workmanager: ^0.5.2
 
 
 dev_dependencies:

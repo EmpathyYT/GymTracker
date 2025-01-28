@@ -16,6 +16,8 @@ const requestsDocumentName = 'pending_requests';
 const sendingUserFieldName = 'sending_user_id';
 const recipientFieldName = 'recipient_user_id';
 const isAccepted = "is_accepted";
+const frqType = 0;
+const srqType = 1;
 //^ The F/SRQ Constraints
 
 

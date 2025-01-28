@@ -60,6 +60,9 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
           if (state.exception is AlreadySentFriendRequestException) {
             await showErrorDialog(
                 context, "You have already sent a friend request to this user");
+          } else if (state.exception is UserAlreadyFriendException) {
+            await showErrorDialog(
+                context, "You are already friends with this user");
           } else if (state.exception is GenericCloudException) {
             await showErrorDialog(context, "An error occurred");
           }

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:workmanager/workmanager.dart';
 typedef NotificationsType = Map<String, List<CloudNotification>>;
 
 class FirestoreNotificationsController {
@@ -18,7 +17,8 @@ class FirestoreNotificationsController {
     await notificationCollection.add({
       fromUserIdFieldName: senderId,
       toUserIdFieldName: receiverId,
-      timestampFieldName: FieldValue.serverTimestamp(),
+      timestampFieldName: Timestamp.now(),
+      readFieldName: false,
       notificationTypeFieldName: type,
     });
   }

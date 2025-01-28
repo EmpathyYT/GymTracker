@@ -34,6 +34,10 @@ class InvalidUserNameFormatAuthException implements Exception {
   final String message = 'Invalid username format';
 }
 
+class UsernameAlreadyUsedAuthException implements Exception {
+  final String message = 'Username already used';
+}
+
 class UserAlreadyInSquadException implements Exception {
   final String message = 'User already in squad';
 }

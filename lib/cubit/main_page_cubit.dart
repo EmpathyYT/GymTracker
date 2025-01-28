@@ -4,6 +4,7 @@ import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 
+import '../constants/cloud_contraints.dart';
 import '../services/cloud/firestore_notification_controller.dart';
 
 part 'main_page_state.dart';
@@ -59,6 +60,11 @@ class MainPageCubit extends Cubit<MainPageState> {
       emit(const AddWarrior(isLoading: true, loadingText: "Adding Warrior..."));
       await _firestoreUserController.sendFriendReq(
           userId: _firebaseAuthProvider.currentUser!.id, friendId: userToAddId);
+      _firestoreNotificationController.sendNotification(
+          _firebaseAuthProvider.currentUser!.id,
+          userToAddId,
+          frqType,
+      );
       emit(const AddWarrior(success: true));
     } catch (e) {
       emit(AddWarrior(exception: e as Exception));
@@ -71,14 +77,18 @@ class MainPageCubit extends Cubit<MainPageState> {
     return notifications;
   }
 
-  Future<List<String>> getFriendRequests() async {
-    return _firestoreUserController
-        .fetchUserFriendRequests(_firebaseAuthProvider.currentUser!.id);
-  }
+  // Future<List<String>> getFriendRequests() async {
+  //   return _firestoreUserController
+  //       .fetchUserFriends(_firebaseAuthProvider.currentUser!.id);
+  // }
 
   void newNotifications(
       MainPageState state, Map<String, List<CloudNotification>> notifDiff) {
     emit(state.copyWith(notifications: notifDiff));
+  }
+
+  void clearNotifications(MainPageState state) {
+    emit(state.copyWith(notifications: {}));
   }
 
 }

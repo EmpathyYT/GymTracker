@@ -52,11 +52,11 @@ class _MainPageState extends State<MainPage> {
           } else {
             LoadingScreen().hide();
           }
-          _listenForNotifications(state);
+          //_listenForNotifications(context, state);
         },
         builder: (context, state) {
           if (_timer == null) {
-            _startAppLoop();
+            _startAppLoop(context, state); //TODO remove state
           }
           _notifStream ??= context.read<MainPageCubit>().notificationsStream();
           int currentIndex;
@@ -95,6 +95,7 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       Navigator.of(context).pushNamed(notificationsRoute,
                           arguments: state.notifications);
+                      context.read<MainPageCubit>().clearNotifications(state);
                     }),
                 IconButton(
                     icon: const Icon(Icons.logout),
@@ -149,13 +150,19 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void _startAppLoop() {
+  void _startAppLoop(BuildContext context, MainPageState state) {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      final notifs = <String, List<CloudNotification>>{
+        pendingFRQFieldName: [CloudNotification.testingNotif()],
+        pendingSquadReqFieldName: []
+      };
       context.read<AuthBloc>().add(const AuthEventReloadUser());
+      context.read<MainPageCubit>().newNotifications(state, notifs);
     });
   }
 
-  void _listenForNotifications(MainPageState state) async {
+  void _listenForNotifications(
+      BuildContext context, MainPageState state) async {
     _subscription = _notifStream?.listen((event) {
       final notifs = <String, List<CloudNotification>>{
         pendingFRQFieldName: [],
@@ -172,9 +179,10 @@ class _MainPageState extends State<MainPage> {
         }
       }
       final diff = state.notifications?.difference(notifs) ?? {};
-      if (diff.isNotEmpty && mounted) {
+      if (diff.isNotEmpty && context.mounted) {
         context.read<MainPageCubit>().newNotifications(state, diff);
       }
     });
   }
 }
+//TODO make it mark unread notifs after closing as read in the db and always fetch unread notifs.

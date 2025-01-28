@@ -147,9 +147,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<bool> checkValidUsername(String username) async {
+    if (await userController!.userExists(username)) {
+      throw UsernameAlreadyUsedAuthException();
+    }
     return RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(username) &&
         RegExp(r'[a-zA-Z]').allMatches(username).length >= 3 &&
-        username.length <= 15 &&
-        await userController!.userExists(username);
+        username.length <= 15;
   }
 }
