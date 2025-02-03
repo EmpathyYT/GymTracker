@@ -19,22 +19,22 @@ class MainPageCubit extends Cubit<MainPageState> {
       FirestoreNotificationsController();
   final FirebaseAuthProvider _firebaseAuthProvider = FirebaseAuthProvider();
 
-  void changePage(int index) {
+  void changePage(int index, {notifications = const {}}) {
     switch (index) {
       case 0:
-        emit(const SquadSelector());
+        emit(SquadSelector(notifications: notifications));
         break;
       case 1:
-        emit(const AddWarrior());
+        emit(AddWarrior(notifications: notifications));
         break;
       case 2:
-        emit(const NewSquad());
+        emit(NewSquad(notifications: notifications));
         break;
       case 3:
-        emit(const Settings());
+        emit(Settings(notifications: notifications));
         break;
       default:
-        emit(const SquadSelector());
+        emit(SquadSelector(notifications: notifications));
     }
   }
 
@@ -77,17 +77,26 @@ class MainPageCubit extends Cubit<MainPageState> {
     return notifications;
   }
 
-  // Future<List<String>> getFriendRequests() async {
-  //   return _firestoreUserController
-  //       .fetchUserFriends(_firebaseAuthProvider.currentUser!.id);
-  // }
+  Future<List<CloudNotification>> getUnreadNotifications() async {
+    final notifications = await _firestoreNotificationController
+        .getUnreadNotificationsOnStart(_firebaseAuthProvider.currentUser!.id);
+    return notifications;
+  }
 
   void newNotifications(
       MainPageState state, Map<String, List<CloudNotification>> notifDiff) {
     emit(state.copyWith(notifications: notifDiff));
   }
 
-  void clearNotifications(MainPageState state) {
+  Future<void> clearNotifications(MainPageState state) async {
+    final currentNotifs = state.notifications;
+
+    for (final key in currentNotifs!.keys) {
+      for (final notif in currentNotifs[key]!) {
+       await _firestoreNotificationController.markNotificationAsRead(notif);
+      }
+    }
+
     emit(state.copyWith(notifications: {}));
   }
 

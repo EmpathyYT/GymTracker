@@ -32,49 +32,60 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
         ),
         body: notifications.isEmpty
             ? Center(
-          child: Text(
-            "No new notifications",
-            style: GoogleFonts.oswald(
-              fontSize: 30,
-            ),
-          ),
-        )
+                child: Text(
+                  "No new notifications",
+                  style: GoogleFonts.oswald(
+                    fontSize: 30,
+                  ),
+                ),
+              )
             : Column(
-          children: [
-            const Padding(padding: EdgeInsets.all(6.0)),
-            Container(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: const Divider(
-                thickness: 0.8,
-                color: Colors.grey,
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  final CloudNotification notificationInfo = notification.last;
-                  return FutureBuilder(
-                      future: _firestoreUserController.fetchUser(
-                          notificationInfo.fromUserId),
-                      builder: (context, snapshot) {
-                        return ListTile(
-                          title: Text(
-                              "Pending ${notification.first ==
-                                  pendingFRQFieldName
-                                  ? "Friend"
-                                  : "Server"} Request",
-                              style: const TextStyle(fontSize: 19)),
-                          subtitle: Text("from ${snapshot.data?.name}"),
-                        );
-                      }
-                  );
-                },
-              ),
-            ),
-          ],
-        ));
+                children: [
+                  const Padding(padding: EdgeInsets.all(6.0)),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: const Divider(
+                      thickness: 0.8,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: notifications.length,
+                      itemBuilder: (context, index) {
+                        final notification = notifications[index];
+                        final CloudNotification notificationInfo =
+                            notification.last;
+                        return FutureBuilder(
+                            future: _firestoreUserController
+                                .fetchUser(notificationInfo.fromUserId),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState !=
+                                  ConnectionState.done) {
+                                return const ListTile(
+                                  title: Text(
+                                      "Loading Notification, please wait...",
+                                      style: TextStyle(fontSize: 19)),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const ListTile(
+                                  title: Text(
+                                      "Error loading notification, please try again later",
+                                      style: TextStyle(fontSize: 19)),
+                                );
+                              }
+                              return ListTile(
+                                title: Text(
+                                    "Pending ${notification.first == pendingFRQFieldName ? "Friend" : "Server"} Request",
+                                    style: const TextStyle(fontSize: 19)),
+                                subtitle: Text("from ${snapshot.data?.name}"),
+                              );
+                            });
+                      },
+                    ),
+                  ),
+                ],
+              ));
   }
 }
 

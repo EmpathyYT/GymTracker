@@ -8,7 +8,6 @@ import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
-import 'package:gymtracker/extensions/map_extension.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
@@ -28,6 +27,7 @@ class _MainPageState extends State<MainPage> {
   Timer? _timer;
   Stream<List<CloudNotification>>? _notifStream;
   StreamSubscription<List<CloudNotification>>? _subscription;
+  static var timesRun = 0;
 
   @override
   void initState() {
@@ -46,19 +46,20 @@ class _MainPageState extends State<MainPage> {
     return BlocProvider(
       create: (context) => MainPageCubit(),
       child: BlocConsumer<MainPageCubit, MainPageState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.isLoading) {
             LoadingScreen().show(context: context, text: state.loadingText);
           } else {
             LoadingScreen().hide();
           }
-          //_listenForNotifications(context, state);
+          if (_timer == null) {
+            _startAppLoop(context);
+          }
+
+          _notifStream ??= context.read<MainPageCubit>().notificationsStream();
+          _listenForNotifications(context, state);
         },
         builder: (context, state) {
-          if (_timer == null) {
-            _startAppLoop(context, state); //TODO remove state
-          }
-          _notifStream ??= context.read<MainPageCubit>().notificationsStream();
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
@@ -92,10 +93,12 @@ class _MainPageState extends State<MainPage> {
                           )
                         : const Icon(Icons.notifications),
                     iconSize: 30,
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.of(context).pushNamed(notificationsRoute,
                           arguments: state.notifications);
-                      context.read<MainPageCubit>().clearNotifications(state);
+                      await context
+                          .read<MainPageCubit>()
+                          .clearNotifications(state);
                     }),
                 IconButton(
                     icon: const Icon(Icons.logout),
@@ -123,7 +126,9 @@ class _MainPageState extends State<MainPage> {
             bottomNavigationBar: NavigationBar(
               selectedIndex: currentIndex,
               onDestinationSelected: (int index) {
-                context.read<MainPageCubit>().changePage(index);
+                context
+                    .read<MainPageCubit>()
+                    .changePage(index, notifications: state.notifications);
               },
               destinations: const <Widget>[
                 NavigationDestination(
@@ -150,39 +155,44 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void _startAppLoop(BuildContext context, MainPageState state) {
+  void _startAppLoop(BuildContext context) {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      final notifs = <String, List<CloudNotification>>{
-        pendingFRQFieldName: [CloudNotification.testingNotif()],
-        pendingSquadReqFieldName: []
-      };
       context.read<AuthBloc>().add(const AuthEventReloadUser());
-      context.read<MainPageCubit>().newNotifications(state, notifs);
     });
   }
 
   void _listenForNotifications(
       BuildContext context, MainPageState state) async {
+    final notifs = <String, List<CloudNotification>>{
+      pendingFRQFieldName: [],
+      pendingSquadReqFieldName: []
+    };
+    // if (timesRun == 0) {
+    //   final unreadNotifs =
+    //     await context.read<MainPageCubit>().getUnreadNotifications();
+    //   organizingNotifs(unreadNotifs, notifs);
+    //   log("Notifs: $unreadNotifs");
+    //   timesRun++;
+    // }
     _subscription = _notifStream?.listen((event) {
-      final notifs = <String, List<CloudNotification>>{
-        pendingFRQFieldName: [],
-        pendingSquadReqFieldName: []
-      };
-      for (final element in event) {
-        switch (element.type) {
-          case 0:
-            notifs[pendingFRQFieldName]?.add(element);
-            break;
-          case 1:
-            notifs[pendingSquadReqFieldName]?.add(element);
-            break;
-        }
-      }
-      final diff = state.notifications?.difference(notifs) ?? {};
-      if (diff.isNotEmpty && context.mounted) {
-        context.read<MainPageCubit>().newNotifications(state, diff);
+      organizingNotifs(event, notifs);
+      if (notifs.isNotEmpty && context.mounted) {
+        context.read<MainPageCubit>().newNotifications(state, notifs);
       }
     });
   }
+
+  void organizingNotifs(List<CloudNotification> notifications,
+      Map<String, List<CloudNotification>> map) {
+    for (final element in notifications) {
+      switch (element.type) {
+        case 0:
+          map[pendingFRQFieldName]?.add(element);
+          break;
+        case 1:
+          map[pendingSquadReqFieldName]?.add(element);
+          break;
+      }
+    }
+  }
 }
-//TODO make it mark unread notifs after closing as read in the db and always fetch unread notifs.

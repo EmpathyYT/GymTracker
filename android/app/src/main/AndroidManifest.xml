@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <compatible-screens>
         <!-- all small size screens -->
         <screen android:screenSize="small" android:screenDensity="ldpi" />
@@ -18,7 +19,8 @@
     <application
         android:label="gymtracker"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

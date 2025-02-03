@@ -8,6 +8,10 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+dependencies {
+    implementation "androidx.activity:activity:1.10.0"
+}
+
 android {
     namespace = "com.gym.tracker.gymtracker"
     compileSdk = flutter.compileSdkVersion
