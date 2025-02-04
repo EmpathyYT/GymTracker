@@ -6,7 +6,6 @@ import 'package:gymtracker/utils/dialogs/forgot_pass_dialog.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../exceptions/auth_exceptions.dart';
 import '../utils/dialogs/error_dialog.dart';
 
 class ForgotPassword extends StatefulWidget {

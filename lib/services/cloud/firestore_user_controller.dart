@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
@@ -275,6 +273,23 @@ class FirestoreUserController {
           .collection(pendingFRQFieldName)
           .doc(friendId)
           .delete();
+    } catch (e) {
+      throw CouldNotDeleteFriendRequestException();
+    }
+  }
+
+  Future<void> rejectFRQ(String userId, String friendId) async {
+    try {
+      await deleteFRQ(userId, friendId);
+
+      await users
+          .doc(friendId)
+          .collection(friendId)
+          .doc(requestsDocumentName)
+          .collection(pendingFRQFieldName)
+          .doc(userId)
+          .delete();
+
     } catch (e) {
       throw CouldNotDeleteFriendRequestException();
     }

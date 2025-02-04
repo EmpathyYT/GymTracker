@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +28,6 @@ class _MainPageState extends State<MainPage> {
   Timer? _timer;
   Stream<List<CloudNotification>>? _notifStream;
   StreamSubscription<List<CloudNotification>>? _subscription;
-  static var timesRun = 0;
 
   @override
   void initState() {
@@ -167,16 +167,14 @@ class _MainPageState extends State<MainPage> {
       pendingFRQFieldName: [],
       pendingSquadReqFieldName: []
     };
-    // if (timesRun == 0) {
-    //   final unreadNotifs =
-    //     await context.read<MainPageCubit>().getUnreadNotifications();
-    //   organizingNotifs(unreadNotifs, notifs);
-    //   log("Notifs: $unreadNotifs");
-    //   timesRun++;
-    // }
+
     _subscription = _notifStream?.listen((event) {
       organizingNotifs(event, notifs);
-      if (notifs.isNotEmpty && context.mounted) {
+
+      if ((notifs[pendingFRQFieldName]!.isNotEmpty ||
+          notifs[pendingSquadReqFieldName]!.isNotEmpty) &&
+          context.mounted) {
+
         context.read<MainPageCubit>().newNotifications(state, notifs);
       }
     });

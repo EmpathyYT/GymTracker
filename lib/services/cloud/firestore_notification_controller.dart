@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
@@ -51,6 +50,10 @@ class FirestoreNotificationsController {
         .then((snapshot) =>
         snapshot.docs.map((doc) => CloudNotification.fromSnapshot(doc))
             .toList());
+  }
+
+  Future<void> deleteNotification(CloudNotification notification) async {
+    await notificationCollection.doc(notification.notificationId).delete();
   }
 
 }

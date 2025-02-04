@@ -4,7 +4,6 @@ import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 
 import '../../cubit/main_page_cubit.dart';
-import '../../helpers/loading/loading_dialog.dart';
 
 class SquadCreatorWidget extends StatefulWidget {
   const SquadCreatorWidget({super.key});

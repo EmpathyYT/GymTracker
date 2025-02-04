@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation "androidx.activity:activity:1.10.0"
+    implementation "androidx.activity:activity:1.9.3"
 }
 
 android {
