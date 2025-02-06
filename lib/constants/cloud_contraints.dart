@@ -18,6 +18,7 @@ const recipientFieldName = 'recipient_user_id';
 const isAccepted = "is_accepted";
 const frqType = 0;
 const srqType = 1;
+const otherType = 2;
 //^ The F/SRQ Constraints
 
 

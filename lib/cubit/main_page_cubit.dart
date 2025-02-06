@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:tuple/tuple.dart';
 
 import '../constants/cloud_contraints.dart';
 import '../services/cloud/firestore_notification_controller.dart';
@@ -61,9 +63,9 @@ class MainPageCubit extends Cubit<MainPageState> {
       await _firestoreUserController.sendFriendReq(
           userId: _firebaseAuthProvider.currentUser!.id, friendId: userToAddId);
       _firestoreNotificationController.sendNotification(
-          _firebaseAuthProvider.currentUser!.id,
-          userToAddId,
-          frqType,
+        _firebaseAuthProvider.currentUser!.id,
+        userToAddId,
+        frqType,
       );
       emit(const AddWarrior(success: true));
     } catch (e) {
@@ -71,10 +73,15 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-  Stream<List<CloudNotification>> notificationsStream() {
-    final notifications = _firestoreNotificationController
-        .getNotifications(_firebaseAuthProvider.currentUser!.id);
-    return notifications;
+  Stream<List<CloudNotification>> normalNotificationsStream() {
+    return _firestoreNotificationController
+        .getNormalNotifications(_firebaseAuthProvider.currentUser!.id);
+
+  }
+
+  Future<NotificationsType> getStartingNotifs() async {
+    return (await _firestoreNotificationController
+        .getStartingNotifs(_firebaseAuthProvider.currentUser!.id));
   }
 
   Future<List<CloudNotification>> getUnreadNotifications() async {
@@ -84,7 +91,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   void newNotifications(
-      MainPageState state, Map<String, List<CloudNotification>> notifDiff) {
+      MainPageState state,NotificationsType notifDiff) {
     emit(state.copyWith(notifications: notifDiff));
   }
 
@@ -93,11 +100,10 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     for (final key in currentNotifs!.keys) {
       for (final notif in currentNotifs[key]!) {
-       await _firestoreNotificationController.markNotificationAsRead(notif);
+        await _firestoreNotificationController.markNotificationAsRead(notif.item2);
       }
     }
 
-    emit(state.copyWith(notifications: {}));
+    emit(state.copyWith(notifications: const {}));
   }
-
 }

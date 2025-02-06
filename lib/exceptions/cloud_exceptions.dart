@@ -65,3 +65,8 @@ class AlreadySentFriendRequestException implements Exception {
 class CouldNotDeleteFriendRequestException implements Exception {
   final String message = 'Could not delete friend request';
 }
+
+class CouldNotAddYourselfAsFriendException implements Exception {
+  final String message = 'Could not add yourself as a friend';
+
+}

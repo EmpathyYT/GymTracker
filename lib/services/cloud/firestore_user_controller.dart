@@ -369,7 +369,11 @@ class FirestoreUserController {
 
       if (user.friends!.contains(friendId)) {
         throw UserAlreadyFriendException();
+      } else if (user.documentId == friendId) {
+        throw CouldNotAddYourselfAsFriendException();
       }
+
+
 
       await deleteFRQ(userId, friendId);
 
@@ -379,7 +383,7 @@ class FirestoreUserController {
 
       await updateFriends(userId, friendId);
     } catch (e) {
-      throw CouldNotAddFriendException();
+      rethrow;
     }
   }
 }

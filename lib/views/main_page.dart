@@ -1,19 +1,20 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
-import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
+import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
 import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
+import 'package:tuple/tuple.dart';
 
+import '../constants/code_constraints.dart';
 import '../helpers/loading/loading_dialog.dart';
 
 class MainPage extends StatefulWidget {
@@ -26,8 +27,9 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String _title = "";
   Timer? _timer;
-  Stream<List<CloudNotification>>? _notifStream;
-  StreamSubscription<List<CloudNotification>>? _subscription;
+  Stream<List<CloudNotification>>? _normalNotifStream;
+  StreamSubscription<List<CloudNotification>>? _normalNotifsSubscription;
+  static NotificationsType? _startingNotifications;
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _normalNotifsSubscription?.cancel();
     _timer?.cancel();
     super.dispose();
   }
@@ -55,9 +57,13 @@ class _MainPageState extends State<MainPage> {
           if (_timer == null) {
             _startAppLoop(context);
           }
+          _normalNotifStream ??=
+              context.read<MainPageCubit>().normalNotificationsStream();
 
-          _notifStream ??= context.read<MainPageCubit>().notificationsStream();
           _listenForNotifications(context, state);
+
+          _startingNotifications ??=
+              await context.read<MainPageCubit>().getStartingNotifs();
         },
         builder: (context, state) {
           int currentIndex;
@@ -95,7 +101,17 @@ class _MainPageState extends State<MainPage> {
                     iconSize: 30,
                     onPressed: () async {
                       Navigator.of(context).pushNamed(notificationsRoute,
-                          arguments: state.notifications);
+                          arguments: {
+                            oldNotifsKeyName: _startingNotifications,
+                            newNotifsKeyName: state.notifications
+                          });
+
+                      _startingNotifications?[requestsKeyName]
+                          ?.addAll(state.notifications![requestsKeyName]!);
+
+                      _startingNotifications?[normalNotifsKeyName]
+                          ?.addAll(state.notifications![normalNotifsKeyName]!);
+
                       await context
                           .read<MainPageCubit>()
                           .clearNotifications(state);
@@ -163,34 +179,29 @@ class _MainPageState extends State<MainPage> {
 
   void _listenForNotifications(
       BuildContext context, MainPageState state) async {
-    final notifs = <String, List<CloudNotification>>{
-      pendingFRQFieldName: [],
-      pendingSquadReqFieldName: []
-    };
+    _normalNotifsSubscription = _normalNotifStream?.listen((event) {
+      final notifs = organizingNotifs(event);
 
-    _subscription = _notifStream?.listen((event) {
-      organizingNotifs(event, notifs);
-
-      if ((notifs[pendingFRQFieldName]!.isNotEmpty ||
-          notifs[pendingSquadReqFieldName]!.isNotEmpty) &&
+      if ((notifs[normalNotifsKeyName]!.isNotEmpty ||
+              notifs[requestsKeyName]!.isNotEmpty) &&
           context.mounted) {
-
         context.read<MainPageCubit>().newNotifications(state, notifs);
       }
     });
   }
 
-  void organizingNotifs(List<CloudNotification> notifications,
-      Map<String, List<CloudNotification>> map) {
+  NotificationsType organizingNotifs(List<CloudNotification> notifications) {
+    final NotificationsType notifs = {
+      normalNotifsKeyName: [],
+      requestsKeyName: []
+    };
     for (final element in notifications) {
-      switch (element.type) {
-        case 0:
-          map[pendingFRQFieldName]?.add(element);
-          break;
-        case 1:
-          map[pendingSquadReqFieldName]?.add(element);
-          break;
+      if (element.type == 2) {
+        notifs[normalNotifsKeyName]?.add(Tuple2(null, element));
+      } else if (element.type == 1 || element.type == 0) {
+        notifs[requestsKeyName]?.add(Tuple2(element.type, element));
       }
     }
+    return notifs;
   }
 }
