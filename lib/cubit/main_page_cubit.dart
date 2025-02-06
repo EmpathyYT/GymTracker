@@ -1,10 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
-import 'package:tuple/tuple.dart';
 
 import '../constants/cloud_contraints.dart';
 import '../services/cloud/firestore_notification_controller.dart';
@@ -76,7 +74,6 @@ class MainPageCubit extends Cubit<MainPageState> {
   Stream<List<CloudNotification>> normalNotificationsStream() {
     return _firestoreNotificationController
         .getNormalNotifications(_firebaseAuthProvider.currentUser!.id);
-
   }
 
   Future<NotificationsType> getStartingNotifs() async {
@@ -84,14 +81,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         .getStartingNotifs(_firebaseAuthProvider.currentUser!.id));
   }
 
-  Future<List<CloudNotification>> getUnreadNotifications() async {
-    final notifications = await _firestoreNotificationController
-        .getUnreadNotificationsOnStart(_firebaseAuthProvider.currentUser!.id);
-    return notifications;
-  }
-
-  void newNotifications(
-      MainPageState state,NotificationsType notifDiff) {
+  void newNotifications(MainPageState state, NotificationsType notifDiff) {
     emit(state.copyWith(notifications: notifDiff));
   }
 
@@ -100,10 +90,15 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     for (final key in currentNotifs!.keys) {
       for (final notif in currentNotifs[key]!) {
-        await _firestoreNotificationController.markNotificationAsRead(notif.item2);
+        await _firestoreNotificationController
+            .markNotificationAsRead(notif.item2);
       }
     }
 
     emit(state.copyWith(notifications: const {}));
+  }
+
+  Future<void> disableNotification(String notifId) async {
+    await _firestoreNotificationController.disableNotification(notifId);
   }
 }

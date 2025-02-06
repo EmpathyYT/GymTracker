@@ -30,6 +30,8 @@ const bodyFieldName = 'message';
 const timestampFieldName = 'timestamp';
 const readFieldName = 'read';
 const notificationTypeFieldName = 'type';
+const disabledFieldName = "is_disabled";
+const messageFieldName = 'message';
 //^ The Notification Constraints
 
 

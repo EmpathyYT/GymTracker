@@ -1,10 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
+import 'package:gymtracker/main.dart';
 import 'package:gymtracker/services/auth/auth_service.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:tuple/tuple.dart';
 
 class NotificationsRoute extends StatefulWidget {
   const NotificationsRoute({super.key});
@@ -14,13 +20,14 @@ class NotificationsRoute extends StatefulWidget {
 }
 
 class _NotificationsRouteState extends State<NotificationsRoute> {
-  List<Set>? notifications;
+  List<Tuple2<int?, CloudNotification>>? notifications;
   final _firestoreUserController = FirestoreUserController();
 
   @override
   void didChangeDependencies() {
-    notifications ??=
-        flattenNotifications(context.arguments<NotificationsType?>());
+
+    notifications ??= flattenNotifications(
+        context.arguments<Map<String, NotificationsType?>>());
     super.didChangeDependencies();
   }
 
@@ -60,7 +67,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                       itemBuilder: (context, index) {
                         final notification = notifications![index];
                         final CloudNotification notificationInfo =
-                            notification.last;
+                            notification.item2;
                         return FutureBuilder(
                             future: _firestoreUserController
                                 .fetchUser(notificationInfo.fromUserId),
@@ -122,6 +129,7 @@ class _AnimatedRequestTileState extends State<AnimatedRequestTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
+  final _firestoreNotificationController = FirestoreNotificationsController();
 
   @override
   void initState() {
@@ -155,7 +163,7 @@ class _AnimatedRequestTileState extends State<AnimatedRequestTile>
           ),
           child: ListTile(
             title: Text(
-              "Pending ${widget.notificationInfo.type == 0 ? "Friend" : "Server"} Request",
+              "Pending ${widget.notificationInfo.type == 0 ? "Friend" : "Normal"} Request",
               style: const TextStyle(fontSize: 19),
             ),
             subtitle: Text("from ${widget.snapshot.data?.name}"),
@@ -168,11 +176,13 @@ class _AnimatedRequestTileState extends State<AnimatedRequestTile>
                   icon: const Icon(Icons.check, color: Colors.green),
                   onPressed: () async {
                     _handleAction(Colors.green);
+                    await _firestoreNotificationController.disableNotification(
+                      widget.notificationInfo.notificationId
+                    );
                     await widget._firestoreUserController.addFriend(
                       userId: widget._authProvider.currentUser!.id,
                       friendId: widget.notificationInfo.fromUserId,
                     );
-
                   },
                 ),
                 IconButton(
@@ -184,11 +194,13 @@ class _AnimatedRequestTileState extends State<AnimatedRequestTile>
                   ),
                   onPressed: () async {
                     _handleAction(Colors.red);
+                    await _firestoreNotificationController.disableNotification(
+                        widget.notificationInfo.notificationId
+                    );
                     await widget._firestoreUserController.rejectFRQ(
                       widget._authProvider.currentUser!.id,
                       widget.notificationInfo.fromUserId,
                     );
-
                   },
                 ),
               ],
@@ -206,13 +218,14 @@ class _AnimatedRequestTileState extends State<AnimatedRequestTile>
   }
 }
 
-List<Set> flattenNotifications(NotificationsType? notifications) {
-  final List<Set> flattened = [];
+List<Tuple2<int?, CloudNotification>> flattenNotifications(
+    Map<String, NotificationsType?>? notifications) {
+  final List<Tuple2<int?, CloudNotification>> flattened = [];
   notifications ??= {};
   notifications.forEach((key, value) {
-    for (final element in value) {
-      flattened.add({key, element});
-    }
+    value?.forEach((key, value) {
+      flattened.addAll(value);
+    });
   });
   return flattened;
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -28,6 +30,12 @@ class FirestoreNotificationsController {
     });
   }
 
+  Future<void> disableNotification(String notificationId) async {
+    await notificationCollection.doc(notificationId).update({
+      disabledFieldName: true,
+    });
+  }
+
   Future<NotificationsType> getStartingNotifs(
       String userId) async {
     final DateTime now = DateTime.now();
@@ -40,10 +48,10 @@ class FirestoreNotificationsController {
     };
 
     await notificationCollection
+        .where(timestampFieldName, isGreaterThan: threeDaysAgoTimestamp)
         .where(toUserIdFieldName, isEqualTo: userId)
         .where(notificationTypeFieldName, isEqualTo: otherType)
         .where(readFieldName, isEqualTo: true)
-        .where(timestampFieldName, isGreaterThan: threeDaysAgoTimestamp)
         .get()
         .then((snapshot) {
       for (var doc in snapshot.docs) {
@@ -53,12 +61,14 @@ class FirestoreNotificationsController {
     });
 
     await notificationCollection
+        .where(disabledFieldName, isEqualTo: false)
         .where(toUserIdFieldName, isEqualTo: userId)
-        .where(notificationTypeFieldName, isLessThan: srqType)
+        .where(notificationTypeFieldName, isLessThan: otherType)
         .get()
         .then((snapshot) {
       for (var doc in snapshot.docs) {
         final CloudNotification notif = CloudNotification.fromSnapshot(doc);
+
         notifs[requestsKeyName]?.add(Tuple2(notif.type, notif));
       }
     });
@@ -83,15 +93,6 @@ class FirestoreNotificationsController {
         .update({'read': true});
   }
 
-  Future<List<CloudNotification>> getUnreadNotificationsOnStart(String userId) {
-    return notificationCollection
-        .where(toUserIdFieldName, isEqualTo: userId)
-        .where(readFieldName, isEqualTo: false)
-        .get()
-        .then((snapshot) => snapshot.docs
-            .map((doc) => CloudNotification.fromSnapshot(doc))
-            .toList());
-  }
 
   Future<void> deleteNotification(CloudNotification notification) async {
     await notificationCollection.doc(notification.notificationId).delete();

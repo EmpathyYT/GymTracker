@@ -61,9 +61,6 @@ class _MainPageState extends State<MainPage> {
               context.read<MainPageCubit>().normalNotificationsStream();
 
           _listenForNotifications(context, state);
-
-          _startingNotifications ??=
-              await context.read<MainPageCubit>().getStartingNotifs();
         },
         builder: (context, state) {
           int currentIndex;
@@ -82,96 +79,120 @@ class _MainPageState extends State<MainPage> {
           } else {
             currentIndex = 0;
           }
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                _title,
-                style: GoogleFonts.oswald(
-                  fontSize: 30,
+          return FutureBuilder(future: () async {
+            _startingNotifications ??=
+                await context.read<MainPageCubit>().getStartingNotifs();
+          }(), builder: (context, snapshot) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  _title,
+                  style: GoogleFonts.oswald(
+                    fontSize: 30,
+                  ),
                 ),
+                actions: [
+                  IconButton(
+                      icon: state.notifications!.isNotEmpty
+                          ? const Icon(
+                              Icons.notifications_active,
+                              color: Colors.red,
+                            )
+                          : const Icon(Icons.notifications),
+                      iconSize: 30,
+                      onPressed: () async {
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(notificationsRoute,
+                              arguments: {
+                                oldNotifsKeyName: _startingNotifications,
+                                newNotifsKeyName: state.notifications
+                              });
+                          if (state.notifications?[normalNotifsKeyName] !=
+                              null) {
+                            for (var element
+                                in state.notifications![requestsKeyName]!) {
+                              if (!(_startingNotifications?[requestsKeyName]
+                                      ?.contains(element) ??
+                                  false)) { //TODO deal with disabled notifications
+                                _startingNotifications?[requestsKeyName]
+                                    ?.add(element);
+                              }
+                            }
+                          }
+                          if (state.notifications?[normalNotifsKeyName] !=
+                              null) {
+                            for (var element
+                                in state.notifications![normalNotifsKeyName]!) {
+                              if (!(_startingNotifications?[normalNotifsKeyName]
+                                      ?.contains(element) ??
+                                  false)) {
+                                _startingNotifications?[normalNotifsKeyName]
+                                    ?.add(element);
+                              }
+                            }
+                          }
+                          await context
+                              .read<MainPageCubit>()
+                              .clearNotifications(state);
+                        }
+                      }),
+                  IconButton(
+                      icon: const Icon(Icons.logout),
+                      iconSize: 30,
+                      onPressed: () {
+                        context.read<AuthBloc>().add(const AuthEventSignOut());
+                      }),
+                ],
               ),
-              actions: [
-                IconButton(
-                    icon: state.notifications!.isNotEmpty
-                        ? const Icon(
-                            Icons.notifications_active,
-                            color: Colors.red,
-                          )
-                        : const Icon(Icons.notifications),
-                    iconSize: 30,
-                    onPressed: () async {
-                      Navigator.of(context).pushNamed(notificationsRoute,
-                          arguments: {
-                            oldNotifsKeyName: _startingNotifications,
-                            newNotifsKeyName: state.notifications
-                          });
-
-                      _startingNotifications?[requestsKeyName]
-                          ?.addAll(state.notifications![requestsKeyName]!);
-
-                      _startingNotifications?[normalNotifsKeyName]
-                          ?.addAll(state.notifications![normalNotifsKeyName]!);
-
-                      await context
-                          .read<MainPageCubit>()
-                          .clearNotifications(state);
-                    }),
-                IconButton(
-                    icon: const Icon(Icons.logout),
-                    iconSize: 30,
-                    onPressed: () {
-                      context.read<AuthBloc>().add(const AuthEventSignOut());
-                    }),
-              ],
-            ),
-            body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: () {
-                  if (state is SquadSelector) {
-                    return const SquadSelectorWidget();
-                  } else if (state is AddWarrior) {
-                    return const AddWarriorWidget();
-                  } else if (state is NewSquad) {
-                    return const SquadCreatorWidget();
-                  } else if (state is Settings) {
-                    return const Text("Settings");
-                  } else {
-                    return const Text("Error");
-                  }
-                }()),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: currentIndex,
-              onDestinationSelected: (int index) {
-                context
-                    .read<MainPageCubit>()
-                    .changePage(index, notifications: state.notifications);
-              },
-              destinations: const <Widget>[
-                NavigationDestination(
-                  icon: Icon(Icons.groups),
-                  label: "Squad Selector",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_add),
-                  label: "Add Warrior",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.add_circle_outline),
-                  label: "New Squad",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.settings),
-                  label: "Settings",
-                ),
-              ],
-            ),
-          );
+              body: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: () {
+                    if (state is SquadSelector) {
+                      return const SquadSelectorWidget();
+                    } else if (state is AddWarrior) {
+                      return const AddWarriorWidget();
+                    } else if (state is NewSquad) {
+                      return const SquadCreatorWidget();
+                    } else if (state is Settings) {
+                      return const Text("Settings");
+                    } else {
+                      return const Text("Error");
+                    }
+                  }()),
+              bottomNavigationBar: NavigationBar(
+                selectedIndex: currentIndex,
+                onDestinationSelected: (int index) {
+                  context
+                      .read<MainPageCubit>()
+                      .changePage(index, notifications: state.notifications);
+                },
+                destinations: const <Widget>[
+                  NavigationDestination(
+                    icon: Icon(Icons.groups),
+                    label: "Squad Selector",
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.person_add),
+                    label: "Add Warrior",
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.add_circle_outline),
+                    label: "New Squad",
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings),
+                    label: "Settings",
+                  ),
+                ],
+              ),
+            );
+          });
         },
       ),
     );
   }
 
-  void _startAppLoop(BuildContext context) {
+  void _startAppLoop(BuildContext context) async {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       context.read<AuthBloc>().add(const AuthEventReloadUser());
     });
