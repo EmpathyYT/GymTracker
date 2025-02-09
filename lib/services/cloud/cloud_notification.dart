@@ -10,6 +10,7 @@ class CloudNotification {
   final int type;
   final bool read;
   final Timestamp time;
+  final String message;
 
   const CloudNotification({
     required this.notificationId,
@@ -18,15 +19,19 @@ class CloudNotification {
     required this.type,
     required this.read,
     required this.time,
+    required this.message,
   });
 
-  CloudNotification.testingNotif() :
+  CloudNotification.testingNotif()
+      :
         notificationId = "test",
         fromUserId = "test",
         toUserId = "test",
         time = Timestamp.now(),
-        type = 0,
-        read = true;
+        type = 2,
+        read = true,
+        message = "test";
+
 
   CloudNotification.fromSnapshot(QueryDocumentSnapshot snapshot)
       : notificationId = snapshot.id,
@@ -34,6 +39,8 @@ class CloudNotification {
         toUserId = snapshot[toUserIdFieldName],
         type = snapshot[notificationTypeFieldName],
         read = snapshot[readFieldName],
-        time = snapshot[timestampFieldName] as Timestamp;
+        time = snapshot[timestampFieldName] as Timestamp,
+        message = snapshot[notificationTypeFieldName] == 2
+            ? snapshot[messageFieldName] : "";
 
 }

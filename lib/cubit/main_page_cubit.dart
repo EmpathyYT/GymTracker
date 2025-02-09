@@ -64,6 +64,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         _firebaseAuthProvider.currentUser!.id,
         userToAddId,
         frqType,
+        ""
       );
       emit(const AddWarrior(success: true));
     } catch (e) {

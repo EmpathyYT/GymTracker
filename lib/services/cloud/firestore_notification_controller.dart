@@ -20,13 +20,14 @@ class FirestoreNotificationsController {
   factory FirestoreNotificationsController() => _instance;
 
   Future<void> sendNotification(
-      String senderId, String receiverId, int type) async {
+      String senderId, String receiverId, int type, String message) async {
     await notificationCollection.add({
       fromUserIdFieldName: senderId,
       toUserIdFieldName: receiverId,
       timestampFieldName: Timestamp.now(),
       readFieldName: false,
       notificationTypeFieldName: type,
+      messageFieldName: type == 2 ? message : "",
     });
   }
 

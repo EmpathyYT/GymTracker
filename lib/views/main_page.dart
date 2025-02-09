@@ -102,38 +102,20 @@ class _MainPageState extends State<MainPage> {
                       iconSize: 30,
                       onPressed: () async {
                         if (context.mounted) {
-                          Navigator.of(context).pushNamed(notificationsRoute,
-                              arguments: {
-                                oldNotifsKeyName: _startingNotifications,
-                                newNotifsKeyName: state.notifications
-                              });
-                          if (state.notifications?[normalNotifsKeyName] !=
-                              null) {
-                            for (var element
-                                in state.notifications![requestsKeyName]!) {
-                              if (!(_startingNotifications?[requestsKeyName]
-                                      ?.contains(element) ??
-                                  false)) { //TODO deal with disabled notifications
-                                _startingNotifications?[requestsKeyName]
-                                    ?.add(element);
-                              }
-                            }
-                          }
-                          if (state.notifications?[normalNotifsKeyName] !=
-                              null) {
-                            for (var element
-                                in state.notifications![normalNotifsKeyName]!) {
-                              if (!(_startingNotifications?[normalNotifsKeyName]
-                                      ?.contains(element) ??
-                                  false)) {
-                                _startingNotifications?[normalNotifsKeyName]
-                                    ?.add(element);
-                              }
-                            }
-                          }
-                          await context
-                              .read<MainPageCubit>()
-                              .clearNotifications(state);
+                          await Navigator.of(context)
+                              .pushNamed(notificationsRoute, arguments: {
+                            oldNotifsKeyName: _startingNotifications,
+                            newNotifsKeyName: state.notifications
+                          }).then((value) async {
+                            if (!context.mounted) return;
+                            await context
+                                .read<MainPageCubit>()
+                                .clearNotifications(state);
+
+                            _startingNotifications =
+                                value as NotificationsType?;
+
+                          });
                         }
                       }),
                   IconButton(
