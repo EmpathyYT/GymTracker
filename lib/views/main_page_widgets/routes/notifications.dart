@@ -7,7 +7,8 @@ import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../constants/code_constraints.dart';
-import '../../../utils/widgets/notification_tile.dart';
+
+typedef FlatNotificationType = List<Tuple2<int?, CloudNotification>>;
 
 class NotificationsRoute extends StatefulWidget {
   const NotificationsRoute({super.key});
@@ -17,13 +18,19 @@ class NotificationsRoute extends StatefulWidget {
 }
 
 class _NotificationsRouteState extends State<NotificationsRoute> {
-  List<Tuple2<int?, CloudNotification>>? notifications;
+  FlatNotificationType? normalNotifications;
+  FlatNotificationType? requestsNotifications;
   final _firestoreUserController = FirestoreUserController();
 
   @override
   void didChangeDependencies() {
-    notifications ??= _flattenNotifications(
-        context.arguments<Map<String, NotificationsType?>>());
+    if (normalNotifications == null && requestsNotifications == null) {
+      final (normNotifications, reqNotifications) = _flattenNotifications(
+          context.arguments<Map<String, NotificationsType?>>());
+
+      normalNotifications = normNotifications;
+      normalNotifications = reqNotifications;
+    }
     super.didChangeDependencies();
   }
 
@@ -33,7 +40,8 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        Navigator.of(context).pop(_expandNotifications(notifications ?? []));
+        Navigator.of(context).pop(_expandNotifications(
+            normalNotifications ?? [], requestsNotifications ?? []));
       },
       child: Scaffold(
         appBar: AppBar(
@@ -44,62 +52,57 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
             ),
           ),
         ),
-        body: notifications!.isEmpty
-            ? Center(
-                child: Text(
-                  "No new notifications",
-                  style: GoogleFonts.oswald(
-                    fontSize: 30,
-                  ),
-                ),
-              )
-            : Column(
-                children: [
-                  const Padding(padding: EdgeInsets.all(6.0)),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: const Divider(
-                      thickness: 0.8,
-                      color: Colors.grey,
+        body: Column(
+          children: [
+
+            const Padding(padding: EdgeInsets.all(6.0)),
+            normalNotifications!.isEmpty
+                ? Center(
+                    child: Text(
+                      "No new notifications",
+                      style: GoogleFonts.oswald(
+                        fontSize: 30,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: notifications!.length,
-                      itemBuilder: (context, index) {
-                        final notification = notifications![index];
-                        final CloudNotification notificationInfo =
-                            notification.item2;
-                        return FutureBuilder(
-                          future: _firestoreUserController
-                              .fetchUser(notificationInfo.fromUserId),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState !=
-                                ConnectionState.done) {
-                              return _loadingListTile();
-                            } else if (snapshot.hasError) {
-                              return _errorListTile();
-                            }
-                            return notificationInfo.type != 2
-                                ? AnimatedNotificationTile(
-                                    notificationInfo: notificationInfo,
-                                    index: index,
-                                    snapshot: snapshot,
-                                    onRemove: () {
-                                      setState(() {
-                                        notifications!.removeAt(index);
-                                      });
-                                    },
-                                  )
-                                : _normalNotificationTile(
+                  )
+                : Column(
+                    children: [
+                      const Padding(padding: EdgeInsets.all(6.0)),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        child: const Divider(
+                          thickness: 0.8,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: normalNotifications!.length,
+                          itemBuilder: (context, index) {
+                            final notification = normalNotifications![index];
+                            final CloudNotification notificationInfo =
+                                notification.item2;
+                            return FutureBuilder(
+                              future: _firestoreUserController
+                                  .fetchUser(notificationInfo.fromUserId),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState !=
+                                    ConnectionState.done) {
+                                  return _loadingListTile();
+                                } else if (snapshot.hasError) {
+                                  return _errorListTile();
+                                }
+                                return _normalNotificationTile(
                                     notificationInfo, snapshot);
+                              },
+                            );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+          ],
+        ),
       ),
     );
   }
@@ -129,33 +132,30 @@ ListTile _normalNotificationTile(
   );
 }
 
-List<Tuple2<int?, CloudNotification>> _flattenNotifications(
-    Map<String, NotificationsType?>? notifications) {
-  final List<Tuple2<int?, CloudNotification>> flattened = [];
+(
+  FlatNotificationType normalNotifications,
+  FlatNotificationType requestsNotifications
+) _flattenNotifications(Map<String, NotificationsType?>? notifications) {
+  final FlatNotificationType flatNorm = [];
+  final FlatNotificationType flatReq = [];
+
   notifications ??= {};
   notifications.forEach((key, value) {
     value?.forEach((key, value) {
-      flattened.addAll(value);
+      if (key == normalNotifsKeyName) {
+        flatNorm.addAll(value);
+      } else {
+        flatReq.addAll(value);
+      }
     });
   });
-  return flattened;
+  return (flatNorm, flatReq);
 }
 
-NotificationsType _expandNotifications(
-    List<Tuple2<int?, CloudNotification>> notifications) {
-  final NotificationsType expanded = {
-    normalNotifsKeyName: [],
-    requestsKeyName: [],
+NotificationsType _expandNotifications(FlatNotificationType normalNotifications,
+    FlatNotificationType requestsNotifications) {
+  return {
+    normalNotifsKeyName: normalNotifications,
+    requestsKeyName: requestsNotifications,
   };
-
-  for (var element in notifications) {
-    final int? type = element.item1;
-    if (type == null) {
-      expanded[normalNotifsKeyName]?.add(element);
-    } else {
-      expanded[requestsKeyName]?.add(element);
-    }
-  }
-
-  return expanded;
 }
