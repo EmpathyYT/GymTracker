@@ -74,9 +74,15 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
           TextField(
             controller: _searchController,
             onChanged: _searchSubject.add,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Search for accounts',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Colors.grey,
+                  width: 1,
+                ),
+              ),
             ),
           ),
           Expanded(

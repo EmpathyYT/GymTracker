@@ -1,9 +1,14 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/extensions/argument_getter_extension.dart';
+import 'package:gymtracker/extensions/hour_minute_second_format.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:gymtracker/utils/widgets/stack_column_flipper.dart';
+import 'package:gymtracker/utils/widgets/universal_card.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../constants/code_constraints.dart';
@@ -25,11 +30,23 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   @override
   void didChangeDependencies() {
     if (normalNotifications == null && requestsNotifications == null) {
-      final (normNotifications, reqNotifications) = _flattenNotifications(
-          context.arguments<Map<String, NotificationsType?>>());
+      // final (normNotifications, reqNotifications) = _flattenNotifications(
+      //     context.arguments<Map<String, NotificationsType?>>());
 
-      normalNotifications = normNotifications;
-      normalNotifications = reqNotifications;
+      normalNotifications = [
+        Tuple2(null, CloudNotification.testingNotif(Timestamp.now())),
+        Tuple2(
+            null,
+            CloudNotification.testingNotif(
+                Timestamp.fromDate(DateTime.utc(2023)))),
+        Tuple2(null, CloudNotification.testingNotif(Timestamp.fromDate(DateTime.utc(2022)))),
+      ];
+
+       normalNotifications
+          ?.sort((a, b) => a.item2.time.compareTo(b.item2.time));
+      //TODO these are ordered from oldest to newest, create own Comparator.
+      // normalNotifications = normNotifications;
+      // requestsNotifications = reqNotifications;
     }
     super.didChangeDependencies();
   }
@@ -52,55 +69,67 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
             ),
           ),
         ),
-        body: Column(
-          children: [
-
-            const Padding(padding: EdgeInsets.all(6.0)),
-            normalNotifications!.isEmpty
-                ? Center(
-                    child: Text(
-                      "No new notifications",
-                      style: GoogleFonts.oswald(
-                        fontSize: 30,
-                      ),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      const Padding(padding: EdgeInsets.all(6.0)),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        child: const Divider(
-                          thickness: 0.8,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: normalNotifications!.length,
-                          itemBuilder: (context, index) {
-                            final notification = normalNotifications![index];
-                            final CloudNotification notificationInfo =
-                                notification.item2;
-                            return FutureBuilder(
-                              future: _firestoreUserController
-                                  .fetchUser(notificationInfo.fromUserId),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState !=
-                                    ConnectionState.done) {
-                                  return _loadingListTile();
-                                } else if (snapshot.hasError) {
-                                  return _errorListTile();
-                                }
-                                return _normalNotificationTile(
-                                    notificationInfo, snapshot);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+        body: StackColumnFlipper(
+          flipToColumn: normalNotifications!.isNotEmpty,
+          commonWidgets: [
+            Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                ),
+                UniversalCard(
+                  isNewRequests: normalNotifications!.isNotEmpty,
+                  iconCallBack: () {},
+                ),
+                const Padding(padding: EdgeInsets.all(2.0)),
+                Container(
+                  padding: const EdgeInsets.only(
+                    top: 3,
+                    bottom: 3,
+                    left: 5,
+                    right: 5,
                   ),
+                  child: const Divider(
+                    thickness: 0.9,
+                    color: Colors.white60,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          ifStack: [
+            Center(
+              child: Text(
+                "No New Notifications",
+                style: GoogleFonts.oswald(
+                  fontSize: 35,
+                ),
+              ),
+            )
+          ],
+          ifColumn: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: normalNotifications!.length,
+                itemBuilder: (context, index) {
+                  final notification = normalNotifications![index];
+                  final CloudNotification notificationInfo = notification.item2;
+                  return FutureBuilder(
+                    future: _firestoreUserController
+                        .fetchUser(notificationInfo.fromUserId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return _loadingListTile();
+                      } else if (snapshot.hasError) {
+                        return _errorListTile();
+                      }
+                      return _normalNotificationTile(
+                          notificationInfo, snapshot);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -127,7 +156,14 @@ ListTile _normalNotificationTile(
   return ListTile(
     title: Text(
       notificationInfo.message,
-      style: const TextStyle(fontSize: 19),
+      style: const TextStyle(fontSize: 22),
+    ),
+    subtitle: Text(
+      "Today at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
+      style: const TextStyle(
+        color: Colors.grey,
+        fontSize: 15,
+      ),
     ),
   );
 }
@@ -159,3 +195,15 @@ NotificationsType _expandNotifications(FlatNotificationType normalNotifications,
     requestsKeyName: requestsNotifications,
   };
 }
+
+// List<Widget> _sortNotificationsByDate(FlatNotificationType notifications) {
+//   final List<Widget> widgetList = [];
+//   final sortedNotifications = notifications
+//     ..sort((a, b) => a.item2.time.compareTo(b.item2.time));
+//
+//   for (final notificationTuple in notifications) {
+//     final notification = notificationTuple.item2;
+//     date = notification.time.toDate().toLocal();
+//
+//   }
+// }

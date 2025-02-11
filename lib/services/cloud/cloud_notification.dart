@@ -22,12 +22,11 @@ class CloudNotification {
     required this.message,
   });
 
-  CloudNotification.testingNotif()
+  const CloudNotification.testingNotif(this.time)
       :
         notificationId = "test",
-        fromUserId = "test",
-        toUserId = "test",
-        time = Timestamp.now(),
+        fromUserId = "vMM1p8I06NQ4YAGCoWOTGejPIZq2",
+        toUserId = "hxzqod6a1kZZNxlQC8DTGAegZoi2",
         type = 2,
         read = true,
         message = "test";
