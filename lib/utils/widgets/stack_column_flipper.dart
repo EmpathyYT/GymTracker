@@ -24,7 +24,10 @@ class StackColumnFlipper extends StatelessWidget {
             ],
           )
         : Stack(
-            children: [...commonWidgets, ...ifStack],
+            children: [
+              Column(children: commonWidgets),
+              ...ifStack,
+            ],
           );
   }
 }

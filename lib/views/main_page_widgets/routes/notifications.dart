@@ -44,7 +44,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
 
        normalNotifications
           ?.sort((a, b) => a.item2.time.compareTo(b.item2.time));
-      //TODO these are ordered from oldest to newest, create own Comparator.
+
       // normalNotifications = normNotifications;
       // requestsNotifications = reqNotifications;
     }
@@ -72,29 +72,25 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
         body: StackColumnFlipper(
           flipToColumn: normalNotifications!.isNotEmpty,
           commonWidgets: [
-            Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                ),
-                UniversalCard(
-                  isNewRequests: normalNotifications!.isNotEmpty,
-                  iconCallBack: () {},
-                ),
-                const Padding(padding: EdgeInsets.all(2.0)),
-                Container(
-                  padding: const EdgeInsets.only(
-                    top: 3,
-                    bottom: 3,
-                    left: 5,
-                    right: 5,
-                  ),
-                  child: const Divider(
-                    thickness: 0.9,
-                    color: Colors.white60,
-                  ),
-                ),
-              ],
+            const Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+            ),
+            UniversalCard(
+              isNewRequests: normalNotifications!.isNotEmpty,
+              iconCallBack: () {},
+            ),
+            const Padding(padding: EdgeInsets.all(2.0)),
+            Container(
+              padding: const EdgeInsets.only(
+                top: 3,
+                bottom: 3,
+                left: 5,
+                right: 5,
+              ),
+              child: const Divider(
+                thickness: 0.9,
+                color: Colors.white60,
+              ),
             ),
           ],
           ifStack: [
