@@ -1,4 +1,4 @@
-extension HourMinuteFormat on DateTime {
+extension DateTimeExtension on DateTime {
   String toHourMinute() {
     String res = "";
 
@@ -7,5 +7,9 @@ extension HourMinuteFormat on DateTime {
     res += hour < 12 ? " AM" : " PM";
 
     return res;
+  }
+
+  int reversedCompareTo(DateTime other) {
+    return -compareTo(other);
   }
 }

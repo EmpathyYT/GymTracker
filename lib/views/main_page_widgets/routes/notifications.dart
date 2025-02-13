@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/extensions/hour_minute_second_format.dart';
+import 'package:gymtracker/extensions/date_time_extension.dart';
+import 'package:gymtracker/extensions/different_dates_extension.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 import 'package:gymtracker/utils/widgets/stack_column_flipper.dart';
 import 'package:gymtracker/utils/widgets/universal_card.dart';
+import 'package:intl/intl.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../constants/code_constraints.dart';
@@ -23,30 +25,36 @@ class NotificationsRoute extends StatefulWidget {
 }
 
 class _NotificationsRouteState extends State<NotificationsRoute> {
-  FlatNotificationType? normalNotifications;
-  FlatNotificationType? requestsNotifications;
+  FlatNotificationType? _normalNotifications;
+  FlatNotificationType? _requestsNotifications;
+  List<Widget>? _notificationWidgets;
   final _firestoreUserController = FirestoreUserController();
 
   @override
   void didChangeDependencies() {
-    if (normalNotifications == null && requestsNotifications == null) {
+    if (_normalNotifications == null && _requestsNotifications == null) {
       // final (normNotifications, reqNotifications) = _flattenNotifications(
       //     context.arguments<Map<String, NotificationsType?>>());
 
-      normalNotifications = [
+      _normalNotifications = [
         Tuple2(null, CloudNotification.testingNotif(Timestamp.now())),
+        Tuple2(null,
+            CloudNotification.testingNotif(Timestamp.fromDate(
+                DateTime.now().subtract(const Duration(minutes: 1))))),
         Tuple2(
             null,
-            CloudNotification.testingNotif(
-                Timestamp.fromDate(DateTime.utc(2023)))),
-        Tuple2(null, CloudNotification.testingNotif(Timestamp.fromDate(DateTime.utc(2022)))),
-      ];
+            CloudNotification.testingNotif(Timestamp.fromDate(
+                DateTime.now().subtract(const Duration(days: 1))))),
+        Tuple2(
+            null,
+            CloudNotification.testingNotif(Timestamp.fromDate(
+                DateTime.now().subtract(const Duration(days: 2))))),
+      ]..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
 
-       normalNotifications
-          ?.sort((a, b) => a.item2.time.compareTo(b.item2.time));
-
-      // normalNotifications = normNotifications;
-      // requestsNotifications = reqNotifications;
+      _notificationWidgets =
+          _notificationListViewWidgetBuilder(_normalNotifications!);
+      // _normalNotifications = normNotifications;
+      // _requestsNotifications = reqNotifications;
     }
     super.didChangeDependencies();
   }
@@ -58,7 +66,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
         Navigator.of(context).pop(_expandNotifications(
-            normalNotifications ?? [], requestsNotifications ?? []));
+            _normalNotifications ?? [], _requestsNotifications ?? []));
       },
       child: Scaffold(
         appBar: AppBar(
@@ -70,13 +78,13 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           ),
         ),
         body: StackColumnFlipper(
-          flipToColumn: normalNotifications!.isNotEmpty,
+          flipToColumn: _normalNotifications?.isNotEmpty ?? false,
           commonWidgets: [
             const Padding(
               padding: EdgeInsets.only(top: 10, bottom: 10),
             ),
             UniversalCard(
-              isNewRequests: normalNotifications!.isNotEmpty,
+              isNewRequests: _requestsNotifications?.isNotEmpty ?? false,
               iconCallBack: () {},
             ),
             const Padding(padding: EdgeInsets.all(2.0)),
@@ -106,23 +114,25 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           ifColumn: [
             Expanded(
               child: ListView.builder(
-                itemCount: normalNotifications!.length,
+                itemCount: (_normalNotifications!.length +
+                    _normalNotifications!.numberOfDifferentDates()),
                 itemBuilder: (context, index) {
-                  final notification = normalNotifications![index];
-                  final CloudNotification notificationInfo = notification.item2;
-                  return FutureBuilder(
-                    future: _firestoreUserController
-                        .fetchUser(notificationInfo.fromUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return _loadingListTile();
-                      } else if (snapshot.hasError) {
-                        return _errorListTile();
-                      }
-                      return _normalNotificationTile(
-                          notificationInfo, snapshot);
-                    },
-                  );
+                  log(_notificationWidgets!.toString());
+                  return _notificationWidgets![index];
+                  // final notificationInfo = normalNotifications![]
+                  // return FutureBuilder(
+                  //   future: _firestoreUserController
+                  //       .fetchUser(notificationInfo.fromUserId),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.connectionState != ConnectionState.done) {
+                  //       return _loadingListTile();
+                  //     } else if (snapshot.hasError) {
+                  //       return _errorListTile();
+                  //     }
+                  //     return _normalNotificationTile(
+                  //         notificationInfo);
+                  //   },
+                  // );
                 },
               ),
             ),
@@ -147,18 +157,23 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   }
 }
 
-ListTile _normalNotificationTile(
-    CloudNotification notificationInfo, AsyncSnapshot snapshot) {
+ListTile _normalNotificationTile(CloudNotification notificationInfo) {
   return ListTile(
     title: Text(
       notificationInfo.message,
-      style: const TextStyle(fontSize: 22),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w100,
+      ),
     ),
     subtitle: Text(
-      "Today at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
+      "\t at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
       style: const TextStyle(
         color: Colors.grey,
         fontSize: 15,
+        fontWeight: FontWeight.w200,
       ),
     ),
   );
@@ -192,14 +207,33 @@ NotificationsType _expandNotifications(FlatNotificationType normalNotifications,
   };
 }
 
-// List<Widget> _sortNotificationsByDate(FlatNotificationType notifications) {
-//   final List<Widget> widgetList = [];
-//   final sortedNotifications = notifications
-//     ..sort((a, b) => a.item2.time.compareTo(b.item2.time));
-//
-//   for (final notificationTuple in notifications) {
-//     final notification = notificationTuple.item2;
-//     date = notification.time.toDate().toLocal();
-//
-//   }
-// }
+List<Widget> _notificationListViewWidgetBuilder(
+    FlatNotificationType notifications) {
+  final List<Widget> widgets = [];
+  for (int i = 0; i < notifications.length; i++) {
+    final notification = notifications[i].item2;
+    final prevNotification = i == 0 ? null : notifications[i - 1].item2;
+    final title = notification.time.toDate().toLocal();
+
+    if (i == 0 ||
+        prevNotification?.time.toDate().toLocal().day !=
+            notification.time.toDate().toLocal().day) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            title.day == DateTime.now().day
+                ? "Today"
+                : title.day ==
+                        DateTime.now().subtract(const Duration(days: 1)).day
+                    ? "Yesterday"
+                    : DateFormat('EEEE').format(title),
+            style: const TextStyle(fontSize: 29, fontWeight: FontWeight.w200),
+          ),
+        ),
+      );
+    }
+    widgets.add(_normalNotificationTile(notification));
+  }
+  return widgets;
+}
