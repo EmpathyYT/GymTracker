@@ -3,7 +3,7 @@
 A new Flutter project.
 
 # To-do
-- [ ] Sort notifications by time stamp.
+- [x] Sort notifications by time stamp.
 - [ ] Create LoadedNotification type.
 - [x] Create own Comparator to sort notifications.
 - [ ] If squad creation succeeds make it teleport the user to the squad.
