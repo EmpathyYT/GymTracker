@@ -25,7 +25,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         emit(SquadSelector(notifications: notifications));
         break;
       case 1:
-        emit(AddWarrior(notifications: notifications));
+        emit(FriendsViewer(notifications: notifications));
         break;
       case 2:
         emit(NewSquad(notifications: notifications));
@@ -57,7 +57,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String userToAddId,
   }) async {
     try {
-      emit(const AddWarrior(isLoading: true, loadingText: "Adding Warrior..."));
+      emit(const FriendsViewer(isLoading: true, loadingText: "Adding Warrior..."));
       await _firestoreUserController.sendFriendReq(
           userId: _firebaseAuthProvider.currentUser!.id, friendId: userToAddId);
       _firestoreNotificationController.sendNotification(
@@ -66,9 +66,9 @@ class MainPageCubit extends Cubit<MainPageState> {
         frqType,
         ""
       );
-      emit(const AddWarrior(success: true));
+      emit(const FriendsViewer(success: true));
     } catch (e) {
-      emit(AddWarrior(exception: e as Exception));
+      emit(FriendsViewer(exception: e as Exception));
     }
   }
 

@@ -9,7 +9,8 @@ import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
-import 'package:gymtracker/views/main_page_widgets/add_warrior.dart';
+import 'package:gymtracker/views/main_page_widgets/friends_viewer.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 import 'package:tuple/tuple.dart';
@@ -66,13 +67,13 @@ class _MainPageState extends State<MainPage> {
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
-            _title = "Squad Selector";
-          } else if (state is AddWarrior) {
+            _title = "Clan Selector";
+          } else if (state is FriendsViewer) {
             currentIndex = 1;
-            _title = "Add Warrior";
+            _title = "Kin Viewer";
           } else if (state is NewSquad) {
             currentIndex = 2;
-            _title = "Squad Creator";
+            _title = "Clan Creator";
           } else if (state is Settings) {
             currentIndex = 3;
             _title = "Settings";
@@ -88,10 +89,26 @@ class _MainPageState extends State<MainPage> {
                 title: Text(
                   _title,
                   style: GoogleFonts.oswald(
-                    fontSize: 30,
+                    fontSize: 35,
                   ),
                 ),
                 actions: [
+                  state is FriendsViewer
+                      ? IconButton(
+                          icon: const Icon(Icons.person_add),
+                          iconSize: 30,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider.value(
+                                  value: context.read<MainPageCubit>(),
+                                  child: const AddWarriorWidget(),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : const SizedBox.shrink(),
                   IconButton(
                       icon: state.notifications!.isNotEmpty
                           ? const Icon(
@@ -114,7 +131,6 @@ class _MainPageState extends State<MainPage> {
 
                             _startingNotifications =
                                 value as NotificationsType?;
-
                           });
                         }
                       }),
@@ -131,8 +147,8 @@ class _MainPageState extends State<MainPage> {
                   child: () {
                     if (state is SquadSelector) {
                       return const SquadSelectorWidget();
-                    } else if (state is AddWarrior) {
-                      return const AddWarriorWidget();
+                    } else if (state is FriendsViewer) {
+                      return const FriendsViewerWidget();
                     } else if (state is NewSquad) {
                       return const SquadCreatorWidget();
                     } else if (state is Settings) {
@@ -151,15 +167,15 @@ class _MainPageState extends State<MainPage> {
                 destinations: const <Widget>[
                   NavigationDestination(
                     icon: Icon(Icons.groups),
-                    label: "Squad Selector",
+                    label: "Clan Selector",
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.person_add),
-                    label: "Add Warrior",
+                    icon: Icon(Icons.handshake),
+                    label: "Kin Viewer",
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.add_circle_outline),
-                    label: "New Squad",
+                    icon: Icon(Icons.group_add),
+                    label: "Clan Creator",
                   ),
                   NavigationDestination(
                     icon: Icon(Icons.settings),

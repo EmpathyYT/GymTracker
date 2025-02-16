@@ -1,1 +1,2 @@
 const notificationsRoute = "main_page/notifications";
+const warriorAdderRoute = "main_page/friend_adder";

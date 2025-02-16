@@ -47,8 +47,8 @@ final class SquadSelector extends MainPageState {
 
 }
 
-final class AddWarrior extends MainPageState {
-  const AddWarrior(
+final class FriendsViewer extends MainPageState {
+  const FriendsViewer(
       {
         super.exception,
         super.isLoading = false,
@@ -58,8 +58,8 @@ final class AddWarrior extends MainPageState {
       });
 
   @override
-  AddWarrior copyWith({NotificationsType? notifications}) {
-    return AddWarrior(
+  FriendsViewer copyWith({NotificationsType? notifications}) {
+    return FriendsViewer(
       exception: exception,
       isLoading: isLoading,
       loadingText: loadingText,

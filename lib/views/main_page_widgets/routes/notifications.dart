@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/extensions/argument_getter_extension.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
 import 'package:gymtracker/extensions/different_dates_extension.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
@@ -33,28 +33,31 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   @override
   void didChangeDependencies() {
     if (_normalNotifications == null && _requestsNotifications == null) {
-      // final (normNotifications, reqNotifications) = _flattenNotifications(
-      //     context.arguments<Map<String, NotificationsType?>>());
+      final (normNotifications, reqNotifications) = _flattenNotifications(
+          context.arguments<Map<String, NotificationsType?>>());
 
-      _normalNotifications = [
-        Tuple2(null, CloudNotification.testingNotif(Timestamp.now())),
-        Tuple2(null,
-            CloudNotification.testingNotif(Timestamp.fromDate(
-                DateTime.now().subtract(const Duration(minutes: 1))))),
-        Tuple2(
-            null,
-            CloudNotification.testingNotif(Timestamp.fromDate(
-                DateTime.now().subtract(const Duration(days: 1))))),
-        Tuple2(
-            null,
-            CloudNotification.testingNotif(Timestamp.fromDate(
-                DateTime.now().subtract(const Duration(days: 2))))),
-      ]..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
+      // _normalNotifications = [
+      //   Tuple2(null, CloudNotification.testingNotif(Timestamp.now())),
+      //   Tuple2(null,
+      //       CloudNotification.testingNotif(Timestamp.fromDate(
+      //           DateTime.now().subtract(const Duration(minutes: 1))))),
+      //   Tuple2(
+      //       null,
+      //       CloudNotification.testingNotif(Timestamp.fromDate(
+      //           DateTime.now().subtract(const Duration(days: 1))))),
+      //   Tuple2(
+      //       null,
+      //       CloudNotification.testingNotif(Timestamp.fromDate(
+      //           DateTime.now().subtract(const Duration(days: 2))))),
+      // ];
+
+      _normalNotifications = normNotifications
+        ..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
+
+      _requestsNotifications = reqNotifications;
 
       _notificationWidgets =
           _notificationListViewWidgetBuilder(_normalNotifications!);
-      // _normalNotifications = normNotifications;
-      // _requestsNotifications = reqNotifications;
     }
     super.didChangeDependencies();
   }
@@ -73,7 +76,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           title: Text(
             "Notifications",
             style: GoogleFonts.oswald(
-              fontSize: 30,
+              fontSize: 35,
             ),
           ),
         ),
@@ -220,7 +223,7 @@ List<Widget> _notificationListViewWidgetBuilder(
             notification.time.toDate().toLocal().day) {
       widgets.add(
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(top: i == 0 ? 8 : 18, bottom: 5, left: 8),
           child: Text(
             title.day == DateTime.now().day
                 ? "Today"
@@ -228,7 +231,7 @@ List<Widget> _notificationListViewWidgetBuilder(
                         DateTime.now().subtract(const Duration(days: 1)).day
                     ? "Yesterday"
                     : DateFormat('EEEE').format(title),
-            style: const TextStyle(fontSize: 29, fontWeight: FontWeight.w200),
+            style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w200),
           ),
         ),
       );
