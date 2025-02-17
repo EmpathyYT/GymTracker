@@ -9,7 +9,7 @@ import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
-import 'package:gymtracker/views/main_page_widgets/friends_viewer.dart';
+import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
@@ -100,7 +100,7 @@ class _MainPageState extends State<MainPage> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => BlocProvider.value(
+                                builder: (_) => BlocProvider.value(
                                   value: context.read<MainPageCubit>(),
                                   child: const AddWarriorWidget(),
                                 ),

@@ -18,7 +18,6 @@ Future<void> showUserCard({
               userData[nameFieldName],
               style: const TextStyle(
                 fontSize: 26,
-                fontWeight: FontWeight.bold,
               ),
             ),
             const Spacer(),
@@ -44,7 +43,7 @@ Future<void> showUserCard({
               child: Text(
                 (userData[bioFieldName] as String).isNotEmpty
                     ? userData[bioFieldName]
-                    : 'This user does not have a bio',
+                    : "Warrior's story is yet to be written...",
                 textAlign: TextAlign.left,
                 style: const TextStyle(
                   fontSize: 17,

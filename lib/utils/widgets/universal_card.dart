@@ -35,7 +35,7 @@ class UniversalCard extends StatelessWidget {
                 if (isNewRequests) {
                   return [
                     const Text(
-                      "New FRQs Available",
+                      "New KRQs Available",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w100,
@@ -52,7 +52,7 @@ class UniversalCard extends StatelessWidget {
                 } else {
                   return [
                     const Text(
-                      "No New FRQs",
+                      "No New KRQs",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w100,
