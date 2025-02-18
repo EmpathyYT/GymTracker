@@ -67,7 +67,10 @@ class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
               _titleGenerator(),
               style: const TextStyle(fontSize: 19),
             ),
-            subtitle: Text("from ${widget.snapshot.data?.name}"),
+            subtitle: Text(
+              "from ${widget.snapshot.data?.name}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

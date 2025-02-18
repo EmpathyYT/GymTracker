@@ -61,9 +61,12 @@ class _MainPageState extends State<MainPage> {
           _normalNotifStream ??=
               context.read<MainPageCubit>().normalNotificationsStream();
 
-          _listenForNotifications(context, state);
         },
         builder: (context, state) {
+          if (_normalNotifsSubscription == null) {
+            _listenForNotifications(context, state);
+          }
+
           int currentIndex;
           if (state is SquadSelector) {
             currentIndex = 0;
@@ -118,21 +121,18 @@ class _MainPageState extends State<MainPage> {
                           : const Icon(Icons.notifications),
                       iconSize: 30,
                       onPressed: () async {
-                        if (context.mounted) {
                           await Navigator.of(context)
                               .pushNamed(notificationsRoute, arguments: {
                             oldNotifsKeyName: _startingNotifications,
                             newNotifsKeyName: state.notifications
                           }).then((value) async {
                             if (!context.mounted) return;
+                            _startingNotifications =
+                            value as NotificationsType?;
                             await context
                                 .read<MainPageCubit>()
                                 .clearNotifications(state);
-
-                            _startingNotifications =
-                                value as NotificationsType?;
                           });
-                        }
                       }),
                   IconButton(
                       icon: const Icon(Icons.logout),

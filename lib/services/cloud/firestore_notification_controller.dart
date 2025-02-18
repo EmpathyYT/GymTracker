@@ -63,8 +63,9 @@ class FirestoreNotificationsController {
 
     await notificationCollection
         .where(disabledFieldName, isEqualTo: false)
+        .where(readFieldName, isEqualTo: true)
         .where(toUserIdFieldName, isEqualTo: userId)
-        .where(notificationTypeFieldName, isLessThan: otherType)
+        .where(notificationTypeFieldName, isEqualTo: frqType)
         .get()
         .then((snapshot) {
       for (var doc in snapshot.docs) {
@@ -82,6 +83,7 @@ class FirestoreNotificationsController {
     return notificationCollection
         .where(toUserIdFieldName, isEqualTo: userId)
         .where(readFieldName, isEqualTo: false)
+        .where(notificationTypeFieldName, isNotEqualTo: srqType)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => CloudNotification.fromSnapshot(doc))

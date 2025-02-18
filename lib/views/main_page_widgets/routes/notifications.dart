@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
 import 'package:gymtracker/extensions/different_dates_extension.dart';
@@ -55,7 +56,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
         ..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
 
       _requestsNotifications = reqNotifications;
-
+      log(reqNotifications.toString());
       _notificationWidgets =
           _notificationListViewWidgetBuilder(_normalNotifications!);
     }
@@ -87,8 +88,22 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
               padding: EdgeInsets.only(top: 10, bottom: 10),
             ),
             UniversalCard(
-              isNewRequests: _requestsNotifications?.isNotEmpty ?? false,
-              iconCallBack: () {},
+              isNewRequests:
+              _requestsNotifications?.any((e) => e.item2.read == false) ??
+                  false,
+              iconCallBack: () async {
+                await Navigator.of(context)
+                    .pushNamed(
+                  krqNotificationsRoute,
+                  arguments: _requestsNotifications,
+                )
+                    .then((value) {
+                  setState(() {
+                    if ((value as List).isEmpty) return;
+                    _requestsNotifications = value as FlatNotificationType?;
+                  });
+                });
+              },
             ),
             const Padding(padding: EdgeInsets.all(2.0)),
             Container(
@@ -120,7 +135,6 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                 itemCount: (_normalNotifications!.length +
                     _normalNotifications!.numberOfDifferentDates()),
                 itemBuilder: (context, index) {
-                  log(_notificationWidgets!.toString());
                   return _notificationWidgets![index];
                   // final notificationInfo = normalNotifications![]
                   // return FutureBuilder(
@@ -142,20 +156,6 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           ],
         ),
       ),
-    );
-  }
-
-  ListTile _loadingListTile() {
-    return const ListTile(
-      title: Text("Loading Notification, please wait...",
-          style: TextStyle(fontSize: 19)),
-    );
-  }
-
-  ListTile _errorListTile() {
-    return const ListTile(
-      title: Text("Error loading notification, please try again later",
-          style: TextStyle(fontSize: 19)),
     );
   }
 }
@@ -239,4 +239,18 @@ List<Widget> _notificationListViewWidgetBuilder(
     widgets.add(_normalNotificationTile(notification));
   }
   return widgets;
+}
+
+ListTile buildLoadingListTile() {
+  return const ListTile(
+    title: Text("Loading Notification, please wait...",
+        style: TextStyle(fontSize: 19)),
+  );
+}
+
+ListTile buildErrorListTile() {
+  return const ListTile(
+    title: Text("Error loading notification, please try again later",
+        style: TextStyle(fontSize: 19)),
+  );
 }

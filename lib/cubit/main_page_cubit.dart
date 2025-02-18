@@ -87,6 +87,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   Future<void> clearNotifications(MainPageState state) async {
+    emit(state.copyWith(notifications: const {}));
     final currentNotifs = state.notifications;
 
     for (final key in currentNotifs!.keys) {
@@ -95,8 +96,6 @@ class MainPageCubit extends Cubit<MainPageState> {
             .markNotificationAsRead(notif.item2);
       }
     }
-
-    emit(state.copyWith(notifications: const {}));
   }
 
   Future<void> disableNotification(String notifId) async {

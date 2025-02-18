@@ -11,6 +11,7 @@ import 'package:gymtracker/views/forgot_password.dart';
 import 'package:gymtracker/views/login_page.dart';
 import 'package:gymtracker/views/main_page.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/krq_notifications.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 
 import 'helpers/loading/loading_dialog.dart';
@@ -42,6 +43,8 @@ class MyApp extends StatelessWidget {
       routes: {
         notificationsRoute: (context) => const NotificationsRoute(),
         warriorAdderRoute: (context) => const AddWarriorWidget(),
+        krqNotificationsRoute: (context) => const KinRequestRoute(),
+
       },
     );
   }
@@ -79,5 +82,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
-//TODO when making a request make the backend check for a user

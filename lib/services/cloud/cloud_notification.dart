@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 
-@immutable
+
 class CloudNotification {
   final String notificationId;
   final String fromUserId;
   final String toUserId;
   final int type;
-  final bool read;
+  bool read;
   final Timestamp time;
   final String message;
 
-  const CloudNotification({
+  CloudNotification({
     required this.notificationId,
     required this.fromUserId,
     required this.toUserId,
@@ -22,7 +21,7 @@ class CloudNotification {
     required this.message,
   });
 
-  const CloudNotification.testingNotif(this.time)
+  CloudNotification.testingNotif(this.time)
       :
         notificationId = "test",
         fromUserId = "vMM1p8I06NQ4YAGCoWOTGejPIZq2",
@@ -42,4 +41,5 @@ class CloudNotification {
         message = snapshot[notificationTypeFieldName] == 2
             ? snapshot[messageFieldName] : "";
 
+  void readNotification() => read = true;
 }
