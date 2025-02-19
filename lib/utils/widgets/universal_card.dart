@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 class UniversalCard extends StatelessWidget {
   final bool isNewRequests;
   final VoidCallback iconCallBack;
+  final String title1;
+  final String title2;
 
   const UniversalCard({
     super.key,
     required this.isNewRequests,
     required this.iconCallBack,
+    required this.title1,
+    required this.title2,
   });
 
   @override
@@ -34,9 +38,9 @@ class UniversalCard extends StatelessWidget {
               ...() {
                 if (isNewRequests) {
                   return [
-                    const Text(
-                      "New KRQs Available",
-                      style: TextStyle(
+                    Text(
+                      title2,
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w100,
                       ),
@@ -44,16 +48,16 @@ class UniversalCard extends StatelessWidget {
                     Text(
                       "  ●",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
                         color: Colors.blueAccent[200],
                       ),
                     )
                   ];
                 } else {
                   return [
-                    const Text(
-                      "No New KRQs",
-                      style: TextStyle(
+                    Text(
+                      title1,
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w100,
                       ),

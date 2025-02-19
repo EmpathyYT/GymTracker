@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/extensions/argument_getter_extension.dart';
 import 'package:gymtracker/utils/widgets/request_notification_tile.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/notifications.dart';
 
@@ -18,7 +19,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
 
   @override
   void didChangeDependencies() {
-    _krqNotifications ??= [];
+    _krqNotifications ??= context.arguments<FlatNotificationType>() ?? [];
     super.didChangeDependencies();
   }
 
@@ -36,7 +37,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Kin Requests",
+            "Kinship Calls",
             style: GoogleFonts.oswald(
               fontSize: 35,
             ),
@@ -109,9 +110,9 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
   Text _buildSubtitle(int length) {
     var text = "The battlefield stirs—";
     if (length == 1) {
-      text += "a warrior seeks your alliance!";
+      text += "a warrior seeks your kinship!";
     } else {
-      text += "warriors seek your alliance!";
+      text += "warriors seek your kinship!";
     }
     return Text(
       text,

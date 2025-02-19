@@ -60,7 +60,6 @@ class _MainPageState extends State<MainPage> {
           }
           _normalNotifStream ??=
               context.read<MainPageCubit>().normalNotificationsStream();
-
         },
         builder: (context, state) {
           if (_normalNotifsSubscription == null) {
@@ -73,7 +72,7 @@ class _MainPageState extends State<MainPage> {
             _title = "Clan Selector";
           } else if (state is FriendsViewer) {
             currentIndex = 1;
-            _title = "Kin Viewer";
+            _title = "Kinship Board";
           } else if (state is NewSquad) {
             currentIndex = 2;
             _title = "Clan Creator";
@@ -83,36 +82,38 @@ class _MainPageState extends State<MainPage> {
           } else {
             currentIndex = 0;
           }
-          return FutureBuilder(future: () async {
-            _startingNotifications ??=
-                await context.read<MainPageCubit>().getStartingNotifs();
-          }(), builder: (context, snapshot) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  _title,
-                  style: GoogleFonts.oswald(
-                    fontSize: 35,
+          return FutureBuilder(
+            future: () async {
+              _startingNotifications ??=
+                  await context.read<MainPageCubit>().getStartingNotifs();
+            }(),
+            builder: (context, snapshot) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(
+                    _title,
+                    style: GoogleFonts.oswald(
+                      fontSize: 35,
+                    ),
                   ),
-                ),
-                actions: [
-                  state is FriendsViewer
-                      ? IconButton(
-                          icon: const Icon(Icons.person_add),
-                          iconSize: 30,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: context.read<MainPageCubit>(),
-                                  child: const AddWarriorWidget(),
+                  actions: [
+                    state is FriendsViewer
+                        ? IconButton(
+                            icon: const Icon(Icons.person_add),
+                            iconSize: 30,
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: context.read<MainPageCubit>(),
+                                    child: const AddWarriorWidget(),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        )
-                      : const SizedBox.shrink(),
-                  IconButton(
+                              );
+                            },
+                          )
+                        : const SizedBox.shrink(),
+                    IconButton(
                       icon: state.notifications!.isNotEmpty
                           ? const Icon(
                               Icons.notifications_active,
@@ -121,70 +122,76 @@ class _MainPageState extends State<MainPage> {
                           : const Icon(Icons.notifications),
                       iconSize: 30,
                       onPressed: () async {
-                          await Navigator.of(context)
-                              .pushNamed(notificationsRoute, arguments: {
-                            oldNotifsKeyName: _startingNotifications,
-                            newNotifsKeyName: state.notifications
-                          }).then((value) async {
+                        await Navigator.of(context)
+                            .pushNamed(notificationsRoute, arguments: {
+                          oldNotifsKeyName: _startingNotifications,
+                          newNotifsKeyName: state.notifications
+                        }).then(
+                          (value) async {
                             if (!context.mounted) return;
                             _startingNotifications =
-                            value as NotificationsType?;
+                                value as NotificationsType?;
                             await context
                                 .read<MainPageCubit>()
                                 .clearNotifications(state);
-                          });
-                      }),
-                  IconButton(
-                      icon: const Icon(Icons.logout),
-                      iconSize: 30,
-                      onPressed: () {
-                        context.read<AuthBloc>().add(const AuthEventSignOut());
-                      }),
-                ],
-              ),
-              body: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: () {
-                    if (state is SquadSelector) {
-                      return const SquadSelectorWidget();
-                    } else if (state is FriendsViewer) {
-                      return const FriendsViewerWidget();
-                    } else if (state is NewSquad) {
-                      return const SquadCreatorWidget();
-                    } else if (state is Settings) {
-                      return const Text("Settings");
-                    } else {
-                      return const Text("Error");
-                    }
-                  }()),
-              bottomNavigationBar: NavigationBar(
-                selectedIndex: currentIndex,
-                onDestinationSelected: (int index) {
-                  context
-                      .read<MainPageCubit>()
-                      .changePage(index, notifications: state.notifications);
-                },
-                destinations: const <Widget>[
-                  NavigationDestination(
-                    icon: Icon(Icons.groups),
-                    label: "Clan Selector",
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.handshake),
-                    label: "Kin Viewer",
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.group_add),
-                    label: "Clan Creator",
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.settings),
-                    label: "Settings",
-                  ),
-                ],
-              ),
-            );
-          });
+                          },
+                        );
+                      },
+                    ),
+                    IconButton(
+                        icon: const Icon(Icons.logout),
+                        iconSize: 30,
+                        onPressed: () {
+                          context
+                              .read<AuthBloc>()
+                              .add(const AuthEventSignOut());
+                        }),
+                  ],
+                ),
+                body: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: () {
+                      if (state is SquadSelector) {
+                        return const SquadSelectorWidget();
+                      } else if (state is FriendsViewer) {
+                        return const FriendsViewerWidget();
+                      } else if (state is NewSquad) {
+                        return const SquadCreatorWidget();
+                      } else if (state is Settings) {
+                        return const Text("Settings");
+                      } else {
+                        return const Text("Error");
+                      }
+                    }()),
+                bottomNavigationBar: NavigationBar(
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: (int index) {
+                    context
+                        .read<MainPageCubit>()
+                        .changePage(index, notifications: state.notifications);
+                  },
+                  destinations: const <Widget>[
+                    NavigationDestination(
+                      icon: Icon(Icons.groups),
+                      label: "Clan Selector",
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.handshake),
+                      label: "Kinship Board",
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.group_add),
+                      label: "Clan Creator",
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.settings),
+                      label: "Settings",
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
         },
       ),
     );
@@ -200,7 +207,6 @@ class _MainPageState extends State<MainPage> {
       BuildContext context, MainPageState state) async {
     _normalNotifsSubscription = _normalNotifStream?.listen((event) {
       final notifs = organizingNotifs(event);
-
       if ((notifs[normalNotifsKeyName]!.isNotEmpty ||
               notifs[requestsKeyName]!.isNotEmpty) &&
           context.mounted) {

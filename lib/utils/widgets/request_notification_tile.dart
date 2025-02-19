@@ -110,7 +110,7 @@ class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
   String _titleGenerator() {
     switch (widget.notificationInfo.type) {
       case 0:
-        return "Pending Friend Request";
+        return "Pending Kinship Call";
       case 1:
         return "Pending Server Request";
       default:

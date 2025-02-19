@@ -52,25 +52,26 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
     return BlocListener<MainPageCubit, MainPageState>(
       listener: (context, state) async {
         if (state.success) {
-          await showSuccessDialog(
-              context, "Request Sent", "The friend request has been sent.");
+          await showSuccessDialog(context, "Kinship Call Sent",
+              "Your kinship request has been sent.");
         }
         if (context.mounted) {
           if (state.exception is AlreadySentFriendRequestException) {
             await showErrorDialog(
-                context, "You have already sent a friend request to this user");
+                context, "The kinship call has already been sent.");
           } else if (state.exception is UserAlreadyFriendException) {
             await showErrorDialog(
-                context, "You are already friends with this user");
+                context, "You and this warrior are already kin.");
           } else if (state.exception is GenericCloudException) {
-            await showErrorDialog(context, "An error occurred");
+            await showErrorDialog(
+                context, "The kinship call could not be delivered.");
           }
         }
       },
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Add Warrior',
+            'Send Kinship Call',
             style: GoogleFonts.oswald(
               fontSize: 35,
             ),
@@ -89,7 +90,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                 controller: _searchController,
                 onChanged: _searchSubject.add,
                 decoration: InputDecoration(
-                  labelText: 'Search for accounts',
+                  labelText: 'Seek out warrior',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -105,15 +106,15 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                   stream: _searchStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _buildStreamTextRes("Search For Warrior");
+                      return _buildStreamTextRes("Scout for Warriors");
                     }
 
                     if (snapshot.hasError) {
-                      return _buildStreamTextRes("An Error Occurred");
+                      return _buildStreamTextRes("The Quest for Kin Failed.");
                     }
 
                     if (snapshot.data == null) {
-                      return _buildStreamTextRes("Search For Warrior");
+                      return _buildStreamTextRes("Scout for Warriors");
                     }
 
                     final users = snapshot.data!.docs;

@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
@@ -56,7 +55,6 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
         ..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
 
       _requestsNotifications = reqNotifications;
-      log(reqNotifications.toString());
       _notificationWidgets =
           _notificationListViewWidgetBuilder(_normalNotifications!);
     }
@@ -75,7 +73,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Notifications",
+            "Frontline Reports",
             style: GoogleFonts.oswald(
               fontSize: 35,
             ),
@@ -88,9 +86,13 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
               padding: EdgeInsets.only(top: 10, bottom: 10),
             ),
             UniversalCard(
+              title1: "No New Kinship Calls",
+              title2: (_requestsNotifications?.length ?? 0) == 1
+                  ? "A Warrior Seeks Kinship"
+                  : "Warriors Seek Kinship",
               isNewRequests:
-              _requestsNotifications?.any((e) => e.item2.read == false) ??
-                  false,
+                  _requestsNotifications?.any((e) => e.item2.read == false) ??
+                      false,
               iconCallBack: () async {
                 await Navigator.of(context)
                     .pushNamed(
@@ -99,7 +101,10 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                 )
                     .then((value) {
                   setState(() {
-                    if ((value as List).isEmpty) return;
+                    if ((value as List).isEmpty) {
+                      _requestsNotifications = [];
+                      return;
+                    }
                     _requestsNotifications = value as FlatNotificationType?;
                   });
                 });
@@ -121,10 +126,13 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           ],
           ifStack: [
             Center(
-              child: Text(
-                "No New Notifications",
-                style: GoogleFonts.oswald(
-                  fontSize: 35,
+              child: Align(
+                child: Text(
+                  "The campfire burns quietly. No reports from the frontlines.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.oswald(
+                    fontSize: 35,
+                  ),
                 ),
               ),
             )
@@ -160,23 +168,30 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   }
 }
 
-ListTile _normalNotificationTile(CloudNotification notificationInfo) {
+ListTile _buildNormalNotificationTile(CloudNotification notificationInfo) {
   return ListTile(
-    title: Text(
-      notificationInfo.message,
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w100,
+    leading: const CircleAvatar(
+      radius: 25,
+      backgroundColor: Colors.white24,
+    ),
+    title: Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Text(
+        notificationInfo.message,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w100,
+        ),
       ),
     ),
     subtitle: Text(
-      "\t at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
+      "at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
       style: const TextStyle(
         color: Colors.grey,
-        fontSize: 15,
-        fontWeight: FontWeight.w200,
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
       ),
     ),
   );
@@ -223,7 +238,7 @@ List<Widget> _notificationListViewWidgetBuilder(
             notification.time.toDate().toLocal().day) {
       widgets.add(
         Padding(
-          padding: EdgeInsets.only(top: i == 0 ? 8 : 18, bottom: 5, left: 8),
+          padding: EdgeInsets.only(top: i == 0 ? 8 : 12, bottom: 15, left: 18),
           child: Text(
             title.day == DateTime.now().day
                 ? "Today"
@@ -236,21 +251,23 @@ List<Widget> _notificationListViewWidgetBuilder(
         ),
       );
     }
-    widgets.add(_normalNotificationTile(notification));
+    widgets.add(_buildNormalNotificationTile(notification));
   }
   return widgets;
 }
 
+
+
 ListTile buildLoadingListTile() {
   return const ListTile(
-    title: Text("Loading Notification, please wait...",
+    title: Text("Cracking the wax seal, retrieving your message.",
         style: TextStyle(fontSize: 19)),
   );
 }
 
 ListTile buildErrorListTile() {
   return const ListTile(
-    title: Text("Error loading notification, please try again later",
+    title: Text("The battlefield is in chaos, come back later.",
         style: TextStyle(fontSize: 19)),
   );
 }
