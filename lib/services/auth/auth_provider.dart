@@ -20,5 +20,5 @@ abstract class AuthProvider {
   Future<void> logOut();
   Future<void> sendEmailVerification();
   Future<void> initialize();
-
+  Future<void> refreshSession();
 }

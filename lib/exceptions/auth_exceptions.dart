@@ -41,3 +41,11 @@ class UsernameAlreadyUsedAuthException implements Exception {
 class UserAlreadyInSquadException implements Exception {
   final String message = 'User already in squad';
 }
+
+class EmailNotConfirmedAuthException implements Exception {
+  final String message = 'Email not confirmed';
+}
+
+class CantResetWithSamePassword implements Exception {
+  final String message = 'You can\'t reset your password with the same password';
+}

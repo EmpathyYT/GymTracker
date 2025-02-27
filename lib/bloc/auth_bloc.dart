@@ -16,7 +16,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthEventReloadUser>((event, emit) async {
-      await provider.currentUser?.reload();
+      await provider.refreshSession();
       if (provider.currentUser == null) {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } else {

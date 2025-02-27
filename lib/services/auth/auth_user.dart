@@ -1,25 +1,30 @@
-import 'package:firebase_auth/firebase_auth.dart' show User;
+import 'package:firebase_auth/firebase_auth.dart' as fb show User;
 import 'package:flutter/cupertino.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+typedef FutureVoidCallback = Future<void> Function();
 
 @immutable
 class AuthUser {
   final String? email;
   final bool isEmailVerified;
-  final User? user;
   final String id;
 
-  const AuthUser(
-      {required this.id,
-      required this.email,
-      this.user,
-      required this.isEmailVerified});
+  const AuthUser({
+    required this.id,
+    required this.email,
+    required this.isEmailVerified,
+  });
 
-  factory AuthUser.fromFirebaseUser(User user) => AuthUser(
-        id:user.uid,
+  factory AuthUser.fromFirebaseUser(fb.User user) => AuthUser(
+        id: user.uid,
         email: user.email,
-        user: user,
         isEmailVerified: user.emailVerified,
       );
 
-  Future<void> reload() => user!.reload();
+  factory AuthUser.fromSupabaseUser(User user) => AuthUser(
+        id: user.id,
+        email: user.email,
+        isEmailVerified: user.emailConfirmedAt != null,
+      );
 }

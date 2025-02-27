@@ -56,8 +56,6 @@ class FirebaseAuthProvider implements AuthProvider {
           .signInWithEmailAndPassword(email: email, password: password);
       return currentUser!;
     } on FirebaseAuthException catch (e) {
-      log(e.code);
-
       if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
       } else if (e.code == 'invalid-credential') {
@@ -115,5 +113,9 @@ class FirebaseAuthProvider implements AuthProvider {
     }
   }
 
+  @override
+  Future<void> refreshSession() async {
+    await FirebaseAuth.instance.currentUser?.reload();
+  }
 
 }
