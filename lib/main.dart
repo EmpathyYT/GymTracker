@@ -4,7 +4,8 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
 import 'package:gymtracker/constants/routes.dart';
-import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
+import 'package:gymtracker/services/auth/auth_service.dart';
+import 'package:gymtracker/services/cloud/database_service_provider.dart';
 import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
 import 'package:gymtracker/views/forgot_password.dart';
@@ -17,7 +18,6 @@ import 'package:gymtracker/views/verify_email_page.dart';
 import 'helpers/loading/loading_dialog.dart';
 import 'views/main_page_widgets/routes/notifications.dart';
 import 'views/register_page.dart';
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,14 +37,16 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: theme.dark(),
       home: BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(FirebaseAuthProvider()),
+        create: (context) => AuthBloc(
+          AuthService.supabase(),
+          DatabaseServiceProvider.supabase(),
+        ),
         child: const HomePage(),
       ),
       routes: {
         notificationsRoute: (context) => const NotificationsRoute(),
         warriorAdderRoute: (context) => const AddWarriorWidget(),
         krqNotificationsRoute: (context) => const KinRequestRoute(),
-
       },
     );
   }
@@ -67,14 +69,14 @@ class HomePage extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthStateUnauthenticated) {
           return const LoginView();
-           } else if (state is AuthStateNeedsVerification) {
-            return const VerifyEmailPage();
-          } else if (state is AuthStateAuthenticated) {
-              return const MainPage();
-          } else if (state is AuthStateRegistering) {
-             return const RegisterPage();
-          } else if (state is AuthStateForgotPassword) {
-             return const ForgotPassword();
+        } else if (state is AuthStateNeedsVerification) {
+          return const VerifyEmailPage();
+        } else if (state is AuthStateAuthenticated) {
+          return const MainPage();
+        } else if (state is AuthStateRegistering) {
+          return const RegisterPage();
+        } else if (state is AuthStateForgotPassword) {
+          return const ForgotPassword();
         } else {
           return const Scaffold(body: CircularProgressIndicator());
         }

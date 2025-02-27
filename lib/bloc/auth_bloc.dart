@@ -1,14 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
+import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  FirestoreUserController? userController;
+  final DatabaseController databaseController;
 
-  AuthBloc(AuthProvider provider)
+  AuthBloc(AuthProvider provider, this.databaseController)
       : super(const AuthStateUninitialized(isLoading: true)) {
     on<AuthEventSendEmailVerification>((event, emit) async {
       await provider.sendEmailVerification();
@@ -60,7 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventInitialize>((event, emit) async {
       await provider.initialize();
-      userController ??= FirestoreUserController();
+      //userController ??= FirestoreUserController();
       final user = provider.currentUser;
 
       if (user == null) {
@@ -92,7 +93,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               exception: null, isLoading: false));
           emit(AuthStateAuthenticated(user: user, isLoading: false));
         }
-      } catch (e) {
+      } on EmailNotConfirmedAuthException catch (e) {
+        emit(const AuthStateNeedsVerification(isLoading: false));
+      }
+
+      catch (e) {
         emit(AuthStateUnauthenticated(
             exception: e as Exception, isLoading: false));
       }
@@ -152,4 +157,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         RegExp(r'[a-zA-Z]').allMatches(username).length >= 3 &&
         username.length <= 15;
   }
+  get dbController => databaseController;
+
 }

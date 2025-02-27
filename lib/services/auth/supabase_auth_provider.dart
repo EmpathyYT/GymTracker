@@ -66,7 +66,7 @@ class SupabaseAuthProvider implements AuthProvider {
         case 'email_address_invalid':
           throw InvalidEmailAuthException();
 
-        case 'email_not_confirmed': //TODO check if the error is this in AuthBloc and send the user to the email confirm page
+        case 'email_not_confirmed':
           throw EmailNotConfirmedAuthException();
 
         case "invalid_credentials":

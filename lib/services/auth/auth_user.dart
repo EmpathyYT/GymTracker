@@ -2,8 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart' as fb show User;
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-typedef FutureVoidCallback = Future<void> Function();
-
 @immutable
 class AuthUser {
   final String? email;
