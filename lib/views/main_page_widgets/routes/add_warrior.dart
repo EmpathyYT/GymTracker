@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
-import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 import 'package:gymtracker/utils/dialogs/success_dialog.dart';
 import 'package:gymtracker/utils/dialogs/user_info_card_dialog.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../../utils/widgets/big_centered_text_widget.dart';
 
 class AddWarriorWidget extends StatefulWidget {
   const AddWarriorWidget({super.key});
@@ -21,9 +21,7 @@ class AddWarriorWidget extends StatefulWidget {
 class _AddWarriorWidgetState extends State<AddWarriorWidget> {
   final TextEditingController _searchController = TextEditingController();
   final BehaviorSubject<String> _searchSubject = BehaviorSubject<String>();
-  final FirestoreUserController _firestoreUserController =
-      FirestoreUserController();
-  late Stream<QuerySnapshot<Map<String, dynamic>>?> _searchStream;
+  late Stream<List<CloudUser>?> _searchStream;
 
   @override
   void initState() {
@@ -33,8 +31,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
       if (query.isEmpty) {
         return Stream.value(null);
       }
-      return _firestoreUserController
-          .fetchUsersForSearch(query.trim().toLowerCase());
+      return CloudUser.fetchUsersForSearch(query.trim().toLowerCase());
     });
 
     super.initState();
@@ -102,24 +99,20 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
               ),
             ),
             Expanded(
-              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>?>(
+              child: StreamBuilder<List<CloudUser>?>(
                   stream: _searchStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _buildStreamTextRes("Scout for Warriors");
-                    }
-
-                    if (snapshot.hasError) {
-                      return _buildStreamTextRes("The Quest for Kin Failed.");
+                      return const BigCenteredText(text: "Scout for Warriors");
                     }
 
                     if (snapshot.data == null) {
-                      return _buildStreamTextRes("Scout for Warriors");
+                      return const BigCenteredText(text: "Scout for Warriors");
                     }
 
-                    final users = snapshot.data!.docs;
+                    final users = snapshot.data!;
                     if (users.isEmpty) {
-                      return _buildStreamTextRes("No Warriors Found");
+                      return const BigCenteredText(text: "No Warriors Found");
                     }
                     return ListView.builder(
                       itemCount: users.length,
@@ -128,7 +121,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
 
                         return ListTile(
                           title: Text(
-                            user.data()[nameFieldName],
+                            user.name,
                             style: GoogleFonts.oswald(
                               fontSize: 25,
                             ),
@@ -144,7 +137,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                           onTap: () async {
                             await showUserCard(
                               context: context,
-                              userData: user.data(),
+                              user: user,
                               addUserAction: () {
                                 context
                                     .read<MainPageCubit>()
@@ -158,20 +151,6 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                   }),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Center _buildStreamTextRes(String text) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 50),
-        child: Text(
-          text,
-          style: GoogleFonts.oswald(
-            fontSize: 35,
-          ),
         ),
       ),
     );

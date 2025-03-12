@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
@@ -6,10 +7,10 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 
 class SupabaseAuthProvider implements AuthProvider {
   @override
-  Future<AuthUser> createUser(
-      {required String email,
-      required String password,
-      required String name}) async {
+  Future<AuthUser> createUser({
+    required String email,
+    required String password,
+  }) async {
     try {
       final response = await Supabase.instance.client.auth
           .signUp(email: email, password: password);
@@ -40,9 +41,10 @@ class SupabaseAuthProvider implements AuthProvider {
 
   @override
   Future<void> initialize() async {
+    await dotenv.load(fileName: "lib/secrets/.env");
     await Supabase.initialize(
         url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
-        anonKey: const String.fromEnvironment("SUPABASE_KEY"));
+        anonKey: dotenv.env["SUPABASE_KEY"]!);
     final session = Supabase.instance.client.auth.currentSession;
     if (session == null) return;
     if (session.isExpired) {

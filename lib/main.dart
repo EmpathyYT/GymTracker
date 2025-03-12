@@ -8,11 +8,12 @@ import 'package:gymtracker/services/auth/auth_service.dart';
 import 'package:gymtracker/services/cloud/database_service_provider.dart';
 import 'package:gymtracker/theme/theme.dart';
 import 'package:gymtracker/theme/util.dart';
-import 'package:gymtracker/views/forgot_password.dart';
+import 'package:gymtracker/views/forgot_password_page.dart';
 import 'package:gymtracker/views/login_page.dart';
 import 'package:gymtracker/views/main_page.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/krq_notifications.dart';
+import 'package:gymtracker/views/profile_setup_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 
 import 'helpers/loading/loading_dialog.dart';
@@ -39,12 +40,11 @@ class MyApp extends StatelessWidget {
       home: BlocProvider<AuthBloc>(
         create: (context) => AuthBloc(
           AuthService.supabase(),
-          DatabaseServiceProvider.supabase(),
+          DatabaseServiceProvider.supabase(AuthService.supabase()),
         ),
         child: const HomePage(),
       ),
       routes: {
-        notificationsRoute: (context) => const NotificationsRoute(),
         warriorAdderRoute: (context) => const AddWarriorWidget(),
         krqNotificationsRoute: (context) => const KinRequestRoute(),
       },
@@ -77,6 +77,8 @@ class HomePage extends StatelessWidget {
           return const RegisterPage();
         } else if (state is AuthStateForgotPassword) {
           return const ForgotPassword();
+        } else if (state is AuthStateSettingUpProfile) {
+          return const ProfileSetupView();
         } else {
           return const Scaffold(body: CircularProgressIndicator());
         }

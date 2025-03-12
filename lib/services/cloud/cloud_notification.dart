@@ -1,45 +1,153 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gymtracker/constants/cloud_contraints.dart';
+import '../../constants/cloud_contraints.dart';
+import 'database_controller.dart';
 
-
-class CloudNotification {
-  final String notificationId;
-  final String fromUserId;
-  final String toUserId;
-  final int type;
+sealed class CloudNotification {
+  final int id;
+  final int fromUser;
+  final int toUser;
+  final DateTime createdAt;
   bool read;
-  final Timestamp time;
-  final String message;
 
   CloudNotification({
-    required this.notificationId,
-    required this.fromUserId,
-    required this.toUserId,
-    required this.type,
+    required this.id,
+    required this.fromUser,
+    required this.toUser,
+    required this.createdAt,
     required this.read,
-    required this.time,
-    required this.message,
+  });
+}
+
+sealed class CloudRequest extends CloudNotification {
+  bool? accepted;
+
+  CloudRequest({
+    required super.id,
+    required super.fromUser,
+    required super.toUser,
+    required super.createdAt,
+    required super.read,
+    required this.accepted,
   });
 
-  CloudNotification.testingNotif(this.time)
-      :
-        notificationId = "test",
-        fromUserId = "vMM1p8I06NQ4YAGCoWOTGejPIZq2",
-        toUserId = "hxzqod6a1kZZNxlQC8DTGAegZoi2",
-        type = 2,
-        read = true,
-        message = "test";
+  Future<void> readRequest();
+  Future<void> rejectRequest();
+  Future<void> acceptRequest();
+}
 
+class CloudKinRequest extends CloudRequest {
+  static late final DatabaseController dbController;
 
-  CloudNotification.fromSnapshot(QueryDocumentSnapshot snapshot)
-      : notificationId = snapshot.id,
-        fromUserId = snapshot[fromUserIdFieldName],
-        toUserId = snapshot[toUserIdFieldName],
-        type = snapshot[notificationTypeFieldName],
-        read = snapshot[readFieldName],
-        time = snapshot[timestampFieldName] as Timestamp,
-        message = snapshot[notificationTypeFieldName] == 2
-            ? snapshot[messageFieldName] : "";
+  CloudKinRequest({
+    required super.id,
+    required super.fromUser,
+    required super.toUser,
+    required super.createdAt,
+    required super.read,
+    required super.accepted,
+  });
 
-  void readNotification() => read = true;
+  CloudKinRequest.fromMap(Map<String, dynamic> map)
+      : super(
+          id: map[idFieldName],
+          fromUser: map[sendingUserFieldName],
+          toUser: map[recipientFieldName],
+          read: map[readFieldName],
+          accepted: map[acceptedFieldName],
+          createdAt: map[timeCreatedFieldName],
+        );
+
+  @override
+  Future<void> readRequest() async {
+    dbController.readFriendRequest(fromUser, toUser);
+    read = true;
+  }
+
+  @override
+  Future<void> rejectRequest() async {
+    dbController.rejectFriendRequest(fromUser, toUser);
+    accepted = null;
+  }
+
+  @override
+  Future<void> acceptRequest() async {
+    dbController.acceptFriendRequest(fromUser, toUser);
+    accepted = true;
+  }
+
+  static Future<void> sendRequest(fromUser, toUser) async {
+    dbController.sendFriendRequest(fromUser, toUser);
+  }
+
+  static Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
+    final requests = await dbController.fetchFriendRequests(userId);
+    return requests;
+  }
+
+  static friendRequestListener(userId, insertCallback, updateCallback) {
+    dbController.newFriendRequestsStream(
+        userId, insertCallback, updateCallback);
+  }
+
+  static unsubscribeFriendRequestListener() =>
+      dbController.unsubscribeNewFriendRequestsStream();
+}
+
+class CloudSquadRequest extends CloudRequest {
+  static late final DatabaseController dbController;
+  final int serverId;
+
+  CloudSquadRequest(
+      {required super.id,
+      required super.fromUser,
+      required super.toUser,
+      required super.createdAt,
+      required super.read,
+      required super.accepted,
+      required this.serverId});
+
+  CloudSquadRequest.fromMap(Map<String, dynamic> map)
+      : serverId = map[serverIdFieldName],
+        super(
+          id: map[idFieldName],
+          fromUser: map[sendingUserFieldName],
+          toUser: map[recipientFieldName],
+          read: map[readFieldName],
+          accepted: map[acceptedFieldName],
+          createdAt: map[timeCreatedFieldName],
+        );
+
+  @override
+  Future<void> rejectRequest() async {
+    dbController.rejectServerRequest(toUser, serverId);
+    accepted = null;
+  }
+
+  @override
+  Future<void> readRequest() async {
+    dbController.readServerRequest(toUser, serverId);
+    read = true;
+  }
+
+  @override
+  Future<void> acceptRequest() async {
+    dbController.acceptServerRequest(toUser, serverId);
+    accepted = true;
+  }
+
+  static Future<void> sendServerRequest(fromUser, toUser, serverId) async {
+    dbController.sendServerRequest(fromUser, toUser, serverId);
+  }
+
+  static Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
+    final serverRequests = await dbController.fetchServerRequests(userId);
+    return serverRequests;
+  }
+
+  static serverRequestListener(userId, insertCallback, updateCallback) {
+    dbController.newServerRequestsStream(
+        userId, insertCallback, updateCallback);
+  }
+
+  static unsubscribeServerRequestListener() =>
+      dbController.unsubscribeNewServerRequestsStream();
 }

@@ -1,57 +1,106 @@
+import 'package:gymtracker/services/auth/auth_provider.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
 
 class DatabaseServiceProvider implements DatabaseController {
-  final DatabaseController provider;
+  final DatabaseController _provider;
 
-  const DatabaseServiceProvider(this.provider);
+  const DatabaseServiceProvider(this._provider);
 
-  factory DatabaseServiceProvider.supabase() =>
-      DatabaseServiceProvider(SupabaseDatabaseController());
-
-  @override
-  Future<void> addUserToSquad(userId, squadId) =>
-      provider.addUserToSquad(userId, squadId);
+  factory DatabaseServiceProvider.supabase(AuthProvider auth) =>
+      DatabaseServiceProvider(SupabaseDatabaseController(auth));
 
   @override
   Future<CloudSquad> createSquad(name, description) =>
-      provider.createSquad(name, description);
+      _provider.createSquad(name, description);
 
   @override
-  Future<CloudUser> createUser(userName, authId, biography) =>
-      provider.createUser(userName, authId, biography);
+  Future<CloudUser> createUser(userName, biography) =>
+      _provider.createUser(userName, biography);
 
   @override
   Future<void> readFriendRequest(toUser, fromUser) =>
-      provider.readFriendRequest(toUser, fromUser);
+      _provider.readFriendRequest(toUser, fromUser);
 
   @override
   Future<void> readServerRequest(toUser, squadId) =>
-      provider.readServerRequest(toUser, squadId);
+      _provider.readServerRequest(toUser, squadId);
 
   @override
   Future<void> rejectFriendRequest(toUser, fromUser) =>
-      provider.rejectFriendRequest(toUser, fromUser);
+      _provider.rejectFriendRequest(toUser, fromUser);
 
   @override
-  Future<void> rejectServerRequest(toUser, fromUser) =>
-      provider.rejectServerRequest(toUser, fromUser);
+  Future<void> rejectServerRequest(toUser, serverId) =>
+      _provider.rejectServerRequest(toUser, serverId);
 
   @override
   Future<void> removeFriend(userId, friendId) =>
-      provider.removeFriend(userId, friendId);
+      _provider.removeFriend(userId, friendId);
 
   @override
-  Future<void> removeUserFromSquad(userId, squadId) =>
-      provider.removeUserFromSquad(userId, squadId);
+  Future<CloudSquad> removeUserFromSquad(userId, squadId) =>
+      _provider.removeUserFromSquad(userId, squadId);
 
   @override
   Future<void> sendFriendRequest(toUser, fromUser) =>
-      provider.sendFriendRequest(toUser, fromUser);
+      _provider.sendFriendRequest(toUser, fromUser);
 
   @override
-  Future<void> sendServerRequest(toUser, squadId) =>
-      provider.sendServerRequest(toUser, squadId);
+  Future<void> sendServerRequest(fromUser, toUser, squadId) =>
+      _provider.sendServerRequest(fromUser, toUser, squadId);
+
+  @override
+  Future<CloudSquad?> fetchSquad(squadId) => _provider.fetchSquad(squadId);
+
+  @override
+  Future<CloudUser?> fetchUser(userId, bool isOwner) =>
+      _provider.fetchUser(userId, isOwner);
+
+  @override
+  Future<bool> userExists({String? authId, String? name}) =>
+      _provider.userExists(authId: authId, name: name);
+
+  @override
+  Future<List<CloudKinRequest>> fetchFriendRequests(userId) =>
+      _provider.fetchFriendRequests(userId);
+
+  @override
+  Future<List<CloudSquadRequest>> fetchServerRequests(userId) =>
+      _provider.fetchServerRequests(userId);
+
+  @override
+  newFriendRequestsStream(userId, insertCallback, updateCallback) =>
+      _provider.newFriendRequestsStream(userId, insertCallback, updateCallback);
+
+  @override
+  newServerRequestsStream(userId, insertCallback, updateCallback) =>
+      _provider.newServerRequestsStream(userId, insertCallback, updateCallback);
+
+  @override
+  unsubscribeNewFriendRequestsStream() =>
+      _provider.unsubscribeNewFriendRequestsStream();
+
+  @override
+  unsubscribeNewServerRequestsStream() =>
+      _provider.unsubscribeNewServerRequestsStream();
+
+  @override
+  Stream<List<CloudUser>> fetchUsersForSearch(String query) =>
+      _provider.fetchUsersForSearch(query);
+
+  @override
+  Future<void> acceptFriendRequest(fromUser, toUser) =>
+      _provider.acceptFriendRequest(fromUser, toUser);
+
+  @override
+  Future<void> acceptServerRequest(toUser, squadId) =>
+      _provider.acceptServerRequest(toUser, squadId);
+
+
 }
+
+

@@ -30,6 +30,10 @@ class CouldNotAddMemberToSquadException implements Exception {
   final String message = 'Could not add member to squad';
 }
 
+class UserNotInSquadException implements Exception {
+  final String message = 'Could not remove member that does not exist';
+}
+
 class CouldNotRemoveMemberFromSquadException implements Exception {
   final String message = 'Could not remove member from squad';
 }

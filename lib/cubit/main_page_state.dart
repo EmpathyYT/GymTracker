@@ -7,9 +7,9 @@ abstract class MainPageState {
   final bool isLoading;
   final String loadingText;
   final bool success;
-  final NotificationsType? notifications;
+  final RequestsSortingType? notifications;
 
-  MainPageState copyWith({NotificationsType? notifications});
+  MainPageState copyWith({RequestsSortingType? notifications});
 
   const MainPageState(
       {
@@ -17,7 +17,7 @@ abstract class MainPageState {
         this.isLoading = false,
         this.loadingText = "",
         this.success = false,
-        this.notifications = const {}
+        this.notifications
       });
 
 
@@ -30,11 +30,11 @@ final class SquadSelector extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications = const {},
+        super.notifications,
       });
 
   @override
-  SquadSelector copyWith({NotificationsType? notifications}) {
+  SquadSelector copyWith({RequestsSortingType? notifications}) {
     return SquadSelector(
       exception: exception,
       isLoading: isLoading,
@@ -54,11 +54,11 @@ final class FriendsViewer extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications = const {},
+        super.notifications,
       });
 
   @override
-  FriendsViewer copyWith({NotificationsType? notifications}) {
+  FriendsViewer copyWith({RequestsSortingType? notifications}) {
     return FriendsViewer(
       exception: exception,
       isLoading: isLoading,
@@ -77,11 +77,11 @@ final class NewSquad extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications = const {},
+        super.notifications,
       });
 
   @override
-  NewSquad copyWith({NotificationsType? notifications}) {
+  NewSquad copyWith({RequestsSortingType? notifications}) {
     return NewSquad(
       exception: exception,
       isLoading: isLoading,
@@ -100,11 +100,11 @@ final class Settings extends MainPageState {
         super.isLoading = false,
         super.loadingText = "",
         super.success = false,
-        super.notifications = const {},
+        super.notifications,
       });
 
   @override
-  Settings copyWith({NotificationsType? notifications}) {
+  Settings copyWith({RequestsSortingType? notifications}) {
     return Settings(
       exception: exception,
       isLoading: isLoading,

@@ -1,47 +1,35 @@
+const userTableName = 'users';
 const nameFieldName = 'user_name';
+const authIdFieldName = 'auth_id';
 const bioFieldName = 'biography';
-const sensitiveInformationDocumentName = 'sensitive_info';
 const levelFieldName = 'level';
 const friendsFieldName = 'friends';
 const squadFieldName = 'squads';
 const premiumSquadLimit = 15;
 const standardSquadLimit = 7;
-const squadLimitFieldName = 'squad_limit_num';
+const squadLimitFieldName = 'squad_limit';
 //^ The User Constraints
 
 
-const pendingFRQFieldName = 'pending_friend_requests';
-const pendingSquadReqFieldName = 'pending_squad_requests';
-const requestsDocumentName = 'pending_requests';
-const sendingUserFieldName = 'sending_user_id';
-const recipientFieldName = 'recipient_user_id';
-const isAccepted = "is_accepted";
-const frqType = 0;
-const srqType = 1;
-const otherType = 2;
+const pendingFriendRequestsTableName = 'FriendRequests';
+const pendingServerRequestsTableName = 'ServerRequests';
+const sendingUserFieldName = 'from_user';
+const recipientFieldName = 'to_user';
+const acceptedFieldName = "accepted";
+const readFieldName = 'read';
+const serverIdFieldName = 'server_id';
 //^ The F/SRQ Constraints
 
 
-const notificationCollectionName = 'notifications';
-const fromUserIdFieldName = 'from_user_id';
-const toUserIdFieldName = 'to_user_id';
-const titleFieldName = 'title';
-const bodyFieldName = 'message';
-const timestampFieldName = 'timestamp';
-const readFieldName = 'read';
-const notificationTypeFieldName = 'type';
-const disabledFieldName = "is_disabled";
-const messageFieldName = 'message';
-//^ The Notification Constraints
 
-
-const usersInvitedFieldName = 'users_invited';
-const ownerUserFieldId = 'owner_user_id';
-const squadNameFieldName = 'squad_name';
+const squadTableName = 'Servers';
+const ownerUserFieldId = 'owner_id';
+const squadNameFieldName = 'name';
 const membersFieldName = 'members';
-const squadDescriptionFieldName = 'squad_description';
+const squadDescriptionFieldName = 'description';
 //^ The Squad Constraints
 
 
-const timeCreatedFieldName = 'time_created';
+const timeCreatedFieldName = 'created_at';
+const idFieldName = 'id';
 //^ The Shared Constraints

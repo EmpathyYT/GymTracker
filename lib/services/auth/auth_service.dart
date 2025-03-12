@@ -2,14 +2,14 @@ import 'package:gymtracker/services/auth/supabase_auth_provider.dart';
 
 import 'auth_user.dart';
 import 'auth_provider.dart';
-import 'firebase_auth_provider.dart';
+//import 'firebase_auth_provider.dart';
 
 class AuthService implements AuthProvider {
   final AuthProvider provider;
 
   AuthService(this.provider);
 
-  factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
+  //factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
   factory AuthService.supabase() => AuthService(SupabaseAuthProvider());
 
   @override
@@ -19,10 +19,9 @@ class AuthService implements AuthProvider {
   Future<AuthUser> createUser({
     required String email,
     required String password,
-    required String name,
 
   }) =>
-      provider.createUser(email: email, password: password, name: name);
+      provider.createUser(email: email, password: password);
 
   @override
   Future<AuthUser> logIn({

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 typedef AddUserAction = void Function();
 
 Future<void> showUserCard({
   required BuildContext context,
-  required Map<String, dynamic> userData,
+  required CloudUser user,
   required AddUserAction addUserAction,
 }) {
   return showDialog(
@@ -15,7 +16,7 @@ Future<void> showUserCard({
         title: Row(
           children: [
             Text(
-              userData[nameFieldName],
+              user.name,
               style: const TextStyle(
                 fontSize: 26,
               ),
@@ -41,9 +42,9 @@ Future<void> showUserCard({
                 borderRadius: BorderRadius.circular(4.0),
               ),
               child: Text(
-                (userData[bioFieldName] as String).isNotEmpty
-                    ? userData[bioFieldName]
-                    : "Warrior's story is yet to be written...",
+                (user.bio).isNotEmpty
+                    ? user.bio
+                    : "The Warrior's story is yet to be written...",
                 textAlign: TextAlign.left,
                 style: const TextStyle(
                   fontSize: 17,

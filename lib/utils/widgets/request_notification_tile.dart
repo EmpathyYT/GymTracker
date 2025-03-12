@@ -1,36 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
-import '../../services/auth/auth_service.dart';
-import '../../services/cloud/cloud_notification.dart';
-import '../../services/cloud/firestore_notification_controller.dart';
-import '../../services/cloud/firestore_user_controller.dart';
+import '../../services/cloud/cloud_user.dart';
 
-class AnimatedNotificationTile extends StatefulWidget {
-  final CloudNotification notificationInfo;
+class AnimatedFriendRequestTile extends StatefulWidget {
   final int index;
   final VoidCallback onRemove;
-  final AsyncSnapshot<dynamic> snapshot;
-  final _firestoreUserController = FirestoreUserController();
-  final _authProvider = AuthService.firebase();
+  final AsyncSnapshot<CloudUser?> snapshot;
+  final CloudRequest notification;
 
-  AnimatedNotificationTile({
+  const AnimatedFriendRequestTile({
     super.key,
-    required this.notificationInfo,
+    required this.notification,
     required this.index,
     required this.onRemove,
     required this.snapshot,
   });
 
   @override
-  State<AnimatedNotificationTile> createState() =>
-      _AnimatedNotificationTileState();
+  State<AnimatedFriendRequestTile> createState() =>
+      _AnimatedFriendRequestTileState();
 }
 
-class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
+class _AnimatedFriendRequestTileState extends State<AnimatedFriendRequestTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
-  final _firestoreNotificationController = FirestoreNotificationsController();
 
   @override
   void initState() {
@@ -78,9 +73,7 @@ class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   icon: const Icon(Icons.check, color: Colors.green),
-                  onPressed: () async {
-                    await _acceptButtonHandle();
-                  },
+                  onPressed: () async => await _acceptButtonHandle(),
                 ),
                 IconButton(
                   splashColor: Colors.transparent,
@@ -89,9 +82,7 @@ class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
                     Icons.close,
                     color: Colors.red,
                   ),
-                  onPressed: () async {
-                    await _rejectButtonHandle();
-                  },
+                  onPressed: () async => await _rejectButtonHandle(),
                 ),
               ],
             ),
@@ -108,33 +99,19 @@ class _AnimatedNotificationTileState extends State<AnimatedNotificationTile>
   }
 
   String _titleGenerator() {
-    switch (widget.notificationInfo.type) {
-      case 0:
-        return "Pending Kinship Call";
-      case 1:
-        return "Pending Server Request";
-      default:
-        return "Invalid Notification";
-    }
+    return switch (widget.notification) {
+      CloudKinRequest() => "Pending Kinship Call",
+      CloudSquadRequest() => "Pending Server Request",
+    };
   }
 
   Future<void> _acceptButtonHandle() async {
     _handleAction(Colors.green);
-    await _firestoreNotificationController
-        .disableNotification(widget.notificationInfo.notificationId);
-    await widget._firestoreUserController.addFriend(
-      userId: widget._authProvider.currentUser!.id,
-      friendId: widget.notificationInfo.fromUserId,
-    );
+    await widget.notification.acceptRequest();
   }
 
   Future<void> _rejectButtonHandle() async {
     _handleAction(Colors.red);
-    await _firestoreNotificationController
-        .disableNotification(widget.notificationInfo.notificationId);
-    await widget._firestoreUserController.rejectFRQ(
-      widget._authProvider.currentUser!.id,
-      widget.notificationInfo.fromUserId,
-    );
+    await widget.notification.rejectRequest();
   }
 }

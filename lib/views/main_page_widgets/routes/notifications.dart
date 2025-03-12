@@ -1,63 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
-import 'package:gymtracker/extensions/argument_getter_extension.dart';
-import 'package:gymtracker/extensions/date_time_extension.dart';
-import 'package:gymtracker/extensions/different_dates_extension.dart';
-import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/services/cloud/firestore_notification_controller.dart';
-import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
-import 'package:gymtracker/utils/widgets/stack_column_flipper.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
+import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/universal_card.dart';
-import 'package:intl/intl.dart';
-import 'package:tuple/tuple.dart';
 
 import '../../../constants/code_constraints.dart';
 
-typedef FlatNotificationType = List<Tuple2<int?, CloudNotification>>;
-
 class NotificationsRoute extends StatefulWidget {
-  const NotificationsRoute({super.key});
+  final RequestsSortingType notifications;
+
+  const NotificationsRoute({super.key, required this.notifications});
 
   @override
   State<NotificationsRoute> createState() => _NotificationsRouteState();
 }
 
 class _NotificationsRouteState extends State<NotificationsRoute> {
-  FlatNotificationType? _normalNotifications;
-  FlatNotificationType? _requestsNotifications;
-  List<Widget>? _notificationWidgets;
-  final _firestoreUserController = FirestoreUserController();
+  RequestsSortingType? _notifications;
+  List _requestsNotifications = [];
+  List _otherNotifications = [];
 
   @override
   void didChangeDependencies() {
-    if (_normalNotifications == null && _requestsNotifications == null) {
-      final (normNotifications, reqNotifications) = _flattenNotifications(
-          context.arguments<Map<String, NotificationsType?>>());
-
-      // _normalNotifications = [
-      //   Tuple2(null, CloudNotification.testingNotif(Timestamp.now())),
-      //   Tuple2(null,
-      //       CloudNotification.testingNotif(Timestamp.fromDate(
-      //           DateTime.now().subtract(const Duration(minutes: 1))))),
-      //   Tuple2(
-      //       null,
-      //       CloudNotification.testingNotif(Timestamp.fromDate(
-      //           DateTime.now().subtract(const Duration(days: 1))))),
-      //   Tuple2(
-      //       null,
-      //       CloudNotification.testingNotif(Timestamp.fromDate(
-      //           DateTime.now().subtract(const Duration(days: 2))))),
-      // ];
-
-      _normalNotifications = normNotifications
-        ..sort((a, b) => -a.item2.time.compareTo(b.item2.time));
-
-      _requestsNotifications = reqNotifications;
-      _notificationWidgets =
-          _notificationListViewWidgetBuilder(_normalNotifications!);
-    }
+    if (_notifications == null) _extractNotifications();
     super.didChangeDependencies();
   }
 
@@ -67,8 +34,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        Navigator.of(context).pop(_expandNotifications(
-            _normalNotifications ?? [], _requestsNotifications ?? []));
+        Navigator.of(context).pop(_notifications);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -79,195 +45,127 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
             ),
           ),
         ),
-        body: StackColumnFlipper(
-          flipToColumn: _normalNotifications?.isNotEmpty ?? false,
+        body: DoubleWidgetFlipper(
+          flipToTwo: _otherNotifications.isNotEmpty,
+          isOneChild: false,
+          isTwoChild: false,
+          buildOne: ({children, child}) => Stack(children: children!),
+          buildTwo: ({children, child}) => Column(children: children!),
           commonWidgets: [
-            const Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-            ),
-            UniversalCard(
-              title1: "No New Kinship Calls",
-              title2: (_requestsNotifications?.length ?? 0) == 1
-                  ? "A Warrior Seeks Kinship"
-                  : "Warriors Seek Kinship",
-              isNewRequests:
-                  _requestsNotifications?.any((e) => e.item2.read == false) ??
-                      false,
-              iconCallBack: () async {
-                await Navigator.of(context)
-                    .pushNamed(
-                  krqNotificationsRoute,
-                  arguments: _requestsNotifications,
-                )
-                    .then((value) {
-                  setState(() {
-                    if ((value as List).isEmpty) {
-                      _requestsNotifications = [];
-                      return;
-                    }
-                    _requestsNotifications = value as FlatNotificationType?;
-                  });
-                });
-              },
-            ),
-            const Padding(padding: EdgeInsets.all(2.0)),
-            Container(
-              padding: const EdgeInsets.only(
-                top: 3,
-                bottom: 3,
-                left: 5,
-                right: 5,
-              ),
-              child: const Divider(
-                thickness: 0.9,
-                color: Colors.white60,
-              ),
-            ),
-          ],
-          ifStack: [
-            Center(
-              child: Align(
-                child: Text(
-                  "The campfire burns quietly. No reports from the frontlines.",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.oswald(
-                    fontSize: 35,
+            Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                ),
+                UniversalCard(
+                  title1: "No New Kinship Calls",
+                  title2: (_requestsNotifications.length) == 1
+                      ? "A Warrior Seeks Kinship"
+                      : "Warriors Seek Kinship",
+                  isNewRequests: _requestsNotifications.any((e) => !(e.read)),
+                  iconCallBack: () async => await _kinRequestButtonCallback(),
+                ),
+                const Padding(padding: EdgeInsets.all(2.0)),
+                Container(
+                  padding: const EdgeInsets.only(
+                    top: 3,
+                    bottom: 3,
+                    left: 5,
+                    right: 5,
+                  ),
+                  child: const Divider(
+                    thickness: 0.9,
+                    color: Colors.white60,
                   ),
                 ),
-              ),
-            )
-          ],
-          ifColumn: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: (_normalNotifications!.length +
-                    _normalNotifications!.numberOfDifferentDates()),
-                itemBuilder: (context, index) {
-                  return _notificationWidgets![index];
-                  // final notificationInfo = normalNotifications![]
-                  // return FutureBuilder(
-                  //   future: _firestoreUserController
-                  //       .fetchUser(notificationInfo.fromUserId),
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.connectionState != ConnectionState.done) {
-                  //       return _loadingListTile();
-                  //     } else if (snapshot.hasError) {
-                  //       return _errorListTile();
-                  //     }
-                  //     return _normalNotificationTile(
-                  //         notificationInfo);
-                  //   },
-                  // );
-                },
-              ),
+              ],
             ),
+          ],
+          childrenIfOne: const [
+            BigCenteredText(
+                text:
+                    "The campfire burns quietly. No reports from the frontlines.")
+          ],
+          childrenIfTwo: const [
+            Placeholder() //TODO fix this later
+            // Expanded(
+            //   child: ListView.builder(
+            //     itemCount: (_otherNotifications!.length +
+            //         _otherNotifications!.numberOfDifferentDates()),
+            //     itemBuilder: (context, index) {
+            //       return _notificationWidgets![index];
+            // final notificationInfo = normalNotifications![]
+            // return FutureBuilder(
+            //   future: _firestoreUserController
+            //       .fetchUser(notificationInfo.fromUserId),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState != ConnectionState.done) {
+            //       return _loadingListTile();
+            //     } else if (snapshot.hasError) {
+            //       return _errorListTile();
+            //     }
+            //     return _normalNotificationTile(
+            //         notificationInfo);
+            //   },
+            // );
+            //   },
+            // ),
+            // ),
           ],
         ),
       ),
     );
   }
-}
 
-ListTile _buildNormalNotificationTile(CloudNotification notificationInfo) {
-  return ListTile(
-    leading: const CircleAvatar(
-      radius: 25,
-      backgroundColor: Colors.white24,
-    ),
-    title: Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Text(
-        notificationInfo.message,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w100,
-        ),
-      ),
-    ),
-    subtitle: Text(
-      "at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
-      style: const TextStyle(
-        color: Colors.grey,
-        fontSize: 13,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  );
-}
-
-(
-  FlatNotificationType normalNotifications,
-  FlatNotificationType requestsNotifications
-) _flattenNotifications(Map<String, NotificationsType?>? notifications) {
-  final FlatNotificationType flatNorm = [];
-  final FlatNotificationType flatReq = [];
-
-  notifications ??= {};
-  notifications.forEach((key, value) {
-    value?.forEach((key, value) {
-      if (key == normalNotifsKeyName) {
-        flatNorm.addAll(value);
-      } else {
-        flatReq.addAll(value);
-      }
+  Future<void> _kinRequestButtonCallback() async {
+    await Navigator.of(context)
+        .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
+        .then((value) {
+      setState(() => _requestsNotifications = value as List);
     });
-  });
-  return (flatNorm, flatReq);
-}
-
-NotificationsType _expandNotifications(FlatNotificationType normalNotifications,
-    FlatNotificationType requestsNotifications) {
-  return {
-    normalNotifsKeyName: normalNotifications,
-    requestsKeyName: requestsNotifications,
-  };
-}
-
-List<Widget> _notificationListViewWidgetBuilder(
-    FlatNotificationType notifications) {
-  final List<Widget> widgets = [];
-  for (int i = 0; i < notifications.length; i++) {
-    final notification = notifications[i].item2;
-    final prevNotification = i == 0 ? null : notifications[i - 1].item2;
-    final title = notification.time.toDate().toLocal();
-
-    if (i == 0 ||
-        prevNotification?.time.toDate().toLocal().day !=
-            notification.time.toDate().toLocal().day) {
-      widgets.add(
-        Padding(
-          padding: EdgeInsets.only(top: i == 0 ? 8 : 12, bottom: 15, left: 18),
-          child: Text(
-            title.day == DateTime.now().day
-                ? "Today"
-                : title.day ==
-                        DateTime.now().subtract(const Duration(days: 1)).day
-                    ? "Yesterday"
-                    : DateFormat('EEEE').format(title),
-            style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w200),
-          ),
-        ),
-      );
-    }
-    widgets.add(_buildNormalNotificationTile(notification));
   }
-  return widgets;
+
+  void _extractNotifications() {
+    final otherNotifs = [];
+    final requestNotifs = [];
+
+    _notifications = widget.notifications;
+
+    for (final values in _notifications!.values) {
+      otherNotifs.addAll(values[othersKeyName] ?? []);
+      requestNotifs.addAll(values[frqKeyName] ?? []);
+    }
+
+    _otherNotifications = otherNotifs;
+    _requestsNotifications = requestNotifs;
+  }
 }
 
-
-
-ListTile buildLoadingListTile() {
-  return const ListTile(
-    title: Text("Cracking the wax seal, retrieving your message.",
-        style: TextStyle(fontSize: 19)),
-  );
-}
-
-ListTile buildErrorListTile() {
-  return const ListTile(
-    title: Text("The battlefield is in chaos, come back later.",
-        style: TextStyle(fontSize: 19)),
-  );
-}
+// ListTile _buildNormalNotificationTile(CloudNotification notificationInfo) {
+//   return ListTile(
+//     leading: const CircleAvatar(
+//       radius: 25,
+//       backgroundColor: Colors.white24,
+//     ),
+//     title: Padding(
+//       padding: const EdgeInsets.only(top: 8),
+//       child: Text(
+//         notificationInfo.message,
+//         maxLines: 3,
+//         overflow: TextOverflow.ellipsis,
+//         style: const TextStyle(
+//           fontSize: 22,
+//           fontWeight: FontWeight.w100,
+//         ),
+//       ),
+//     ),
+//     subtitle: Text(
+//       "at ${notificationInfo.time.toDate().toLocal().toHourMinute()}",
+//       style: const TextStyle(
+//         color: Colors.grey,
+//         fontSize: 13,
+//         fontWeight: FontWeight.bold,
+//       ),
+//     ),
+//   );
+// }

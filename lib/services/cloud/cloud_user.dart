@@ -1,72 +1,68 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/cloud_contraints.dart';
+import 'database_controller.dart';
 
 @immutable
 class CloudUser with EquatableMixin {
-  final String documentId;
+  static late final DatabaseController dbController;
+
+  final String id;
   final List<String>? friends;
   final List<String>? squads;
   final String name;
-  final Timestamp timeCreated;
-  final int squadLimit;
+  final DateTime timeCreated;
+  final int? squadLimit;
   final String bio;
+  final int? authId;
   final int level;
 
-  const CloudUser({
-    required this.documentId,
-    required this.name,
-    required this.squads,
-    required this.friends,
-    required this.timeCreated,
-    required this.squadLimit,
-    required this.bio,
-    required this.level,
-  });
+  const CloudUser(
+      {required this.id,
+      required this.name,
+      required this.bio,
+      required this.level,
+      required this.timeCreated,
+      this.squadLimit,
+      this.squads,
+      this.friends,
+      this.authId});
 
-  CloudUser.newUser(String userId, String name)
-      : this(
-          documentId: userId,
-          name: name,
-          squads: [],
-          friends: [],
-          timeCreated: Timestamp.now(),
-          squadLimit: 0,
-          bio: '',
-          level: 0,
-        );
-
-  CloudUser.publicUserFromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> snapshot)
-      : documentId = snapshot.id,
-        name = snapshot.data()?[nameFieldName] as String,
-        friends = [],
-        squads = [],
-        timeCreated = snapshot.data()?[timeCreatedFieldName] as Timestamp,
-        squadLimit = snapshot.data()?[squadLimitFieldName] as int,
-        bio = snapshot.data()?[bioFieldName] as String,
-        level = snapshot.data()?[levelFieldName] as int;
-
-  CloudUser.privateUserFromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> userSnapshot,
-      DocumentSnapshot<Map<String, dynamic>> sensitiveInfoSnapshot)
-      : documentId = userSnapshot.id,
-        name = userSnapshot.data()?[nameFieldName] as String,
-        friends =
-            (sensitiveInfoSnapshot.data()?[friendsFieldName] as List<dynamic>)
-                .map((e) => e.toString())
-                .toList(),
-        squads =
-            (sensitiveInfoSnapshot.data()?[squadFieldName] as List<dynamic>)
-                .map((e) => e.toString())
-                .toList(),
-        timeCreated = userSnapshot.data()?[timeCreatedFieldName] as Timestamp,
-        squadLimit = userSnapshot.data()?[squadLimitFieldName] as int,
-        bio = userSnapshot.data()?[bioFieldName] as String,
-        level = userSnapshot.data()?[levelFieldName] as int;
+  CloudUser.fromMap(Map<String, dynamic> data)
+      : id = data[idFieldName],
+        name = data[nameFieldName],
+        friends = List<String>.from(data[friendsFieldName] ?? []),
+        squads = List<String>.from(data[squadFieldName] ?? []),
+        timeCreated = data[timeCreatedFieldName] as DateTime,
+        squadLimit = data[squadLimitFieldName] ?? 0,
+        bio = data[bioFieldName] ?? "",
+        level = data[levelFieldName],
+        authId = data[authIdFieldName];
 
   @override
-  List<Object?> get props => [documentId, name, timeCreated];
+  List<Object?> get props => [authId];
+
+
+  ///In case param [isOwner] is true, pass the authId as the userId.
+  static Future<CloudUser?> fetchUser(userId, bool isOwner) {
+    return dbController.fetchUser(userId, isOwner);
+  }
+
+  static Stream<List<CloudUser>> fetchUsersForSearch(String username) {
+    return dbController.fetchUsersForSearch(username);
+  }
+
+  static Future<bool> userExists({String? authId, String? name}) {
+    return dbController.userExists(authId: authId, name: name);
+  }
+
+  static Future<CloudUser> createUser(String userName, String biography) {
+    return dbController.createUser(userName, biography);
+  }
+
+  Future<void> removeFriend(String friendId) {
+    return dbController.removeFriend(id, friendId);
+  }
+
 }

@@ -1,25 +1,21 @@
 import 'package:bloc/bloc.dart';
-import 'package:gymtracker/services/auth/firebase_auth_provider.dart';
-import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/services/cloud/firestore_squad_controller.dart';
-import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 
-import '../constants/cloud_contraints.dart';
-import '../services/cloud/firestore_notification_controller.dart';
+import '../services/cloud/cloud_notification.dart';
 
 part 'main_page_state.dart';
 
-class MainPageCubit extends Cubit<MainPageState> {
-  MainPageCubit() : super(const SquadSelector());
-  final FirestoreUserController _firestoreUserController =
-      FirestoreUserController();
-  final FirestoreSquadController _firestoreSquadController =
-      FirestoreSquadController();
-  final FirestoreNotificationsController _firestoreNotificationController =
-      FirestoreNotificationsController();
-  final FirebaseAuthProvider _firebaseAuthProvider = FirebaseAuthProvider();
+typedef RequestsSortingType = Map<String, Map<String, List>>;
 
-  void changePage(int index, {notifications = const {}}) {
+class MainPageCubit extends Cubit<MainPageState> {
+  final CloudUser _currentUser;
+
+  MainPageCubit(this._currentUser) : super(const SquadSelector());
+
+
+  void changePage(int index, {notifications}) {
     switch (index) {
       case 0:
         emit(SquadSelector(notifications: notifications));
@@ -42,11 +38,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String name,
     required String description,
   }) async {
-    final currentUser = _firebaseAuthProvider.currentUser;
     try {
       emit(const NewSquad(isLoading: true, loadingText: "Creating Squad..."));
-      await _firestoreSquadController.createSquad(
-          name: name, creatorId: currentUser!.id, description: description);
+      await CloudSquad.createSquad(name, description);
       emit(const NewSquad());
     } catch (e) {
       emit(NewSquad(exception: e as Exception));
@@ -57,48 +51,88 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String userToAddId,
   }) async {
     try {
-      emit(const FriendsViewer(isLoading: true, loadingText: "Adding Warrior..."));
-      await _firestoreUserController.sendFriendReq(
-          userId: _firebaseAuthProvider.currentUser!.id, friendId: userToAddId);
-      _firestoreNotificationController.sendNotification(
-        _firebaseAuthProvider.currentUser!.id,
-        userToAddId,
-        frqType,
-        ""
-      );
+      emit(const FriendsViewer(
+          isLoading: true, loadingText: "Adding Warrior..."));
+      await CloudKinRequest.sendRequest(_currentUser.id, userToAddId);
       emit(const FriendsViewer(success: true));
     } catch (e) {
       emit(FriendsViewer(exception: e as Exception));
     }
   }
 
-  Stream<List<CloudNotification>> normalNotificationsStream() {
-    return _firestoreNotificationController
-        .getNormalNotifications(_firebaseAuthProvider.currentUser!.id);
-  }
-
-  Future<NotificationsType> getStartingNotifs() async {
-    return (await _firestoreNotificationController
-        .getStartingNotifs(_firebaseAuthProvider.currentUser!.id));
-  }
-
-  void newNotifications(MainPageState state, NotificationsType notifDiff) {
+  void newNotifications(RequestsSortingType notifDiff) {
     emit(state.copyWith(notifications: notifDiff));
   }
 
-  Future<void> clearNotifications(MainPageState state) async {
-    emit(state.copyWith(notifications: const {}));
-    final currentNotifs = state.notifications;
+  Future<void> clearNotifications() async {
+    if (state.notifications == null) return;
+    final currentNotifs = state.notifications!;
 
-    for (final key in currentNotifs!.keys) {
-      for (final notif in currentNotifs[key]!) {
-        await _firestoreNotificationController
-            .markNotificationAsRead(notif.item2);
+    for (final values in currentNotifs[newNotifsKeyName]!.values) {
+      for (final notif in values) {
+        await notif.readRequest();
       }
     }
+
+    final readFrqNotifs = currentNotifs[oldNotifsKeyName]![frqKeyName]!
+        ..addAll(currentNotifs[newNotifsKeyName]![frqKeyName]!);
+
+    final readSrqNotifs = currentNotifs[oldNotifsKeyName]![srqKeyName]!
+      ..addAll(currentNotifs[newNotifsKeyName]![srqKeyName]!);
+
+    emit(state.copyWith(notifications: {
+      oldNotifsKeyName: {
+        frqKeyName: readFrqNotifs,
+        srqKeyName: readSrqNotifs,
+        othersKeyName: [],
+      },
+      newNotifsKeyName: {
+        frqKeyName: [],
+        srqKeyName: [],
+        othersKeyName: [],
+      }
+    }));
   }
 
-  Future<void> disableNotification(String notifId) async {
-    await _firestoreNotificationController.disableNotification(notifId);
+  Future<void> emitStartingNotifs() async {
+    if (state.notifications != null) return;
+    final frqData =
+        await CloudKinRequest.fetchFriendRequests(_currentUser.id);
+    final srqData =
+        await CloudSquadRequest.fetchServerRequests(_currentUser.id);
+
+    final notifications = {
+      oldNotifsKeyName: {
+        frqKeyName: [],
+        srqKeyName: [],
+        othersKeyName: [], //TODO for the future
+      },
+      newNotifsKeyName: {
+        frqKeyName: [],
+        srqKeyName: [],
+        othersKeyName: [],
+      }
+    };
+
+    for (final frq in frqData) {
+      if (frq.read) {
+        notifications[oldNotifsKeyName]![frqKeyName]!.add(frq);
+      } else {
+        notifications[newNotifsKeyName]![frqKeyName]!.add(frq);
+      }
+    }
+
+    for (final srq in srqData) {
+      if (srq.read) {
+        notifications[oldNotifsKeyName]![srqKeyName]!.add(srq);
+      } else {
+        notifications[newNotifsKeyName]![srqKeyName]!.add(srq);
+      }
+    }
+
+    emit(state.copyWith(notifications: notifications));
   }
+
+
+
 }

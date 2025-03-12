@@ -1,5 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart' as fb show User;
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 @immutable
@@ -14,11 +13,6 @@ class AuthUser {
     required this.isEmailVerified,
   });
 
-  factory AuthUser.fromFirebaseUser(fb.User user) => AuthUser(
-        id: user.uid,
-        email: user.email,
-        isEmailVerified: user.emailVerified,
-      );
 
   factory AuthUser.fromSupabaseUser(User user) => AuthUser(
         id: user.id,

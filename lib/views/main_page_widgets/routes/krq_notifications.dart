@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/error_list_tile.dart';
+import 'package:gymtracker/utils/widgets/krq_subtitle.dart';
+import 'package:gymtracker/utils/widgets/loading_list_tile.dart';
 import 'package:gymtracker/utils/widgets/request_notification_tile.dart';
-import 'package:gymtracker/views/main_page_widgets/routes/notifications.dart';
 
-import '../../../services/cloud/firestore_user_controller.dart';
+import '../../../services/cloud/cloud_notification.dart';
 
 class KinRequestRoute extends StatefulWidget {
   const KinRequestRoute({super.key});
@@ -14,12 +18,11 @@ class KinRequestRoute extends StatefulWidget {
 }
 
 class _KinRequestRouteState extends State<KinRequestRoute> {
-  FlatNotificationType? _krqNotifications;
-  final _firestoreUserController = FirestoreUserController();
+  List<CloudKinRequest>? _krqNotifications;
 
   @override
   void didChangeDependencies() {
-    _krqNotifications ??= context.arguments<FlatNotificationType>() ?? [];
+    _krqNotifications ??= context.arguments<List<CloudKinRequest>>() ?? [];
     super.didChangeDependencies();
   }
 
@@ -29,9 +32,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        for (var notification in _krqNotifications!) {
-          notification.item2.readNotification();
-        }
+        _krqNotifications?.forEach((e) async => await e.readRequest());
         Navigator.of(context).pop(_krqNotifications);
       },
       child: Scaffold(
@@ -43,83 +44,67 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
             ),
           ),
         ),
-        body: _krqNotifications?.isEmpty ?? true
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: 50),
-                child: Center(
-                  child: Text(
-                    "For now, you stand alone. No warriors seek kinship.",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.oswald(
-                      fontSize: 35,
-                    ),
-                  ),
+        body: DoubleWidgetFlipper(
+          flipToTwo: _krqNotifications?.isNotEmpty ?? false,
+          buildOne: ({child, children}) => Padding(
+              padding: const EdgeInsets.only(bottom: 50), child: child!),
+          buildTwo: ({children, child}) => Column(children: children!),
+          isOneChild: true,
+          isTwoChild: false,
+          childrenIfOne: [
+            Center(
+              child: Text(
+                "For now, you stand alone. No warriors seek kinship.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.oswald(
+                  fontSize: 35,
                 ),
-              )
-            : Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, left: 16),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: _buildSubtitle(_krqNotifications?.length ?? 0),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: ListView.builder(
-                        itemCount: _krqNotifications?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final notification = _krqNotifications![index];
-                          return FutureBuilder(
-                            future: _firestoreUserController
-                                .fetchUser(notification.item2.fromUserId),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState !=
-                                  ConnectionState.done) {
-                                return buildLoadingListTile();
-                              }
-
-                              if (snapshot.hasError) {
-                                return buildErrorListTile();
-                              }
-
-                              return AnimatedNotificationTile(
-                                notificationInfo: notification.item2,
-                                index: index,
-                                onRemove: () {
-                                  setState(() {
-                                    _krqNotifications!.removeAt(index);
-                                  });
-                                },
-                                snapshot: snapshot,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
               ),
-      ),
-    );
-  }
+            )
+          ],
+          childrenIfTwo: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 16),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: KrqPageSubtitle(
+                    multiple: (_krqNotifications?.length ?? 0) > 0),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: ListView.builder(
+                  itemCount: _krqNotifications?.length ?? 0,
+                  itemBuilder: (context, index) {
+                    final notification = _krqNotifications![index];
+                    return FutureBuilder(
+                      future: CloudUser.fetchUser(notification.fromUser, false),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const LoadingListTile();
+                        }
 
-  Text _buildSubtitle(int length) {
-    var text = "The battlefield stirs—";
-    if (length == 1) {
-      text += "a warrior seeks your kinship!";
-    } else {
-      text += "warriors seek your kinship!";
-    }
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        color: Colors.grey,
-        fontWeight: FontWeight.bold,
+                        if (snapshot.hasError) {
+                          return const ErrorListTile();
+                        }
+
+                        return AnimatedFriendRequestTile(
+                          notification: notification,
+                          index: index,
+                          onRemove: () {
+                            setState(() => _krqNotifications!.removeAt(index));
+                          },
+                          snapshot: snapshot,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

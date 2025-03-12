@@ -49,6 +49,17 @@ class AuthEventForgotPassword extends AuthEvent {
 
 }
 
+class AuthEventShouldSetUpProfile extends AuthEvent {
+  const AuthEventShouldSetUpProfile();
+}
+
+class AuthEventSetUpProfile extends AuthEvent {
+  final String name;
+  final String bio;
+
+  const AuthEventSetUpProfile(this.name, this.bio);
+}
+
 
 
 

@@ -55,3 +55,12 @@ class AuthStateForgotPassword extends AuthState {
 class AuthStateNeedsVerification extends AuthState {
   const AuthStateNeedsVerification({required super.isLoading});
 }
+
+class AuthStateSettingUpProfile extends AuthState {
+  final Exception? exception;
+
+  const AuthStateSettingUpProfile({
+    required super.isLoading,
+    required this.exception,
+  });
+}

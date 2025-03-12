@@ -1,30 +1,40 @@
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
-import 'package:gymtracker/services/cloud/firestore_user_controller.dart';
+
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final DatabaseController databaseController;
+  final DatabaseController _databaseController;
+  final AuthProvider _provider;
 
-  AuthBloc(AuthProvider provider, this.databaseController)
+  AuthBloc(this._provider, this._databaseController)
       : super(const AuthStateUninitialized(isLoading: true)) {
     on<AuthEventSendEmailVerification>((event, emit) async {
-      await provider.sendEmailVerification();
+      await _provider.sendEmailVerification();
       emit(state);
     });
 
     on<AuthEventReloadUser>((event, emit) async {
-      await provider.refreshSession();
-      if (provider.currentUser == null) {
+      await _provider.refreshSession();
+      final user = _provider.currentUser;
+      if (user == null) {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } else {
-        if (provider.currentUser!.isEmailVerified) {
-          if (state is AuthStateNeedsVerification) {
-            emit(AuthStateAuthenticated(
-                user: provider.currentUser!, isLoading: false));
+        if (user.isEmailVerified) {
+          // if (state is AuthStateNeedsVerification) {
+          //   emit(AuthStateAuthenticated(
+          //       user: provider.currentUser!, isLoading: false));
+          // } else {
+          //   emit(state);
+          // }
+          if (!await CloudUser.userExists(authId: authIdFieldName)) {
+            emit(const AuthStateSettingUpProfile(
+                isLoading: false, exception: null));
           } else {
             emit(state);
           }
@@ -34,20 +44,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    on<AuthEventSetUpProfile>((event, emit) async {
+      final name = event.name;
+      final bio = event.bio;
+
+      try {
+        emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
+        if (!await checkValidUsername(name)) {
+          throw InvalidUserNameFormatAuthException();
+        }
+        final user = _provider.currentUser!;
+        await CloudUser.createUser(name, bio);
+        emit(AuthStateAuthenticated(user: user, isLoading: false));
+      } catch (e) {
+        emit(AuthStateSettingUpProfile(
+            exception: e as Exception, isLoading: false));
+      }
+    });
+
     on<AuthEventRegister>((event, emit) async {
       final email = event.email;
       final password = event.password;
-      final name = event.name;
+      // final name = event.name;
 
       try {
         emit(const AuthStateRegistering(exception: null, isLoading: true));
-        if (!await checkValidUsername(name)) {
-         throw InvalidUserNameFormatAuthException();
-        }
-        final user = await provider.createUser(
-            email: email, password: password, name: name);
-        await userController!.createUser(userId: user.id, name: name);
-        await provider.sendEmailVerification();
+        // if (!await checkValidUsername(name)) {
+        //  throw InvalidUserNameFormatAuthException();
+        // }
+        await _provider.createUser(email: email, password: password);
+
+        //await provider.sendEmailVerification();
 
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
@@ -55,21 +82,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    on<AuthEventShouldSetUpProfile>((event, emit) {
+      emit(const AuthStateSettingUpProfile(isLoading: false, exception: null));
+    });
+
     on<AuthEventShouldRegister>((event, emit) {
       emit(const AuthStateRegistering(exception: null, isLoading: false));
     });
 
     on<AuthEventInitialize>((event, emit) async {
-      await provider.initialize();
-      //userController ??= FirestoreUserController();
-      final user = provider.currentUser;
+      await _provider.initialize();
+      DatabaseController.initCloudObjects(dbController);
+
+      final user = _provider.currentUser;
 
       if (user == null) {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } else if (!user.isEmailVerified) {
         emit(const AuthStateNeedsVerification(isLoading: false));
       } else {
-        emit(AuthStateAuthenticated(user: user, isLoading: false));
+        if (!await CloudUser.userExists(authId: authIdFieldName)) {
+          emit(const AuthStateSettingUpProfile(
+              isLoading: false, exception: null));
+        } else {
+          emit(AuthStateAuthenticated(user: user, isLoading: false));
+        }
       }
     });
 
@@ -81,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       try {
         final user =
-            await provider.logIn(email: event.email, password: event.password);
+            await _provider.logIn(email: event.email, password: event.password);
 
         if (!user.isEmailVerified) {
           emit(const AuthStateUnauthenticated(
@@ -91,13 +128,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           emit(const AuthStateUnauthenticated(
               exception: null, isLoading: false));
-          emit(AuthStateAuthenticated(user: user, isLoading: false));
+          if (!await CloudUser.userExists(authId: authIdFieldName)) {
+            emit(const AuthStateSettingUpProfile(
+                isLoading: false, exception: null));
+          } else {
+            emit(AuthStateAuthenticated(user: user, isLoading: false));
+          }
         }
-      } on EmailNotConfirmedAuthException catch (e) {
+      } on EmailNotConfirmedAuthException {
         emit(const AuthStateNeedsVerification(isLoading: false));
-      }
-
-      catch (e) {
+      } catch (e) {
         emit(AuthStateUnauthenticated(
             exception: e as Exception, isLoading: false));
       }
@@ -105,7 +145,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventSignOut>((event, emit) async {
       try {
-        await provider.logOut();
+        await _provider.logOut();
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } catch (e) {
         emit(AuthStateUnauthenticated(
@@ -133,7 +173,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       Exception? exception;
 
       try {
-        await provider.sendPasswordReset(email: email);
+        await _provider.sendPasswordReset(email: email);
         didSendEmail = true;
         exception = null;
       } catch (e) {
@@ -149,14 +189,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  Future<bool> checkValidUsername(String username) async {
-    if (await userController!.userExists(username)) {
+  Future<bool> checkValidUsername(String userName) async {
+    if (await CloudUser.userExists(name: userName)) {
       throw UsernameAlreadyUsedAuthException();
     }
-    return RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(username) &&
-        RegExp(r'[a-zA-Z]').allMatches(username).length >= 3 &&
-        username.length <= 15;
+    return RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(userName) &&
+        RegExp(r'[a-zA-Z]').allMatches(userName).length >= 3 &&
+        userName.length <= 15;
   }
-  get dbController => databaseController;
 
+  get dbController => _databaseController;
+
+  get currentAuthUser => _provider.currentUser;
+
+  get currentDbUser async {
+    if (currentAuthUser == null) return null;
+    return CloudUser.fetchUser(currentAuthUser.id, true);
+  }
 }
