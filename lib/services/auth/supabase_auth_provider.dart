@@ -6,6 +6,7 @@ import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthChangeEvent, AuthException, OtpType, Supabase;
+import 'package:uni_links/uni_links.dart';
 
 class SupabaseAuthProvider implements AuthProvider {
   @override
@@ -156,6 +157,13 @@ class SupabaseAuthProvider implements AuthProvider {
 
   @override
   Stream<bool> listenForVerification(AuthUser? user) async* {
-    yield false;
+    await for (final link in uriLinkStream) {
+      if (link != null) {
+        if (link.path == "/auth/verified") {
+          yield true;
+          break;
+        }
+      }
+    }
   }
 }

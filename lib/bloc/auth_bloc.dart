@@ -52,21 +52,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthEventListenForVerification>((event, emit) async {
-      // final verificationStream = _provider.listenForVerification(event.user);
-      // await for (final verified in verificationStream) {
-      //   if (verified) {
-      //     emit(const AuthStateSettingUpProfile(
-      //         isLoading: false, exception: null));
-      //     break;
-      //   }
-      // }
-      await for (final link in uriLinkStream) {
-        if (link != null) {
-          if (link.path == "/auth/verified") {
-            emit(const AuthStateUnauthenticated(
-                exception: null, isLoading: false));
-            break;
-          }
+      final verificationStream = _provider.listenForVerification(event.user);
+      await for (final verified in verificationStream) {
+        if (verified) {
+          emit(const AuthStateSettingUpProfile(
+              isLoading: false, exception: null));
+          break;
         }
       }
     });
