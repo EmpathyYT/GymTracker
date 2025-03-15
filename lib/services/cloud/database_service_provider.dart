@@ -100,6 +100,10 @@ class DatabaseServiceProvider implements DatabaseController {
   Future<void> acceptServerRequest(toUser, squadId) =>
       _provider.acceptServerRequest(toUser, squadId);
 
+  @override
+  Future<void> initialize() =>
+      _provider.initialize();
+
 
 }
 

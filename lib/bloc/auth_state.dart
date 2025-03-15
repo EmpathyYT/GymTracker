@@ -53,7 +53,10 @@ class AuthStateForgotPassword extends AuthState {
 }
 
 class AuthStateNeedsVerification extends AuthState {
-  const AuthStateNeedsVerification({required super.isLoading});
+  final AuthUser? user;
+
+  const AuthStateNeedsVerification(
+      {required super.isLoading, this.user});
 }
 
 class AuthStateSettingUpProfile extends AuthState {

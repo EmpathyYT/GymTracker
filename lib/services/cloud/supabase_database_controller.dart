@@ -10,7 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../auth/auth_provider.dart';
 
 class SupabaseDatabaseController implements DatabaseController {
-  final _supabase = Supabase.instance.client;
+  late final SupabaseClient _supabase;
   final AuthProvider _auth;
 
   SupabaseDatabaseController(this._auth);
@@ -302,5 +302,10 @@ class SupabaseDatabaseController implements DatabaseController {
         .eq(recipientFieldName, toUser)
         .eq(sendingUserFieldName, squadId)
         .not(acceptedFieldName, 'eq', null);
+  }
+
+  @override
+  Future<void> initialize() async {
+    _supabase = Supabase.instance.client;
   }
 }

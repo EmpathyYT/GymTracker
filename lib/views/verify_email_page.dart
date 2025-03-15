@@ -1,8 +1,11 @@
-import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -12,25 +15,24 @@ class VerifyEmailPage extends StatefulWidget {
 }
 
 class _VerifyEmailPageState extends State<VerifyEmailPage> {
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
-    _startEmailVerificationCheck();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 
-  void _startEmailVerificationCheck() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      context.read<AuthBloc>().add(const AuthEventReloadUser());
-    });
+  @override
+  void didChangeDependencies() {
+    //_runVerificationCheck();
+    context.read<AuthBloc>().add(const AuthEventListenForVerification());
+    super.didChangeDependencies();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,5 +70,15 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         ],
       )),
     );
+  }
+
+  void _runVerificationCheck() {
+    final state = context.read<AuthBloc>().state;
+    if (state is AuthStateNeedsVerification) {
+      log(state.user.toString());
+      context
+          .read<AuthBloc>()
+          .add(AuthEventListenForVerification(user:state.user));
+    }
   }
 }

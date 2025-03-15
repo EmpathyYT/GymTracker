@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
-    show AuthException, OtpType, Supabase;
+    show AuthChangeEvent, AuthException, OtpType, Supabase;
 
 class SupabaseAuthProvider implements AuthProvider {
   @override
@@ -34,9 +36,13 @@ class SupabaseAuthProvider implements AuthProvider {
 
   @override
   AuthUser? get currentUser {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return null;
-    return AuthUser.fromSupabaseUser(user);
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return null;
+      return AuthUser.fromSupabaseUser(user);
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -144,7 +150,12 @@ class SupabaseAuthProvider implements AuthProvider {
     try {
       await Supabase.instance.client.auth.refreshSession();
     } catch (e) {
-      rethrow;
+      throw UserNotLoggedInException();
     }
+  }
+
+  @override
+  Stream<bool> listenForVerification(AuthUser? user) async* {
+    yield false;
   }
 }

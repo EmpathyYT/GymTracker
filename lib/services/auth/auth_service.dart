@@ -45,4 +45,9 @@ class AuthService implements AuthProvider {
 
   @override
   Future<void> refreshSession() => provider.refreshSession();
+
+  @override
+  Stream<bool> listenForVerification(AuthUser? user) =>
+      provider.listenForVerification(user);
+
 }

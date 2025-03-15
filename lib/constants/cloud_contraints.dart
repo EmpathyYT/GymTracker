@@ -1,4 +1,4 @@
-const userTableName = 'users';
+const userTableName = 'Users';
 const nameFieldName = 'user_name';
 const authIdFieldName = 'auth_id';
 const bioFieldName = 'biography';

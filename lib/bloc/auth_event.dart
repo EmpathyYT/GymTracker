@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:gymtracker/services/auth/auth_user.dart';
 
 @immutable
 abstract class AuthEvent {
@@ -20,9 +21,13 @@ class AuthEventReloadUser extends AuthEvent {
 class AuthEventRegister extends AuthEvent {
   final String email;
   final String password;
-  final String name;
 
-  const AuthEventRegister(this.email, this.password, this.name);
+  const AuthEventRegister(this.email, this.password);
+}
+
+class AuthEventListenForVerification extends AuthEvent {
+  final AuthUser? user;
+  const AuthEventListenForVerification({this.user});
 }
 
 class AuthEventShouldRegister extends AuthEvent {

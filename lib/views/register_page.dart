@@ -18,21 +18,18 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  late final TextEditingController _name;
 
   @override
   void initState() {
     super.initState();
     _email = TextEditingController();
     _password = TextEditingController();
-    _name = TextEditingController();
   }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
-    _name.dispose();
 
     super.dispose();
   }
@@ -53,12 +50,6 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (state.exception is EmptyCredentialsAuthException) {
             await showErrorDialog(
                 context, "Email and Password cannot be empty.");
-          } else if (state.exception is InvalidUserNameFormatAuthException) {
-            await showErrorDialog(
-            context, "Invalid Username. Please try again.");
-          } else if (state.exception is UsernameAlreadyUsedAuthException) {
-            await showErrorDialog(
-              context, "Username already used. Please use another username.");
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(
                 context, "An error occurred. Please try again.");
@@ -89,11 +80,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextField(
                   autocorrect: false,
-                  controller: _name,
-                  decoration: const InputDecoration(labelText: 'User Name'),
-                ),
-                TextField(
-                  autocorrect: false,
                   controller: _email,
                   decoration: const InputDecoration(labelText: 'Email'),
                 ),
@@ -114,7 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextButton(
                       onPressed: () {
                         context.read<AuthBloc>().add(AuthEventRegister(
-                            _email.text, _password.text, _name.text));
+                            _email.text, _password.text));
                       },
                       child: const Text('Register',
                           style: TextStyle(fontSize: 20)),
