@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthChangeEvent, AuthException, OtpType, Supabase;
-import 'package:uni_links/uni_links.dart';
 
 class SupabaseAuthProvider implements AuthProvider {
   @override
@@ -38,6 +38,7 @@ class SupabaseAuthProvider implements AuthProvider {
   @override
   AuthUser? get currentUser {
     try {
+      Supabase.instance.client.auth.startAutoRefresh();
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return null;
       return AuthUser.fromSupabaseUser(user);
@@ -52,14 +53,11 @@ class SupabaseAuthProvider implements AuthProvider {
     await Supabase.initialize(
         url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
         anonKey: dotenv.env["SUPABASE_KEY"]!);
-    final session = Supabase.instance.client.auth.currentSession;
-    if (session == null) return;
-    if (session.isExpired) {
-      try {
-        await Supabase.instance.client.auth.refreshSession();
-      } catch (e) {
-        rethrow;
-      }
+    Supabase.instance.client.auth.startAutoRefresh();
+    try {
+      await Supabase.instance.client.auth.refreshSession();
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -157,12 +155,12 @@ class SupabaseAuthProvider implements AuthProvider {
 
   @override
   Stream<bool> listenForVerification(AuthUser? user) async* {
-    await for (final link in uriLinkStream) {
-      if (link != null) {
-        if (link.path == "/auth/verified") {
-          yield true;
-          break;
-        }
+    final appLinks = AppLinks().uriLinkStream;
+
+    await for (final link in appLinks) {
+      if (link.path == "/verified") {
+        yield true;
+        break;
       }
     }
   }

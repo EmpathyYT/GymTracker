@@ -1,9 +1,10 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
-import 'package:uni_links/uni_links.dart';
 
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
@@ -204,3 +205,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 }
+//TODO ADD A REFRESH
