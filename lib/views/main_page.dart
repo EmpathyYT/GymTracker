@@ -11,6 +11,7 @@ import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
+import '../bloc/auth_state.dart';
 import '../helpers/loading/loading_dialog.dart';
 import '../services/cloud/cloud_user.dart';
 import '../utils/widgets/notifications_button.dart';
@@ -25,7 +26,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String _title = "";
   Timer? _timer;
-  late final CloudUser? _currentUser;
+  late final CloudUser _currentUser;
   final destinations = const {
     "Clan Selector": Icon(Icons.groups),
     "Kinship Board": Icon(Icons.handshake),
@@ -41,9 +42,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    _currentUser =
+        (context.read<AuthBloc>().state as AuthStateAuthenticated).cloudUser!;
+
     return BlocProvider(
-      create: (context) =>
-          MainPageCubit(context.read<AuthBloc>().currentDbUser),
+      create: (context) => MainPageCubit(_currentUser),
       child: BlocConsumer<MainPageCubit, MainPageState>(
         listener: (context, state) async {
           if (state.isLoading) {
@@ -57,6 +60,7 @@ class _MainPageState extends State<MainPage> {
         },
         builder: (context, state) {
           int currentIndex = _titlePicker(state);
+
           return FutureBuilder(
             future: context.read<MainPageCubit>().emitStartingNotifs(),
             builder: (context, snapshot) {

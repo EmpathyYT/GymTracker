@@ -26,8 +26,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _provider.refreshSession();
         final user = _provider.currentUser;
         final newState = await _stateSelectorByUser(user);
+        log(newState.runtimeType.toString());
+        log(state.runtimeType.toString());
 
-        if (newState.runtimeType == state.runtimeType) emit(state);
+        if (newState.runtimeType == state.runtimeType) {
+          emit(state);
+        } else {
+          if (newState is AuthStateAuthenticated) {
+            final user = await CloudUser.fetchUser(currentAuthUser?.id, true);
+            emit(newState.fromUser(user!));
+          } else {
+            emit(newState);
+          }
+        }
       } catch (e) {
         emit(AuthStateUnauthenticated(
             exception: e as Exception, isLoading: false));
@@ -44,8 +55,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           throw InvalidUserNameFormatAuthException();
         }
         final user = _provider.currentUser!;
-        await CloudUser.createUser(name, bio);
-        emit(AuthStateAuthenticated(user: user, isLoading: false));
+        final cloudUser = await CloudUser.createUser(name, bio);
+        emit(AuthStateAuthenticated(
+          cloudUser: cloudUser,
+          user: user,
+          isLoading: false,
+        ));
       } catch (e) {
         emit(AuthStateSettingUpProfile(
             exception: e as Exception, isLoading: false));
@@ -119,6 +134,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } on EmailNotConfirmedAuthException {
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
+        log(e.toString());
         emit(AuthStateUnauthenticated(
             exception: e as Exception, isLoading: false));
       }
@@ -179,15 +195,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         userName.length <= 15;
   }
 
-  get dbController => _databaseController;
-
-  get currentAuthUser => _provider.currentUser;
-
-  get currentDbUser async {
-    if (currentAuthUser == null) return null;
-    return CloudUser.fetchUser(currentAuthUser.id, true);
-  }
-
   Future<AuthState> _stateSelectorByUser(AuthUser? user) async {
     if (user != null) {
       if (!user.isEmailVerified) {
@@ -197,12 +204,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return const AuthStateSettingUpProfile(
               isLoading: false, exception: null);
         } else {
-          return AuthStateAuthenticated(user: user, isLoading: false);
+          return AuthStateAuthenticated(
+            user: user,
+            isLoading: false,
+          );
         }
       }
     } else {
       return const AuthStateUnauthenticated(exception: null, isLoading: false);
     }
   }
+
+  DatabaseController get dbController => _databaseController;
+
+  AuthUser? get currentAuthUser => _provider.currentUser;
+
+  Future<CloudUser?> get currentDbUser async {
+    if (currentAuthUser == null) return null;
+    return CloudUser.fetchUser(currentAuthUser?.id, true);
+  }
 }
-//TODO ADD A REFRESH
+//TODO ADD A REFRESH USER EVENT

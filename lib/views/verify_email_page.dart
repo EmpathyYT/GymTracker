@@ -63,7 +63,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               onPressed: () {
                 context.read<AuthBloc>().add(const AuthEventSignOut());
               },
-              child: const Text('Back to register page',
+              child: const Text('Verified?\nBack to login page',
                   style: TextStyle(fontSize: 15)),
             ),
           ),

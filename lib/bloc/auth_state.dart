@@ -1,10 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 import '../services/auth/auth_user.dart';
 
 @immutable
-abstract class AuthState {
+sealed class AuthState {
   final bool isLoading;
   final String loadingText;
 
@@ -27,8 +28,18 @@ class AuthStateRegistering extends AuthState {
 
 class AuthStateAuthenticated extends AuthState {
   final AuthUser user;
+  final CloudUser? cloudUser;
 
-  const AuthStateAuthenticated({required this.user, required super.isLoading});
+  const AuthStateAuthenticated(
+      {this.cloudUser, required this.user, required super.isLoading});
+
+  AuthStateAuthenticated fromUser(CloudUser user) {
+    return AuthStateAuthenticated(
+      cloudUser: user,
+      user: this.user,
+      isLoading: false,
+    );
+  }
 }
 
 class AuthStateUnauthenticated extends AuthState with EquatableMixin {
@@ -55,8 +66,7 @@ class AuthStateForgotPassword extends AuthState {
 class AuthStateNeedsVerification extends AuthState {
   final AuthUser? user;
 
-  const AuthStateNeedsVerification(
-      {required super.isLoading, this.user});
+  const AuthStateNeedsVerification({required super.isLoading, this.user});
 }
 
 class AuthStateSettingUpProfile extends AuthState {
