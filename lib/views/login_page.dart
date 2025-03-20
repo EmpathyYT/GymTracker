@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
 
-import '../exceptions/auth_exceptions.dart';
 import '../bloc/auth_bloc.dart';
+import '../exceptions/auth_exceptions.dart';
 import '../utils/dialogs/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -113,31 +113,31 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ],
             )),
-        bottomNavigationBar:
-            BottomAppBar( child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 170,
-                  child: TextButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(const AuthEventForgotPassword());
-                    },
-                    child: const Text('Forgot Password', style: TextStyle(fontSize: 15)),
-                  ),
-                ),
-                SizedBox(
-                  width: 170,
-                  child: TextButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(const AuthEventShouldRegister());
-                    },
-                    child: const Text('Register', style: TextStyle(fontSize: 15)),
-                  ),
-                ),
-              ],
-            )
-        ),
+        bottomNavigationBar: BottomAppBar(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 170,
+              child: TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                },
+                child: const Text('Forgot Password',
+                    style: TextStyle(fontSize: 15)),
+              ),
+            ),
+            SizedBox(
+              width: 170,
+              child: TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                },
+                child: const Text('Register', style: TextStyle(fontSize: 15)),
+              ),
+            ),
+          ],
+        )),
       ),
     );
   }

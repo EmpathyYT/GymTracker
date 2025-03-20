@@ -43,7 +43,6 @@ class CloudUser with EquatableMixin {
   @override
   List<Object?> get props => [authId];
 
-
   ///In case param [isOwner] is true, pass the authId as the userId.
   static Future<CloudUser?> fetchUser(userId, bool isOwner) {
     return dbController.fetchUser(userId, isOwner);
@@ -57,12 +56,12 @@ class CloudUser with EquatableMixin {
     return dbController.userExists(authId: authId, name: name);
   }
 
-  static Future<CloudUser> createUser(String userName, String biography) {
-    return dbController.createUser(userName, biography);
+  static Future<CloudUser> createUser(
+      String userName, String biography, bool gender) {
+    return dbController.createUser(userName, biography, gender);
   }
 
   Future<void> removeFriend(String friendId) {
     return dbController.removeFriend(id, friendId);
   }
-
 }

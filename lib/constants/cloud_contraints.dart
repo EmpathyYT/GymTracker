@@ -8,6 +8,7 @@ const squadFieldName = 'squads';
 const premiumSquadLimit = 15;
 const standardSquadLimit = 7;
 const squadLimitFieldName = 'squad_limit';
+const genderFieldName = "gender";
 //^ The User Constraints
 
 

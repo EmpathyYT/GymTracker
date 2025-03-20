@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -18,6 +19,7 @@ class ProfileSetupView extends StatefulWidget {
 class _ProfileSetupViewState extends State<ProfileSetupView> {
   late final TextEditingController _userNameController;
   late final TextEditingController _bioController;
+  bool _gender = true;
 
   @override
   void initState() {
@@ -40,6 +42,11 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         if (state is AuthStateSettingUpProfile) {
           if (state.exception is InvalidUserNameFormatAuthException) {
             await showErrorDialog(context, "Invalid User Name Format.");
+          } else if (state.exception is UsernameAlreadyUsedAuthException) {
+            await showErrorDialog(context, "Username already used.");
+          } else if (state.exception is GenericCloudException) {
+            await showErrorDialog(
+                context, "An error occurred. Please try again.");
           }
         }
       },
@@ -68,12 +75,28 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                   maxLines: 2,
                   maxLength: 150,
                 ),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment<bool>(
+                      value: true,
+                      label: Text("Male"),
+                    ),
+                    ButtonSegment<bool>(
+                      value: false,
+                      label: Text("Female"),
+                    )
+                  ],
+                  selected: {_gender},
+                  onSelectionChanged: (Set<bool> val) {
+                    setState(() => _gender = val.first);
+                  },
+                ),
                 ElevatedButton(
                   onPressed: () {
                     context.read<AuthBloc>().add(AuthEventSetUpProfile(
-                          _bioController.text,
-                          _userNameController.text,
-                        ));
+                        _userNameController.text,
+                        _bioController.text,
+                        _gender));
                   },
                   child: const Text("Submit", style: TextStyle(fontSize: 20)),
                 ),

@@ -18,8 +18,8 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.createSquad(name, description);
 
   @override
-  Future<CloudUser> createUser(userName, biography) =>
-      _provider.createUser(userName, biography);
+  Future<CloudUser> createUser(userName, biography, gender) =>
+      _provider.createUser(userName, biography, gender);
 
   @override
   Future<void> readFriendRequest(toUser, fromUser) =>

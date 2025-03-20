@@ -15,7 +15,7 @@ abstract class DatabaseController {
   Future<void> readServerRequest(toUser, squadId);
   Future<void> acceptServerRequest(toUser, squadId);
   Future<void> acceptFriendRequest(fromUser, toUser);
-  Future<CloudUser> createUser(userName, biography);
+  Future<CloudUser> createUser(userName, biography, gender);
   Future<CloudSquad?> fetchSquad(squadId);
   Future<CloudUser?> fetchUser(userId, bool isOwner);
   Future<bool> userExists({String? authId, String? name});
@@ -30,7 +30,7 @@ abstract class DatabaseController {
   unsubscribeNewServerRequestsStream();
 
 
-  static void initCloudObjects(DatabaseController controller) {
+  static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;
     CloudKinRequest.dbController = controller;

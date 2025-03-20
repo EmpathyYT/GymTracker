@@ -61,8 +61,9 @@ class AuthEventShouldSetUpProfile extends AuthEvent {
 class AuthEventSetUpProfile extends AuthEvent {
   final String name;
   final String bio;
+  final bool gender;
 
-  const AuthEventSetUpProfile(this.name, this.bio);
+  const AuthEventSetUpProfile(this.name, this.bio, this.gender);
 }
 
 

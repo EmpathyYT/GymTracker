@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -30,14 +32,15 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<CloudUser> createUser(userName, biography) async {
+  Future<CloudUser> createUser(userName, biography, gender) async {
     final data = await _supabase.from(userTableName).insert(
       {
         nameFieldName: userName,
-        authIdFieldName: _auth.currentUser!.id,
         bioFieldName: biography,
+        genderFieldName: gender
       },
     ).select();
+    log(data.toString());
     return CloudUser.fromMap(data[0]);
   }
 
@@ -59,7 +62,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(pendingServerRequestsTableName)
         .update({readFieldName: true})
         .eq(recipientFieldName, toUser)
-        .eq(idFieldName, squadId)
+        .eq(serverIdFieldName, squadId)
         .not(acceptedFieldName, 'eq', null);
   }
 
@@ -81,7 +84,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(pendingServerRequestsTableName)
         .update({acceptedFieldName: null})
         .eq(recipientFieldName, toUser)
-        .eq(idFieldName, serverId)
+        .eq(serverIdFieldName, serverId)
         .not(acceptedFieldName, 'eq', null);
   }
 
@@ -140,7 +143,7 @@ class SupabaseDatabaseController implements DatabaseController {
       {
         sendingUserFieldName: fromUser,
         recipientFieldName: toUser,
-        idFieldName: squadId,
+        serverIdFieldName: squadId,
       },
     );
   }
@@ -178,16 +181,13 @@ class SupabaseDatabaseController implements DatabaseController {
 
     if (authId != null) {
       return (await _supabase
-              .from(userTableName)
-              .select(authIdFieldName)
-              .eq(authIdFieldName, authId))
-          .isNotEmpty;
+          .from(userTableName)
+          .select(authIdFieldName)
+          .eq(authIdFieldName, authId))
+        .isNotEmpty;
     } else {
       return (await _supabase
-              .from(userTableName)
-              .select(nameFieldName)
-              .eq(nameFieldName, name!))
-          .isNotEmpty;
+              .rpc("check_user_name_exists", params: {"username": name}));
     }
   }
 
