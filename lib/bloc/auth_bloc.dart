@@ -32,12 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (newState.runtimeType == state.runtimeType) {
           emit(state);
         } else {
-          if (newState is AuthStateAuthenticated) {
-            final user = await CloudUser.fetchUser(currentAuthUser?.id, true);
-            emit(newState.fromUser(user!));
-          } else {
-            emit(newState);
-          }
+          emit(newState);
         }
       } catch (e) {
         emit(AuthStateUnauthenticated(
@@ -50,22 +45,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final bio = event.bio;
       final gender = event.gender;
 
-      try {
-        emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
-        if (!await checkValidUsername(name)) {
-          throw InvalidUserNameFormatAuthException();
-        }
-        final user = _provider.currentUser!;
-        final cloudUser = await CloudUser.createUser(name, bio, gender);
-        emit(AuthStateAuthenticated(
-          cloudUser: cloudUser,
-          user: user,
-          isLoading: false,
-        ));
-      } catch (e) {
-        emit(AuthStateSettingUpProfile(
-            exception: e as Exception, isLoading: false));
+      // try {
+      emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
+      if (!await checkValidUsername(name)) {
+        throw InvalidUserNameFormatAuthException();
       }
+      final user = _provider.currentUser!;
+      final cloudUser = await CloudUser.createUser(name, bio, gender);
+      emit(AuthStateAuthenticated(
+        cloudUser: cloudUser,
+        user: user,
+        isLoading: false,
+      ));
+      // } catch (e) {
+      //   log(e.toString());
+      //   // emit(AuthStateSettingUpProfile(
+      //   //     exception: e as Exception, isLoading: false));
+      // }
     });
 
     on<AuthEventListenForVerification>((event, emit) async {
@@ -108,7 +104,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await DatabaseController.initCloudObjects(dbController);
 
         final user = _provider.currentUser;
-        final newState = await _stateSelectorByUser(user);
+        var newState = await _stateSelectorByUser(user);
+
         emit(newState);
       } catch (e) {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
@@ -121,19 +118,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           isLoading: true,
           loadingText: 'Please wait for Authentication'));
 
-      // try {
+      try {
         final user =
             await _provider.logIn(email: event.email, password: event.password);
         emit(const AuthStateUnauthenticated(exception: null, isLoading: true));
         final newState = await _stateSelectorByUser(user);
         emit(newState);
-      // } on EmailNotConfirmedAuthException {
-      //   emit(const AuthStateNeedsVerification(isLoading: false));
-      // } catch (e) {
-      //   log(e.toString());
-      //   emit(AuthStateUnauthenticated(
-      //       exception: e as Exception, isLoading: false));
-      // }
+      } on EmailNotConfirmedAuthException {
+        emit(const AuthStateNeedsVerification(isLoading: false));
+      } catch (e) {
+        emit(AuthStateUnauthenticated(
+            exception: e as Exception, isLoading: false));
+      }
     });
 
     on<AuthEventSignOut>((event, emit) async {
@@ -200,7 +196,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return const AuthStateSettingUpProfile(
               isLoading: false, exception: null);
         } else {
+          final cUser = await CloudUser.fetchUser(currentAuthUser?.id, true);
           return AuthStateAuthenticated(
+            cloudUser: cUser,
             user: user,
             isLoading: false,
           );

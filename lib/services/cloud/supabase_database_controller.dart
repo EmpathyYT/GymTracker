@@ -40,8 +40,7 @@ class SupabaseDatabaseController implements DatabaseController {
         genderFieldName: gender
       },
     ).select();
-    log(data.toString());
-    return CloudUser.fromMap(data[0]);
+    return CloudUser.fromSubabaseMap(data[0]);
   }
 
   @override
@@ -165,13 +164,13 @@ class SupabaseDatabaseController implements DatabaseController {
           .select("*")
           .eq(authIdFieldName, userId);
       if (data.isEmpty) return null;
-      return CloudUser.fromMap(data[0]);
+      return CloudUser.fromSubabaseMap(data[0]);
     } else {
       final data = await _supabase.rpc("public_fetch_user", params: {
         'userid': userId,
       });
       if (data.isEmpty) return null;
-      return CloudUser.fromMap(data[0]);
+      return CloudUser.fromSubabaseMap(data[0]);
     }
   }
 
@@ -281,7 +280,7 @@ class SupabaseDatabaseController implements DatabaseController {
       "fetch_users_for_search",
       params: {"query": query},
     );
-    yield data.map((e) => CloudUser.fromMap(e)).toList();
+    yield data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
   }
 
   @override

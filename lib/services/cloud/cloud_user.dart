@@ -15,7 +15,7 @@ class CloudUser with EquatableMixin {
   final DateTime timeCreated;
   final int? squadLimit;
   final String bio;
-  final int? authId;
+  final String? authId;
   final int level;
 
   const CloudUser(
@@ -29,12 +29,16 @@ class CloudUser with EquatableMixin {
       this.friends,
       this.authId});
 
-  CloudUser.fromMap(Map<String, dynamic> data)
-      : id = data[idFieldName],
+  CloudUser.fromSubabaseMap(Map<String, dynamic> data)
+      : id = (data[idFieldName] as int).toString(),
         name = data[nameFieldName],
-        friends = List<String>.from(data[friendsFieldName] ?? []),
-        squads = List<String>.from(data[squadFieldName] ?? []),
-        timeCreated = data[timeCreatedFieldName] as DateTime,
+        friends = (data[squadFieldName] as List<int>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        squads = (data[squadFieldName] as List<int>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        timeCreated = DateTime.tryParse(data[timeCreatedFieldName] as String)!,
         squadLimit = data[squadLimitFieldName] ?? 0,
         bio = data[bioFieldName] ?? "",
         level = data[levelFieldName],

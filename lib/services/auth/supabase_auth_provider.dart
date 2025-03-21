@@ -57,7 +57,7 @@ class SupabaseAuthProvider implements AuthProvider {
     try {
       await Supabase.instance.client.auth.refreshSession();
     } catch (e) {
-      rethrow;
+      //
     }
   }
 
