@@ -26,8 +26,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _provider.refreshSession();
         final user = _provider.currentUser;
         final newState = await _stateSelectorByUser(user);
-        log(newState.runtimeType.toString());
-        log(state.runtimeType.toString());
 
         if (newState.runtimeType == state.runtimeType) {
           emit(state);

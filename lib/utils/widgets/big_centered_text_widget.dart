@@ -15,6 +15,7 @@ class BigCenteredText extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 50),
         child: Text(
+          textAlign: TextAlign.center,
           text,
           style: GoogleFonts.oswald(
             fontSize: 35,

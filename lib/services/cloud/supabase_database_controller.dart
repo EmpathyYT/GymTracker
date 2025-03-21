@@ -180,13 +180,13 @@ class SupabaseDatabaseController implements DatabaseController {
 
     if (authId != null) {
       return (await _supabase
-          .from(userTableName)
-          .select(authIdFieldName)
-          .eq(authIdFieldName, authId))
-        .isNotEmpty;
+              .from(userTableName)
+              .select(authIdFieldName)
+              .eq(authIdFieldName, authId))
+          .isNotEmpty;
     } else {
       return (await _supabase
-              .rpc("check_user_name_exists", params: {"username": name}));
+          .rpc("check_user_name_exists", params: {"username": name}));
     }
   }
 
@@ -278,8 +278,8 @@ class SupabaseDatabaseController implements DatabaseController {
   Stream<List<CloudUser>> fetchUsersForSearch(String query) async* {
     final data = await _supabase.rpc(
       "fetch_users_for_search",
-      params: {"query": query},
-    );
+      params: {"username": query},
+    ).select();
     yield data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
   }
 

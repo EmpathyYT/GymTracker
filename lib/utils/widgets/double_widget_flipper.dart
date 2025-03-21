@@ -32,6 +32,6 @@ class DoubleWidgetFlipper extends StatelessWidget {
         ? buildTwo(child: childrenIfTwo.first)
         : buildTwo(children: [...?commonWidgets, ...childrenIfTwo]);
 
-    return flipToTwo ? firstWidget : secondWidget;
+    return flipToTwo ? secondWidget : firstWidget;
   }
 }

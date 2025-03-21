@@ -49,7 +49,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           flipToTwo: _otherNotifications.isNotEmpty,
           isOneChild: false,
           isTwoChild: false,
-          buildOne: ({children, child}) => Stack(children: children!),
+          buildOne: ({children, child}) => Stack(alignment: Alignment.center ,children: children!),
           buildTwo: ({children, child}) => Column(children: children!),
           commonWidgets: [
             Column(
@@ -84,7 +84,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           childrenIfOne: const [
             BigCenteredText(
                 text:
-                    "The campfire burns quietly. No reports from the frontlines.")
+                    "The campfire burns quietly.\nNo reports from the frontlines.")
           ],
           childrenIfTwo: const [
             Placeholder() //TODO fix this later

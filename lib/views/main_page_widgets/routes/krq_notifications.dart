@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
@@ -47,14 +49,14 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
         body: DoubleWidgetFlipper(
           flipToTwo: _krqNotifications?.isNotEmpty ?? false,
           buildOne: ({child, children}) => Padding(
-              padding: const EdgeInsets.only(bottom: 50), child: child!),
+              padding: const EdgeInsets.only(bottom: 90), child: child!),
           buildTwo: ({children, child}) => Column(children: children!),
           isOneChild: true,
           isTwoChild: false,
           childrenIfOne: [
             Center(
               child: Text(
-                "For now, you stand alone. No warriors seek kinship.",
+                "For now, you stand alone.\nNo warriors seek kinship.",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.oswald(
                   fontSize: 35,
@@ -68,7 +70,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: KrqPageSubtitle(
-                    multiple: (_krqNotifications?.length ?? 0) > 0),
+                    multiple: (_krqNotifications?.length ?? 0) > 1),
               ),
             ),
             Expanded(

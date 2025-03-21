@@ -11,7 +11,7 @@ class KrqPageSubtitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var text = "The battlefield stirs—";
-    if (multiple) {
+    if (!multiple) {
       text += "a warrior seeks your kinship!";
     } else {
       text += "warriors seek your kinship!";
