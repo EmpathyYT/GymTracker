@@ -43,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final bio = event.bio;
       final gender = event.gender;
 
-      // try {
+      try {
       emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
       if (!await checkValidUsername(name)) {
         throw InvalidUserNameFormatAuthException();
@@ -55,11 +55,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         user: user,
         isLoading: false,
       ));
-      // } catch (e) {
-      //   log(e.toString());
-      //   // emit(AuthStateSettingUpProfile(
-      //   //     exception: e as Exception, isLoading: false));
-      // }
+      } catch (e) {
+        emit(AuthStateSettingUpProfile(
+            exception: e as Exception, isLoading: false));
+      }
     });
 
     on<AuthEventListenForVerification>((event, emit) async {

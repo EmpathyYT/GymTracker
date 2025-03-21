@@ -54,11 +54,6 @@ class SupabaseAuthProvider implements AuthProvider {
         url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
         anonKey: dotenv.env["SUPABASE_KEY"]!);
     Supabase.instance.client.auth.startAutoRefresh();
-    try {
-      await Supabase.instance.client.auth.refreshSession();
-    } catch (e) {
-      //
-    }
   }
 
   @override

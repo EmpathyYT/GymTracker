@@ -84,7 +84,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
               padding: EdgeInsets.only(top: 10, bottom: 10),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 5, right: 5),
+              padding: const EdgeInsets.only(left: 12, right: 12),
               child: TextField(
                 controller: _searchController,
                 onChanged: _searchSubject.add,
@@ -104,12 +104,20 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
               child: StreamBuilder<List<CloudUser>?>(
                   stream: _searchStream,
                   builder: (context, snapshot) {
+                    final user = context.read<MainPageCubit>().currentUser;
+
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const BigCenteredText(text: "Scout for Warriors");
                     }
 
                     if (snapshot.data == null) {
-                      return const BigCenteredText(text: "Scout for Warriors");
+                      if (_searchController.text == user.name) {
+                        return const BigCenteredText(
+                            text: "Look Into The Mirror");
+                      } else {
+                        return const BigCenteredText(
+                            text: "Scout For Warriors");
+                      }
                     }
 
                     final users = snapshot.data!;
@@ -130,8 +138,8 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.person_add),
-                            onPressed: () {
-                              context
+                            onPressed: () async {
+                              await context
                                   .read<MainPageCubit>()
                                   .addUserReq(userToAddId: user.id);
                             },
@@ -140,8 +148,8 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                             await showUserCard(
                               context: context,
                               user: user,
-                              addUserAction: () {
-                                context
+                              addUserAction: () async {
+                                await context
                                     .read<MainPageCubit>()
                                     .addUserReq(userToAddId: user.id);
                               },

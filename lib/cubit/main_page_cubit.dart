@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
@@ -133,6 +135,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(state.copyWith(notifications: notifications));
   }
 
+  CloudUser get currentUser => _currentUser;
 
 
 }
