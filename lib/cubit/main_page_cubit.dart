@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
@@ -16,14 +14,13 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   MainPageCubit(this._currentUser) : super(const SquadSelector());
 
-
   void changePage(int index, {notifications}) {
     switch (index) {
       case 0:
         emit(SquadSelector(notifications: notifications));
         break;
       case 1:
-        emit(FriendsViewer(notifications: notifications));
+        emit(KinViewer(notifications: notifications));
         break;
       case 2:
         emit(NewSquad(notifications: notifications));
@@ -41,11 +38,20 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String description,
   }) async {
     try {
-      emit(const NewSquad(isLoading: true, loadingText: "Creating Squad..."));
+      emit(NewSquad(
+        isLoading: true,
+        loadingText: "Creating Squad...",
+        notifications: state.notifications,
+      ));
       await CloudSquad.createSquad(name, description);
-      emit(const NewSquad());
+      emit(NewSquad(
+        notifications: state.notifications,
+      ));
     } catch (e) {
-      emit(NewSquad(exception: e as Exception));
+      emit(NewSquad(
+        exception: e as Exception,
+        notifications: state.notifications,
+      ));
     }
   }
 
@@ -53,12 +59,21 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String userToAddId,
   }) async {
     try {
-      emit(const FriendsViewer(
-          isLoading: true, loadingText: "Adding Warrior..."));
+      emit(KinViewer(
+        isLoading: true,
+        loadingText: "Adding Warrior...",
+        notifications: state.notifications,
+      ));
       await CloudKinRequest.sendRequest(_currentUser.id, userToAddId);
-      emit(const FriendsViewer(success: true));
+      emit(KinViewer(
+        success: true,
+        notifications: state.notifications,
+      ));
     } catch (e) {
-      emit(FriendsViewer(exception: e as Exception));
+      emit(KinViewer(
+        exception: e as Exception,
+        notifications: state.notifications,
+      ));
     }
   }
 
@@ -77,7 +92,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
 
     final readFrqNotifs = currentNotifs[oldNotifsKeyName]![frqKeyName]!
-        ..addAll(currentNotifs[newNotifsKeyName]![frqKeyName]!);
+      ..addAll(currentNotifs[newNotifsKeyName]![frqKeyName]!);
 
     final readSrqNotifs = currentNotifs[oldNotifsKeyName]![srqKeyName]!
       ..addAll(currentNotifs[newNotifsKeyName]![srqKeyName]!);
@@ -98,8 +113,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   Future<void> emitStartingNotifs() async {
     if (state.notifications != null) return;
-    final frqData =
-        await CloudKinRequest.fetchFriendRequests(_currentUser.id);
+    final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
@@ -136,6 +150,4 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   CloudUser get currentUser => _currentUser;
-
-
 }

@@ -5,13 +5,14 @@ import '../../cubit/main_page_cubit.dart';
 import '../../views/main_page_widgets/routes/add_warrior.dart';
 
 class FriendAdderButton extends StatelessWidget {
-  final MainPageState state;
+  final MainPageState _state;
 
-  const FriendAdderButton({super.key, required this.state});
+  const FriendAdderButton({super.key, required MainPageState state})
+      : _state = state;
 
   @override
   Widget build(BuildContext context) {
-    return (state is FriendsViewer)
+    return (_state is KinViewer)
         ? IconButton(
             icon: const Icon(Icons.person_add),
             iconSize: 30,

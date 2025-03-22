@@ -125,14 +125,14 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<void> sendFriendRequest(fromUser, toUser) {
+  Future<void> sendFriendRequest(fromUser, toUser) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    return _supabase.from(pendingFriendRequestsTableName).insert(
-      {
-        sendingUserFieldName: fromUser,
-        recipientFieldName: toUser,
-      },
-    );
+      await _supabase.from(pendingFriendRequestsTableName).insert(
+        {
+          sendingUserFieldName: fromUser,
+          recipientFieldName: toUser,
+        },
+      );
   }
 
   @override

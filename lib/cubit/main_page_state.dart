@@ -47,8 +47,8 @@ final class SquadSelector extends MainPageState {
 
 }
 
-final class FriendsViewer extends MainPageState {
-  const FriendsViewer(
+final class KinViewer extends MainPageState {
+  const KinViewer(
       {
         super.exception,
         super.isLoading = false,
@@ -58,8 +58,8 @@ final class FriendsViewer extends MainPageState {
       });
 
   @override
-  FriendsViewer copyWith({RequestsSortingType? notifications}) {
-    return FriendsViewer(
+  KinViewer copyWith({RequestsSortingType? notifications}) {
+    return KinViewer(
       exception: exception,
       isLoading: isLoading,
       loadingText: loadingText,

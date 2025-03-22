@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,7 +109,7 @@ class _MainPageState extends State<MainPage> {
     switch (state) {
       case SquadSelector():
         return const SquadSelectorWidget();
-      case FriendsViewer():
+      case KinViewer():
         return const FriendsViewerWidget();
       case NewSquad():
         return const SquadCreatorWidget();
@@ -124,7 +125,7 @@ class _MainPageState extends State<MainPage> {
     if (state is SquadSelector) {
       currentIndex = 0;
       _title = "Clan Selector";
-    } else if (state is FriendsViewer) {
+    } else if (state is KinViewer) {
       currentIndex = 1;
       _title = "Kinship Board";
     } else if (state is NewSquad) {

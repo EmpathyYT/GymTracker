@@ -50,20 +50,21 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
   Widget build(BuildContext context) {
     return BlocListener<MainPageCubit, MainPageState>(
       listener: (context, state) async {
-        if (state.success) {
-          await showSuccessDialog(context, "Kinship Call Sent",
-              "Your kinship request has been sent.");
-        }
-        if (context.mounted) {
-          if (state.exception is AlreadySentFriendRequestException) {
-            await showErrorDialog(
-                context, "The kinship call has already been sent.");
-          } else if (state.exception is UserAlreadyFriendException) {
-            await showErrorDialog(
-                context, "You and this warrior are already kin.");
-          } else if (state.exception is GenericCloudException) {
-            await showErrorDialog(
-                context, "The kinship call could not be delivered.");
+        if (state is KinViewer) {
+          if (state.exception != null) {
+            if (state.exception is AlreadySentFriendRequestException) {
+              await showErrorDialog(
+                  context, "The kinship call has already been sent.");
+            } else if (state.exception is UserAlreadyFriendException) {
+              await showErrorDialog(
+                  context, "You and this warrior are already kin.");
+            } else if (state.exception is GenericCloudException) {
+              await showErrorDialog(
+                  context, "The kinship call could not be delivered.");
+            }
+          } else if (state.success) {
+            await showSuccessDialog(context, "Kinship Call Sent",
+                "Your kinship request has been sent.");
           }
         }
       },

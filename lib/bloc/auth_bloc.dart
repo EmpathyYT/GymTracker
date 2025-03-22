@@ -118,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         final user =
             await _provider.logIn(email: event.email, password: event.password);
-        emit(const AuthStateUnauthenticated(exception: null, isLoading: true));
+        emit(const AuthStateUnauthenticated(exception: null, isLoading:  true));
         final newState = await _stateSelectorByUser(user);
         emit(newState);
       } on EmailNotConfirmedAuthException {

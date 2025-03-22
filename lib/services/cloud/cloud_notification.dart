@@ -75,7 +75,11 @@ class CloudKinRequest extends CloudRequest {
   }
 
   static Future<void> sendRequest(fromUser, toUser) async {
-    dbController.sendFriendRequest(fromUser, toUser);
+    try {
+      dbController.sendFriendRequest(fromUser, toUser);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   static Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
