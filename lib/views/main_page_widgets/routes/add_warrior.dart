@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -123,7 +121,12 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
 
                     final users = snapshot.data!;
                     if (users.isEmpty) {
-                      return const BigCenteredText(text: "No Warriors Found");
+                      if (_searchController.text == user.name) {
+                        return const BigCenteredText(
+                            text: "Look Into The Mirror");
+                      } else {
+                        return const BigCenteredText(text: "No Warriors Found");
+                      }
                     }
                     return ListView.builder(
                       itemCount: users.length,
@@ -167,3 +170,4 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
     );
   }
 }
+//todo resert search controller when a request is sent

@@ -111,6 +111,11 @@ class MainPageCubit extends Cubit<MainPageState> {
     }));
   }
 
+
+  void listenForNotifications() {
+    //todo
+  }
+
   Future<void> emitStartingNotifs() async {
     if (state.notifications != null) return;
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
