@@ -146,16 +146,20 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                               await context
                                   .read<MainPageCubit>()
                                   .addUserReq(userToAddId: user.id);
+                              _resetSearch();
                             },
                           ),
                           onTap: () async {
                             await showUserCard(
                               context: context,
                               user: user,
-                              addUserAction: () async {
+                              addUserAction: (context) async {
                                 await context
                                     .read<MainPageCubit>()
                                     .addUserReq(userToAddId: user.id);
+                                if (!context.mounted) return;
+                                Navigator.of(context).pop();
+                                _resetSearch();
                               },
                             );
                           },
@@ -168,6 +172,11 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
         ),
       ),
     );
+  }
+
+  void _resetSearch() {
+    _searchController.clear();
+    _searchSubject.add('');
   }
 }
 //todo resert search controller when a request is sent

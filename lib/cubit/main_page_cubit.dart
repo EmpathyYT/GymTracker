@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:ui';
+
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
@@ -11,6 +14,7 @@ typedef RequestsSortingType = Map<String, Map<String, List>>;
 
 class MainPageCubit extends Cubit<MainPageState> {
   final CloudUser _currentUser;
+  bool listeningToNotifications = false;
 
   MainPageCubit(this._currentUser) : super(const SquadSelector());
 
@@ -111,11 +115,6 @@ class MainPageCubit extends Cubit<MainPageState> {
     }));
   }
 
-
-  void listenForNotifications() {
-    //todo
-  }
-
   Future<void> emitStartingNotifs() async {
     if (state.notifications != null) return;
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
@@ -152,6 +151,25 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
 
     emit(state.copyWith(notifications: notifications));
+  }
+
+  VoidCallback listenToNotifications() {
+    if(listeningToNotifications) return () {};
+    CloudKinRequest.friendRequestListener(
+      _currentUser.id,
+      (event) {
+        log(event.toString());
+      },
+      (event) {
+        log(event.toString());
+      },
+    );
+
+    return () {
+      listeningToNotifications = true;
+      CloudKinRequest.unsubscribeFriendRequestListener();
+      CloudSquadRequest.unsubscribeServerRequestListener();
+    };
   }
 
   CloudUser get currentUser => _currentUser;

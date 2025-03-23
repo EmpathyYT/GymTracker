@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,6 +26,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String _title = "";
   Timer? _timer;
+  VoidCallback? _notificationUnsubscribe;
   late final CloudUser _currentUser;
   final destinations = const {
     "Clan Selector": Icon(Icons.groups),
@@ -37,6 +37,9 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
+    if (_notificationUnsubscribe != null) {
+      _notificationUnsubscribe!();
+    }
     _timer?.cancel();
     super.dispose();
   }
@@ -58,6 +61,8 @@ class _MainPageState extends State<MainPage> {
           if (_timer == null) {
             _startAppLoop(context);
           }
+          _notificationUnsubscribe ??=
+              context.read<MainPageCubit>().listenToNotifications();
         },
         builder: (context, state) {
           int currentIndex = _titlePicker(state);

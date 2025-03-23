@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
-typedef AddUserAction = void Function();
+typedef AddUserAction = void Function(BuildContext context);
 
 Future<void> showUserCard({
   required BuildContext context,
@@ -23,7 +23,7 @@ Future<void> showUserCard({
             ),
             const Spacer(),
             IconButton(
-              onPressed: () => addUserAction(),
+              onPressed: () => addUserAction(context),
               icon: const Icon(Icons.person_add),
             ),
           ],
