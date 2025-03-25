@@ -52,7 +52,8 @@ class SupabaseAuthProvider implements AuthProvider {
     await dotenv.load(fileName: "lib/secrets/.env");
     await Supabase.initialize(
         url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
-        anonKey: dotenv.env["SUPABASE_KEY"]!);
+        anonKey: dotenv.env["SUPABASE_KEY"]!,
+    );
     Supabase.instance.client.auth.startAutoRefresh();
   }
 

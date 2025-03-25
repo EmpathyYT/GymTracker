@@ -127,12 +127,12 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<void> sendFriendRequest(fromUser, toUser) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-      await _supabase.from(pendingFriendRequestsTableName).insert(
-        {
-          sendingUserFieldName: fromUser,
-          recipientFieldName: toUser,
-        },
-      );
+    await _supabase.from(pendingFriendRequestsTableName).insert(
+      {
+        sendingUserFieldName: fromUser,
+        recipientFieldName: toUser,
+      },
+    );
   }
 
   @override
@@ -224,7 +224,6 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) => insertCallback(event))
-        .subscribe()
         .onPostgresChanges(
             event: PostgresChangeEvent.update,
             schema: "public",
@@ -234,7 +233,8 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => updateCallback(event));
+            callback: (event) => updateCallback(event))
+        .subscribe();
   }
 
   @override
@@ -256,7 +256,6 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) => insertCallback(event))
-        .subscribe()
         .onPostgresChanges(
             event: PostgresChangeEvent.update,
             schema: "public",
@@ -266,7 +265,10 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => updateCallback(event));
+            callback: (event) => () {
+              log(event.toString());
+            })
+        .subscribe();
   }
 
   @override
