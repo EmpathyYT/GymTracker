@@ -81,30 +81,32 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-  void newNotifications(RequestsSortingType notifDiff) {
-    emit(state.copyWith(notifications: notifDiff));
+  void newNotifications(RequestsSortingType notificationDiff) {
+    emit(state.copyWith(notifications: notificationDiff));
   }
 
   Future<void> clearNotifications() async {
     if (state.notifications == null) return;
-    final currentNotifs = state.notifications!;
+    final currentNotifications = state.notifications!;
 
-    for (final values in currentNotifs[newNotifsKeyName]!.values) {
-      for (final notif in values) {
-        await notif.readRequest();
+    for (final values in currentNotifications[newNotifsKeyName]!.values) {
+      for (final notification in values) {
+        await notification.readRequest();
       }
     }
 
-    final readFrqNotifs = currentNotifs[oldNotifsKeyName]![frqKeyName]!
-      ..addAll(currentNotifs[newNotifsKeyName]![frqKeyName]!);
+    final readFrqNotifications =
+        currentNotifications[oldNotifsKeyName]![frqKeyName]!
+          ..addAll(currentNotifications[newNotifsKeyName]![frqKeyName]!);
 
-    final readSrqNotifs = currentNotifs[oldNotifsKeyName]![srqKeyName]!
-      ..addAll(currentNotifs[newNotifsKeyName]![srqKeyName]!);
+    final readSrqNotifications =
+        currentNotifications[oldNotifsKeyName]![srqKeyName]!
+          ..addAll(currentNotifications[newNotifsKeyName]![srqKeyName]!);
 
     emit(state.copyWith(notifications: {
       oldNotifsKeyName: {
-        frqKeyName: readFrqNotifs,
-        srqKeyName: readSrqNotifs,
+        frqKeyName: readFrqNotifications,
+        srqKeyName: readSrqNotifications,
         othersKeyName: [],
       },
       newNotifsKeyName: {
@@ -115,9 +117,10 @@ class MainPageCubit extends Cubit<MainPageState> {
     }));
   }
 
-  Future<void> emitStartingNotifs() async {
+  Future<void> emitStartingNotifications() async {
     if (state.notifications != null) return;
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
+
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
@@ -149,15 +152,16 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications[newNotifsKeyName]![srqKeyName]!.add(srq);
       }
     }
-
+    log(notifications.toString());
     emit(state.copyWith(notifications: notifications));
   }
 
   VoidCallback listenToNotifications() {
-    if(listeningToNotifications) return () {};
+    if (listeningToNotifications) return () {};
+    listeningToNotifications = true;
     CloudKinRequest.friendRequestListener(
       _currentUser.id,
-      (event) {
+      (RealtimeNotificationsShape event) {
         log(event.toString());
       },
       (event) {
@@ -166,7 +170,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     );
 
     return () {
-      listeningToNotifications = true;
+      listeningToNotifications = false;
       CloudKinRequest.unsubscribeFriendRequestListener();
       CloudSquadRequest.unsubscribeServerRequestListener();
     };

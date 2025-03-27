@@ -77,7 +77,8 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.newFriendRequestsStream(userId, insertCallback, updateCallback);
 
   @override
-  newServerRequestsStream(userId, insertCallback, updateCallback) =>
+  newServerRequestsStream(userId, RealtimeCallback insertCallback,
+          RealtimeCallback updateCallback) =>
       _provider.newServerRequestsStream(userId, insertCallback, updateCallback);
 
   @override
@@ -101,10 +102,5 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.acceptServerRequest(toUser, squadId);
 
   @override
-  Future<void> initialize() =>
-      _provider.initialize();
-
-
+  Future<void> initialize() => _provider.initialize();
 }
-
-

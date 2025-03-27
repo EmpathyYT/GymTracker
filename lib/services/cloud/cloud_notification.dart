@@ -1,5 +1,16 @@
+import 'dart:developer';
+
+import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
+
 import '../../constants/cloud_contraints.dart';
 import 'database_controller.dart';
+
+typedef RealtimeNotificationsShape = Map<int, List<Map<String, dynamic>>>;
+/*
+First Map: 0 -> insert, 1 -> update
+List: If update the first element represents the old record,
+  the second element represents the new record
+ */
 
 sealed class CloudNotification {
   final int id;
@@ -30,7 +41,9 @@ sealed class CloudRequest extends CloudNotification {
   });
 
   Future<void> readRequest();
+
   Future<void> rejectRequest();
+
   Future<void> acceptRequest();
 }
 
@@ -53,7 +66,7 @@ class CloudKinRequest extends CloudRequest {
           toUser: map[recipientFieldName],
           read: map[readFieldName],
           accepted: map[acceptedFieldName],
-          createdAt: map[timeCreatedFieldName],
+          createdAt: DateTime.parse( map[timeCreatedFieldName]),
         );
 
   @override
@@ -84,10 +97,12 @@ class CloudKinRequest extends CloudRequest {
 
   static Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
     final requests = await dbController.fetchFriendRequests(userId);
+
     return requests;
   }
 
-  static friendRequestListener(userId, insertCallback, updateCallback) {
+  static friendRequestListener(userId, RealtimeCallback insertCallback,
+      RealtimeCallback updateCallback) {
     dbController.newFriendRequestsStream(
         userId, insertCallback, updateCallback);
   }
@@ -117,7 +132,7 @@ class CloudSquadRequest extends CloudRequest {
           toUser: map[recipientFieldName],
           read: map[readFieldName],
           accepted: map[acceptedFieldName],
-          createdAt: map[timeCreatedFieldName],
+          createdAt: DateTime.parse( map[timeCreatedFieldName]),
         );
 
   @override
@@ -147,7 +162,8 @@ class CloudSquadRequest extends CloudRequest {
     return serverRequests;
   }
 
-  static serverRequestListener(userId, insertCallback, updateCallback) {
+  static serverRequestListener(userId, RealtimeCallback insertCallback,
+      RealtimeCallback updateCallback) {
     dbController.newServerRequestsStream(
         userId, insertCallback, updateCallback);
   }

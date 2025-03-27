@@ -28,7 +28,7 @@ class CloudSquad {
         name = map[squadNameFieldName],
         members = List<int>.from(map[membersFieldName]),
         timeCreated = map[timeCreatedFieldName] as DateTime,
-        ownerId = map[ownerUserFieldId],
+        ownerId = map[ownerUserFieldName],
         description = map[squadDescriptionFieldName];
 
   static Future<CloudSquad> createSquad(String name, String description) async {

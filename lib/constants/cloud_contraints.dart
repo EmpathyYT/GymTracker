@@ -24,7 +24,7 @@ const serverIdFieldName = 'server_id';
 
 
 const squadTableName = 'Servers';
-const ownerUserFieldId = 'owner_id';
+const ownerUserFieldName = 'owner_id';
 const squadNameFieldName = 'name';
 const membersFieldName = 'members';
 const squadDescriptionFieldName = 'description';

@@ -11,6 +11,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../auth/auth_provider.dart';
 
+typedef RealtimeCallback = void Function(RealtimeNotificationsShape event);
+
 class SupabaseDatabaseController implements DatabaseController {
   late final SupabaseClient _supabase;
   final AuthProvider _auth;
@@ -24,7 +26,7 @@ class SupabaseDatabaseController implements DatabaseController {
       {
         squadNameFieldName: name,
         squadDescriptionFieldName: description,
-        ownerUserFieldId: _auth.currentUser!.id,
+        ownerUserFieldName: _auth.currentUser!.id,
       },
     ).select();
 
@@ -194,24 +196,32 @@ class SupabaseDatabaseController implements DatabaseController {
   Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
     final data = await _supabase
         .from(pendingFriendRequestsTableName)
-        .select("*")
-        .eq(recipientFieldName, userId);
+        .select()
+        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId");
 
     return data.map((e) => CloudKinRequest.fromMap(e)).toList();
   }
 
   @override
   Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
+
     final data = await _supabase
         .from(pendingServerRequestsTableName)
-        .select("*")
-        .eq(recipientFieldName, userId);
+        .select()
+        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId");
 
     return data.map((e) => CloudSquadRequest.fromMap(e)).toList();
   }
 
   @override
-  newFriendRequestsStream(userId, insertCallback, updateCallback) {
+  newFriendRequestsStream(userId, RealtimeCallback insertCallback,
+      RealtimeCallback updateCallback) {
+    final RealtimeNotificationsShape insertShape = {0: []};
+
+    final RealtimeNotificationsShape updateShape = {
+      1: [],
+    };
+
     _supabase
         .channel("friend-requests-channel")
         .onPostgresChanges(
@@ -223,7 +233,23 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => insertCallback(event))
+            callback: (event) {
+              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertCallback(insertShape);
+            })
+        .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: "public",
+            table: pendingFriendRequestsTableName,
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: recipientFieldName,
+              value: userId,
+            ),
+            callback: (event) {
+              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertCallback(insertShape);
+            })
         .onPostgresChanges(
             event: PostgresChangeEvent.update,
             schema: "public",
@@ -233,7 +259,25 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => updateCallback(event))
+            callback: (event) {
+              updateShape.update(1,
+                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateCallback(updateShape);
+            })
+        .onPostgresChanges(
+            event: PostgresChangeEvent.update,
+            schema: "public",
+            table: pendingFriendRequestsTableName,
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: sendingUserFieldName,
+              value: userId,
+            ),
+            callback: (event) {
+              updateShape.update(1,
+                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateCallback(updateShape);
+            })
         .subscribe();
   }
 
@@ -243,7 +287,14 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  newServerRequestsStream(userId, insertCallback, updateCallback) {
+  newServerRequestsStream(userId, RealtimeCallback insertCallback,
+      RealtimeCallback updateCallback) {
+    final RealtimeNotificationsShape insertShape = {0: []};
+
+    final RealtimeNotificationsShape updateShape = {
+      1: [],
+    };
+
     _supabase
         .channel("server-requests-channel")
         .onPostgresChanges(
@@ -255,7 +306,23 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => insertCallback(event))
+            callback: (event) {
+              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertCallback(insertShape);
+            })
+        .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: "public",
+            table: pendingServerRequestsTableName,
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: sendingUserFieldName,
+              value: userId,
+            ),
+            callback: (event) {
+              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertCallback(insertShape);
+            })
         .onPostgresChanges(
             event: PostgresChangeEvent.update,
             schema: "public",
@@ -265,8 +332,24 @@ class SupabaseDatabaseController implements DatabaseController {
               column: recipientFieldName,
               value: userId,
             ),
-            callback: (event) => () {
-              log(event.toString());
+            callback: (event) {
+              updateShape.update(1,
+                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateCallback(updateShape);
+            })
+        .onPostgresChanges(
+            event: PostgresChangeEvent.update,
+            schema: "public",
+            table: pendingServerRequestsTableName,
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: sendingUserFieldName,
+              value: userId,
+            ),
+            callback: (event) {
+              updateShape.update(1,
+                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateCallback(updateShape);
             })
         .subscribe();
   }

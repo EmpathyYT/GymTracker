@@ -68,7 +68,7 @@ class _MainPageState extends State<MainPage> {
           int currentIndex = _titlePicker(state);
 
           return FutureBuilder(
-            future: context.read<MainPageCubit>().emitStartingNotifs(),
+            future: context.read<MainPageCubit>().emitStartingNotifications(),
             builder: (context, snapshot) {
               return Scaffold(
                 appBar: AppBar(
