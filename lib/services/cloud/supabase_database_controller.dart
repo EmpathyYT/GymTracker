@@ -53,7 +53,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({readFieldName: true})
         .eq(sendingUserFieldName, fromUser)
         .eq(recipientFieldName, toUser)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override
@@ -64,7 +64,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({readFieldName: true})
         .eq(recipientFieldName, toUser)
         .eq(serverIdFieldName, squadId)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override
@@ -75,7 +75,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({acceptedFieldName: null})
         .eq(sendingUserFieldName, fromUser)
         .eq(recipientFieldName, toUser)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override
@@ -86,7 +86,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({acceptedFieldName: null})
         .eq(recipientFieldName, toUser)
         .eq(serverIdFieldName, serverId)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override
@@ -375,7 +375,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({acceptedFieldName: true})
         .eq(recipientFieldName, toUser)
         .eq(sendingUserFieldName, fromUser)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override
@@ -385,7 +385,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .update({acceptedFieldName: true})
         .eq(recipientFieldName, toUser)
         .eq(sendingUserFieldName, squadId)
-        .not(acceptedFieldName, 'eq', null);
+        .not(acceptedFieldName, "is", null);
   }
 
   @override

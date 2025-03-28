@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/universal_card.dart';
@@ -19,7 +20,7 @@ class NotificationsRoute extends StatefulWidget {
 
 class _NotificationsRouteState extends State<NotificationsRoute> {
   RequestsSortingType? _notifications;
-  List _requestsNotifications = [];
+  List<CloudKinRequest> _requestsNotifications = [];
   List _otherNotifications = [];
 
   @override
@@ -49,7 +50,8 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           flipToTwo: _otherNotifications.isNotEmpty,
           isOneChild: false,
           isTwoChild: false,
-          buildOne: ({children, child}) => Stack(alignment: Alignment.center ,children: children!),
+          buildOne: ({children, child}) =>
+              Stack(alignment: Alignment.center, children: children!),
           buildTwo: ({children, child}) => Column(children: children!),
           commonWidgets: [
             Column(
@@ -121,19 +123,21 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     await Navigator.of(context)
         .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
         .then((value) {
-      setState(() => _requestsNotifications = value as List);
+      setState(
+          () => _requestsNotifications = value as List<CloudKinRequest>? ?? []);
     });
   }
 
   void _extractNotifications() {
     final otherNotifs = [];
-    final requestNotifs = [];
+    final List<CloudKinRequest> requestNotifs = [];
 
     _notifications = widget.notifications;
 
     for (final values in _notifications!.values) {
       otherNotifs.addAll(values[othersKeyName] ?? []);
-      requestNotifs.addAll(values[frqKeyName] ?? []);
+      requestNotifs.addAll(
+          (values[frqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
     }
 
     _otherNotifications = otherNotifs;

@@ -10,7 +10,7 @@ import '../services/cloud/cloud_notification.dart';
 
 part 'main_page_state.dart';
 
-typedef RequestsSortingType = Map<String, Map<String, List>>;
+typedef RequestsSortingType = Map<String, Map<String, List<CloudNotification>>>;
 
 class MainPageCubit extends Cubit<MainPageState> {
   final CloudUser _currentUser;
@@ -89,7 +89,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     if (state.notifications == null) return;
     final currentNotifications = state.notifications!;
 
-    for (final values in currentNotifications[newNotifsKeyName]!.values) {
+    for (final values in currentNotifications[newNotifsKeyName]!
+        .values
+        .whereType<List<CloudRequest>>()) {
       for (final notification in values) {
         await notification.readRequest();
       }
@@ -120,11 +122,11 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> emitStartingNotifications() async {
     if (state.notifications != null) return;
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
-
+    log(frqData.toString());
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
-    final notifications = {
+    final RequestsSortingType notifications = {
       oldNotifsKeyName: {
         frqKeyName: [],
         srqKeyName: [],

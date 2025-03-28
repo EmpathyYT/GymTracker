@@ -132,7 +132,7 @@ class CloudSquadRequest extends CloudRequest {
           toUser: map[recipientFieldName],
           read: map[readFieldName],
           accepted: map[acceptedFieldName],
-          createdAt: DateTime.parse( map[timeCreatedFieldName]),
+          createdAt: DateTime.parse(map[timeCreatedFieldName]),
         );
 
   @override

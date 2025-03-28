@@ -25,6 +25,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
   @override
   void didChangeDependencies() {
     _krqNotifications ??= context.arguments<List<CloudKinRequest>>() ?? [];
+    log(_krqNotifications.toString());
     super.didChangeDependencies();
   }
 
