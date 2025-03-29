@@ -32,17 +32,22 @@ class CloudUser with EquatableMixin {
   CloudUser.fromSubabaseMap(Map<String, dynamic> data)
       : id = (data[idFieldName] as int).toString(),
         name = data[nameFieldName],
-        friends = (data[squadFieldName] as List<int>? ?? [])
-            .map((e) => e.toString())
-            .toList(),
-        squads = (data[squadFieldName] as List<int>? ?? [])
-            .map((e) => e.toString())
-            .toList(),
+        friends = (data[friendsFieldName] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ?? [],
+        squads = (data[squadFieldName] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ?? [],
         timeCreated = DateTime.tryParse(data[timeCreatedFieldName] as String)!,
         squadLimit = data[squadLimitFieldName] ?? 0,
         bio = data[bioFieldName] ?? "",
         level = data[levelFieldName],
         authId = data[authIdFieldName];
+
+  @override
+  String toString() {
+    return 'CloudUser(id: $id, name: $name, bio: $bio, level: $level, timeCreated: $timeCreated, squadLimit: $squadLimit, squads: $squads, friends: $friends)';
+  }
 
   @override
   List<Object?> get props => [authId];

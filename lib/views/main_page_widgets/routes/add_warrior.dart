@@ -68,10 +68,14 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            'Send Kinship Call',
-            style: GoogleFonts.oswald(
-              fontSize: 35,
+          toolbarHeight: 80,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Send Kinship Call',
+              style: GoogleFonts.oswald(
+                fontSize: 35,
+              ),
             ),
           ),
         ),

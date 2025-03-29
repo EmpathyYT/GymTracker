@@ -40,10 +40,15 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            "Kinship Calls",
-            style: GoogleFonts.oswald(
-              fontSize: 35,
+          toolbarHeight: 80,
+
+          title: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              "Kinship Calls",
+              style: GoogleFonts.oswald(
+                fontSize: 35,
+              ),
             ),
           ),
         ),

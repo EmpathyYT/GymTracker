@@ -72,10 +72,14 @@ class _MainPageState extends State<MainPage> {
             builder: (context, snapshot) {
               return Scaffold(
                 appBar: AppBar(
-                  title: Text(
-                    _title,
-                    style: GoogleFonts.oswald(
-                      fontSize: 35,
+                  toolbarHeight: 80,
+                  title: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      _title,
+                      style: GoogleFonts.oswald(
+                        fontSize: 35,
+                      ),
                     ),
                   ),
                   actions: [

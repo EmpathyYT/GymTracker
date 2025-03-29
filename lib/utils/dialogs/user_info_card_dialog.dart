@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 typedef AddUserAction = void Function(BuildContext context);
@@ -7,7 +6,7 @@ typedef AddUserAction = void Function(BuildContext context);
 Future<void> showUserCard({
   required BuildContext context,
   required CloudUser user,
-  required AddUserAction addUserAction,
+  AddUserAction? addUserAction,
 }) {
   return showDialog(
     context: context,
@@ -22,10 +21,12 @@ Future<void> showUserCard({
               ),
             ),
             const Spacer(),
-            IconButton(
-              onPressed: () => addUserAction(context),
-              icon: const Icon(Icons.person_add),
-            ),
+            addUserAction != null
+                ? IconButton(
+                    onPressed: () => addUserAction(context),
+                    icon: const Icon(Icons.person_add),
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
         content: Column(

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
@@ -22,8 +23,12 @@ import 'helpers/loading/loading_dialog.dart';
 import 'views/main_page_widgets/routes/notifications.dart';
 import 'views/register_page.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await GoogleFonts.pendingFonts(
+    [GoogleFonts.oswald(), GoogleFonts.montserrat()],
+  );
 
   runApp(const MyApp());
 }

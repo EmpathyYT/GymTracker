@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
@@ -159,6 +161,7 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<CloudUser?> fetchUser(userId, bool isOwner) async {
+
     if (isOwner) {
       final data = await _supabase
           .from(userTableName)
@@ -167,8 +170,12 @@ class SupabaseDatabaseController implements DatabaseController {
       if (data.isEmpty) return null;
       return CloudUser.fromSubabaseMap(data[0]);
     } else {
+      final castedUserId = userId.runtimeType == String
+          ? int.parse(userId)
+          : userId;
+
       final data = await _supabase.rpc("public_fetch_user", params: {
-        'userid': userId,
+        'userid': castedUserId,
       });
       if (data.isEmpty) return null;
       return CloudUser.fromSubabaseMap(data[0]);
@@ -234,8 +241,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              if (insertShape[0]!.contains(event.newRecord)) return;
-              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertShape[0] = [event.newRecord];
               insertCallback(insertShape);
             })
         .onPostgresChanges(
@@ -248,8 +254,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              if (insertShape[0]!.contains(event.newRecord)) return;
-              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertShape[0] = [event.newRecord];
               insertCallback(insertShape);
             })
         .onPostgresChanges(
@@ -262,9 +267,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              if (updateShape[1]!.contains(event.newRecord)) return;
-              updateShape.update(1,
-                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateShape[1] = [event.oldRecord, event.newRecord];
               updateCallback(updateShape);
             })
         .onPostgresChanges(
@@ -277,9 +280,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              if (updateShape[1]!.contains(event.newRecord)) return;
-              updateShape.update(1,
-                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateShape[1] = [event.oldRecord, event.newRecord];
               updateCallback(updateShape);
             })
         .subscribe();

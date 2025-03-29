@@ -14,7 +14,7 @@ part 'main_page_state.dart';
 typedef RequestsSortingType = Map<String, Map<String, List<CloudNotification>>>;
 
 class MainPageCubit extends Cubit<MainPageState> {
-  final CloudUser _currentUser;
+  final CloudUser _currentUser; //todo update user info every few seconds
   bool listeningToNotifications = false;
 
   MainPageCubit(this._currentUser) : super(const SquadSelector());
@@ -160,7 +160,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         );
       },
       (event) {
-        log(event.toString());
+        log(event.toString()); //todo make update only when accepted is changed to null, for both receiver and sender
       },
     );
 
