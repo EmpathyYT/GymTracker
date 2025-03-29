@@ -81,7 +81,8 @@ class _MainPageState extends State<MainPage> {
                   actions: [
                     FriendAdderButton(state: state),
                     NotificationsButton(
-                        notifications: state.notifications ?? {}),
+                        notifications: state.notifications ?? {})
+                    ,
                     IconButton(
                         icon: const Icon(Icons.logout),
                         iconSize: 30,

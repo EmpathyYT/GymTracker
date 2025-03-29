@@ -45,6 +45,7 @@ sealed class CloudRequest extends CloudNotification {
   Future<void> rejectRequest();
 
   Future<void> acceptRequest();
+
 }
 
 class CloudKinRequest extends CloudRequest {

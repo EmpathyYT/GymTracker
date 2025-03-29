@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
@@ -85,38 +86,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(state.copyWith(notifications: notificationDiff));
   }
 
-  Future<void> clearNotifications() async {
-    if (state.notifications == null) return;
-    final currentNotifications = state.notifications!;
-
-    for (final values in currentNotifications[newNotifsKeyName]!
-        .values
-        .whereType<List<CloudRequest>>()) {
-      for (final notification in values) {
-        await notification.readRequest();
-      }
-    }
-
-    final readFrqNotifications =
-        currentNotifications[oldNotifsKeyName]![frqKeyName]!
-          ..addAll(currentNotifications[newNotifsKeyName]![frqKeyName]!);
-
-    final readSrqNotifications =
-        currentNotifications[oldNotifsKeyName]![srqKeyName]!
-          ..addAll(currentNotifications[newNotifsKeyName]![srqKeyName]!);
-
-    emit(state.copyWith(notifications: {
-      oldNotifsKeyName: {
-        frqKeyName: readFrqNotifications,
-        srqKeyName: readSrqNotifications,
-        othersKeyName: [],
-      },
-      newNotifsKeyName: {
-        frqKeyName: [],
-        srqKeyName: [],
-        othersKeyName: [],
-      }
-    }));
+  Future<void> clearNotifications(RequestsSortingType oldNotifications) async {
+    final currentNotifications = oldNotifications;
+    emit(state.copyWith(notifications: currentNotifications));
   }
 
   Future<void> emitStartingNotifications() async {
@@ -164,7 +136,28 @@ class MainPageCubit extends Cubit<MainPageState> {
     CloudKinRequest.friendRequestListener(
       _currentUser.id,
       (RealtimeNotificationsShape event) {
-        log(event.toString());
+        final RequestsSortingType currNotifications = state.notifications!;
+        final key = event[0]!.first.containsKey(serverIdFieldName)
+            ? srqKeyName
+            : frqKeyName;
+
+        final newNotification = (key == frqKeyName)
+            ? CloudKinRequest.fromMap(event[0]!.first)
+            : CloudSquadRequest.fromMap(event[0]!.first);
+
+        emit(
+          state.copyWith(
+            notifications: currNotifications
+              ..update(
+                newNotifsKeyName,
+                (e) => e
+                  ..update(
+                    key,
+                    (e) => e..insert(0, newNotification),
+                  ),
+              ),
+          ),
+        );
       },
       (event) {
         log(event.toString());

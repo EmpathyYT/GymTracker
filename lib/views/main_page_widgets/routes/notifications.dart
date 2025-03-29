@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
@@ -21,7 +24,7 @@ class NotificationsRoute extends StatefulWidget {
 class _NotificationsRouteState extends State<NotificationsRoute> {
   RequestsSortingType? _notifications;
   List<CloudKinRequest> _requestsNotifications = [];
-  List _otherNotifications = [];
+  List<CloudNotification> _otherNotifications = [];
 
   @override
   void didChangeDependencies() {
@@ -35,7 +38,20 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        Navigator.of(context).pop(_notifications);
+        Navigator.of(context).pop<RequestsSortingType>(
+          {
+            newNotifsKeyName: {
+              frqKeyName: [],
+              srqKeyName: _notifications![newNotifsKeyName]![srqKeyName]!,
+              othersKeyName: [],
+            },
+            oldNotifsKeyName: {
+              frqKeyName: _requestsNotifications,
+              srqKeyName: _notifications![oldNotifsKeyName]![srqKeyName]!,
+              othersKeyName: _otherNotifications,
+            },
+          }
+        );
       },
       child: Scaffold(
         appBar: AppBar(
@@ -64,7 +80,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                   title2: (_requestsNotifications.length) == 1
                       ? "A Warrior Seeks Kinship"
                       : "Warriors Seek Kinship",
-                  isNewRequests: _requestsNotifications.any((e) => !(e.read)),
+                  flipToTwo: _requestsNotifications.any((e) => !(e.read)),
                   iconCallBack: () async => await _kinRequestButtonCallback(),
                 ),
                 const Padding(padding: EdgeInsets.all(2.0)),
@@ -123,21 +139,27 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     await Navigator.of(context)
         .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
         .then((value) {
+          log("$krqNotificationsRoute returned: $value");
+
       setState(
           () => _requestsNotifications = value as List<CloudKinRequest>? ?? []);
     });
   }
 
   void _extractNotifications() {
-    final otherNotifs = [];
+    final List<CloudNotification> otherNotifs = [];
     final List<CloudKinRequest> requestNotifs = [];
 
     _notifications = widget.notifications;
 
     for (final values in _notifications!.values) {
       otherNotifs.addAll(values[othersKeyName] ?? []);
-      requestNotifs.addAll(
-          (values[frqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
+      requestNotifs.addAll((values[frqKeyName]?.where((e) =>
+                  e.fromUser.toString() !=
+                  context.read<MainPageCubit>().currentUser.id) ??
+              [])
+          .map((e) => e as CloudKinRequest)
+          .toList());
     }
 
     _otherNotifications = otherNotifs;

@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -191,32 +190,33 @@ class SupabaseDatabaseController implements DatabaseController {
           .rpc("check_user_name_exists", params: {"username": name}));
     }
   }
-
   @override
   Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
     final data = await _supabase
         .from(pendingFriendRequestsTableName)
         .select()
-        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId");
+        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId")
+        .not(acceptedFieldName, "is", null);
 
     return data.map((e) => CloudKinRequest.fromMap(e)).toList();
   }
 
   @override
   Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
-
     final data = await _supabase
         .from(pendingServerRequestsTableName)
         .select()
-        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId");
-
+        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId")
+        .not(acceptedFieldName, "is", null);
     return data.map((e) => CloudSquadRequest.fromMap(e)).toList();
   }
 
   @override
   newFriendRequestsStream(userId, RealtimeCallback insertCallback,
       RealtimeCallback updateCallback) {
-    final RealtimeNotificationsShape insertShape = {0: []};
+    final RealtimeNotificationsShape insertShape = {
+      0: [],
+    };
 
     final RealtimeNotificationsShape updateShape = {
       1: [],
@@ -234,6 +234,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
+              if (insertShape[0]!.contains(event.newRecord)) return;
               insertShape.update(0, (value) => value..add(event.newRecord));
               insertCallback(insertShape);
             })
@@ -247,6 +248,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
+              if (insertShape[0]!.contains(event.newRecord)) return;
               insertShape.update(0, (value) => value..add(event.newRecord));
               insertCallback(insertShape);
             })
@@ -260,6 +262,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
+              if (updateShape[1]!.contains(event.newRecord)) return;
               updateShape.update(1,
                   (value) => value..addAll([event.oldRecord, event.newRecord]));
               updateCallback(updateShape);
@@ -274,6 +277,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
+              if (updateShape[1]!.contains(event.newRecord)) return;
               updateShape.update(1,
                   (value) => value..addAll([event.oldRecord, event.newRecord]));
               updateCallback(updateShape);
@@ -289,7 +293,9 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   newServerRequestsStream(userId, RealtimeCallback insertCallback,
       RealtimeCallback updateCallback) {
-    final RealtimeNotificationsShape insertShape = {0: []};
+    final RealtimeNotificationsShape insertShape = {
+      0: [],
+    };
 
     final RealtimeNotificationsShape updateShape = {
       1: [],
@@ -307,7 +313,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertShape[0] = [event.newRecord];
               insertCallback(insertShape);
             })
         .onPostgresChanges(
@@ -320,7 +326,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              insertShape.update(0, (value) => value..add(event.newRecord));
+              insertShape[0] = [event.newRecord];
               insertCallback(insertShape);
             })
         .onPostgresChanges(
@@ -333,8 +339,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              updateShape.update(1,
-                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateShape[1] = [event.oldRecord, event.newRecord];
               updateCallback(updateShape);
             })
         .onPostgresChanges(
@@ -347,8 +352,7 @@ class SupabaseDatabaseController implements DatabaseController {
               value: userId,
             ),
             callback: (event) {
-              updateShape.update(1,
-                  (value) => value..addAll([event.oldRecord, event.newRecord]));
+              updateShape[1] = [event.oldRecord, event.newRecord];
               updateCallback(updateShape);
             })
         .subscribe();

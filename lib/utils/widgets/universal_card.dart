@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 
 class UniversalCard extends StatelessWidget {
-  final bool isNewRequests;
+  final bool flipToTwo;
   final VoidCallback iconCallBack;
   final String title1;
   final String title2;
 
   const UniversalCard({
     super.key,
-    required this.isNewRequests,
+    required this.flipToTwo,
     required this.iconCallBack,
     required this.title1,
     required this.title2,
@@ -36,12 +36,12 @@ class UniversalCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ...() {
-                if (isNewRequests) {
+                if (flipToTwo) {
                   return [
                     Text(
                       title2,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 20,
                         fontWeight: FontWeight.w100,
                       ),
                     ),
