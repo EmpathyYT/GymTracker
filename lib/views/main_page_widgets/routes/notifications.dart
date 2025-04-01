@@ -55,9 +55,9 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 80,
+          toolbarHeight: appBarHeight,
           title: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
               "Frontline Reports",
               style: GoogleFonts.oswald(

@@ -23,11 +23,11 @@ class CloudSquad {
     required this.description,
   });
 
-  CloudSquad.fromMap(Map<String, dynamic> map)
-      : id = map[idFieldName],
+  CloudSquad.fromSupabaseMap(Map<String, dynamic> map)
+      : id = map[idFieldName].toString(),
         name = map[squadNameFieldName],
         members = List<int>.from(map[membersFieldName]),
-        timeCreated = map[timeCreatedFieldName] as DateTime,
+        timeCreated = DateTime.parse(map[timeCreatedFieldName]),
         ownerId = map[ownerUserFieldName],
         description = map[squadDescriptionFieldName];
 

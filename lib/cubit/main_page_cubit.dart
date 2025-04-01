@@ -53,6 +53,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications: state.notifications,
       ));
     } catch (e) {
+      log(e.toString());
       emit(NewSquad(
         exception: e as Exception,
         notifications: state.notifications,
@@ -93,10 +94,13 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   Future<void> emitStartingNotifications() async {
     if (state.notifications != null) return;
+
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
-    log(frqData.toString());
+
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
+
+    log(srqData.toString());
 
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {

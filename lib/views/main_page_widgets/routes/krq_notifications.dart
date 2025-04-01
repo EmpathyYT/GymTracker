@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
@@ -40,10 +41,10 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 80,
+          toolbarHeight: appBarHeight,
 
           title: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
               "Kinship Calls",
               style: GoogleFonts.oswald(

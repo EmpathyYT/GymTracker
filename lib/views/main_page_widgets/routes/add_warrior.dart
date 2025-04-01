@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
@@ -68,9 +69,9 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 80,
+          toolbarHeight: appBarHeight,
           title: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
               'Send Kinship Call',
               style: GoogleFonts.oswald(

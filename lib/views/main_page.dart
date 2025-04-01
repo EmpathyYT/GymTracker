@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/widgets/friend_adder_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
@@ -70,11 +72,23 @@ class _MainPageState extends State<MainPage> {
           return FutureBuilder(
             future: context.read<MainPageCubit>().emitStartingNotifications(),
             builder: (context, snapshot) {
+
+              if (snapshot.connectionState != ConnectionState.done &&
+                  (state.notifications == null)) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if(snapshot.hasError) {
+                log(snapshot.error.toString());
+              }
+
               return Scaffold(
                 appBar: AppBar(
-                  toolbarHeight: 80,
+                  toolbarHeight: appBarHeight,
                   title: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: appBarPadding),
                     child: Text(
                       _title,
                       style: GoogleFonts.oswald(
@@ -85,8 +99,7 @@ class _MainPageState extends State<MainPage> {
                   actions: [
                     FriendAdderButton(state: state),
                     NotificationsButton(
-                        notifications: state.notifications ?? {})
-                    ,
+                        notifications: state.notifications ?? {}),
                     IconButton(
                         icon: const Icon(Icons.logout),
                         iconSize: 30,
@@ -95,9 +108,7 @@ class _MainPageState extends State<MainPage> {
                             .add(const AuthEventSignOut())),
                   ],
                 ),
-                body: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _mainWidgetPicker(state)),
+                body: _mainWidgetPicker(state),
                 bottomNavigationBar: NavigationBar(
                   selectedIndex: currentIndex,
                   onDestinationSelected: (int index) {
@@ -116,18 +127,19 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _mainWidgetPicker(MainPageState state) {
-    switch (state) {
-      case SquadSelector():
-        return const SquadSelectorWidget();
-      case KinViewer():
-        return const FriendsViewerWidget();
-      case NewSquad():
-        return const SquadCreatorWidget();
-      case Settings():
-        return const Text("Settings");
-      default:
-        return const Text("Error");
-    }
+    return switch (state) {
+      SquadSelector() => const SquadSelectorWidget(),
+      KinViewer() => const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: FriendsViewerWidget(),
+      ),
+      NewSquad() => const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: SquadCreatorWidget(),
+      ),
+      Settings() => const Text("Settings"),
+      _ => const Text("Error")
+    };
   }
 
   int _titlePicker(MainPageState state) {

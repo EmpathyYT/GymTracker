@@ -23,15 +23,18 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<CloudSquad> createSquad(name, description) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
+
+    final user = await fetchUser(_auth.currentUser!.id, true);
+
     final data = await _supabase.from(squadTableName).insert(
       {
         squadNameFieldName: name,
         squadDescriptionFieldName: description,
-        ownerUserFieldName: _auth.currentUser!.id,
+        ownerUserFieldName: user!.id,
       },
     ).select();
 
-    return CloudSquad.fromMap(data[0]);
+    return CloudSquad.fromSupabaseMap(data[0]);
   }
 
   @override
@@ -124,7 +127,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .eq(idFieldName, squadId)
         .select();
 
-    return CloudSquad.fromMap(data[0]);
+    return CloudSquad.fromSupabaseMap(data[0]);
   }
 
   @override
@@ -156,7 +159,7 @@ class SupabaseDatabaseController implements DatabaseController {
       'squadid': squadId,
     });
     if (data.isEmpty) return null;
-    return CloudSquad.fromMap(data[0]);
+    return CloudSquad.fromSupabaseMap(data[0]);
   }
 
   @override
