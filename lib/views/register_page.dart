@@ -69,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 50,
                       child: DefaultTextStyle(
                         style: GoogleFonts.oswald(
-                          fontSize: 30,
+                          fontSize: 27,
                         ),
                         child: const Text("Show them what you're made of"),
                       ),

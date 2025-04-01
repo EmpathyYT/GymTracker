@@ -27,7 +27,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GoogleFonts.pendingFonts(
-    [GoogleFonts.oswald(), GoogleFonts.montserrat()],
+    [GoogleFonts.oswaldTextTheme(), GoogleFonts.montserratTextTheme()],
   );
 
   runApp(const MyApp());

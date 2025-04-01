@@ -32,7 +32,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   @override
   Widget build(BuildContext context) {
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateForgotPassword) {
@@ -58,20 +57,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 45,
-                      width: MediaQuery.of(context).size.width * 0.90,
-                      child: DefaultTextStyle(
+                    Text("REplace",
                         style: GoogleFonts.oswald(
-                          fontSize: 22,
-                        ),
-                        child: const Text(
-                          "A warrior is still a warrior even without his sword",
-                            softWrap: true,
-                            overflow: TextOverflow.visible
-                        ),
-                      ),
-                    ),
+                          fontSize: 20,
+                        )),
                     const SizedBox(width: 10),
                     // Add some space between the texts
                   ],
