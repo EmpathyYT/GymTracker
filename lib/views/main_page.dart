@@ -80,10 +80,6 @@ class _MainPageState extends State<MainPage> {
                 );
               }
 
-              if(snapshot.hasError) {
-                log(snapshot.error.toString());
-              }
-
               return Scaffold(
                 appBar: AppBar(
                   toolbarHeight: appBarHeight,

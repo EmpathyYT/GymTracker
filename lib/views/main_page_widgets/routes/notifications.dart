@@ -143,7 +143,6 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     await Navigator.of(context)
         .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
         .then((value) {
-          log("$krqNotificationsRoute returned: $value");
 
       setState(
           () => _requestsNotifications = value as List<CloudKinRequest>? ?? []);

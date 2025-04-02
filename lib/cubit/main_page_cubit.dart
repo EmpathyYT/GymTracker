@@ -134,6 +134,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(state.copyWith(notifications: notifications));
   }
 
+
+
+
   VoidCallback listenToNotifications() {
     if (listeningToNotifications) return () {};
     listeningToNotifications = true;

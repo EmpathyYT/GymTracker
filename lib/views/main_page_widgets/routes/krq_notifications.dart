@@ -36,7 +36,10 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        _krqNotifications?.forEach((e) async => await e.readRequest());
+        _krqNotifications?.forEach((e) async {
+          if (e.read == true) return;
+          await e.readRequest();
+        });
         Navigator.of(context).pop(_krqNotifications);
       },
       child: Scaffold(

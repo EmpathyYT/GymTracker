@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/universal_card.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/srq_notifications.dart';
 
 import '../../cubit/main_page_cubit.dart';
 import '../../services/cloud/cloud_notification.dart';
@@ -38,7 +37,19 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         ),
         UniversalCard(
           flipToTwo: _squadNotifications!.any((e) => e.read != true),
-          iconCallBack: () {},
+          iconCallBack: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<MainPageCubit>(),
+                  child: SrqNotificationsWidget(
+                      notifications: _squadNotifications ?? []),
+                ),
+              ),
+            ).then<RequestsSortingType>((RequestsSortingType value) {
+
+            });
+          },
           title1: "No New Squads Calling",
           title2: (_squadNotifications!.length == 1)
               ? "A Squad Calls upon you"
