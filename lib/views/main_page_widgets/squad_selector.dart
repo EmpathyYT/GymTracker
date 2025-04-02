@@ -37,19 +37,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         ),
         UniversalCard(
           flipToTwo: _squadNotifications!.any((e) => e.read != true),
-          iconCallBack: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<MainPageCubit>(),
-                  child: SrqNotificationsWidget(
-                      notifications: _squadNotifications ?? []),
-                ),
-              ),
-            ).then<RequestsSortingType>((RequestsSortingType value) {
-
-            });
-          },
+          iconCallBack: () async => await _cardIconCallBack(context),
           title1: "No New Squads Calling",
           title2: (_squadNotifications!.length == 1)
               ? "A Squad Calls upon you"
@@ -107,6 +95,24 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         ),
       ],
     );
+  }
+
+  Future<void> _cardIconCallBack(BuildContext context) async {
+    await Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<MainPageCubit>(),
+          child: SrqNotificationsWidget(
+              notifications:
+                  context.read<MainPageCubit>().state.notifications!),
+        ),
+      ),
+    )
+        .then((value) async {
+      if (!context.mounted) return;
+      await context.read<MainPageCubit>().clearNotifications(value);
+    });
   }
 
   void _extractNotifications() {

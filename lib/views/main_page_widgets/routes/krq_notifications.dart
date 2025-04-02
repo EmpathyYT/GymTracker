@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -22,11 +20,15 @@ class KinRequestRoute extends StatefulWidget {
 
 class _KinRequestRouteState extends State<KinRequestRoute> {
   List<CloudKinRequest>? _krqNotifications;
+  List<CloudKinRequest>? _listToBuild;
+
 
   @override
   void didChangeDependencies() {
     _krqNotifications ??= context.arguments<List<CloudKinRequest>>() ?? [];
-    log(_krqNotifications.toString());
+    _listToBuild =
+        _krqNotifications!.where((e) => e.accepted != null).toList();
+
     super.didChangeDependencies();
   }
 
@@ -45,7 +47,6 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: appBarHeight,
-
           title: Padding(
             padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
@@ -57,7 +58,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
           ),
         ),
         body: DoubleWidgetFlipper(
-          flipToTwo: _krqNotifications?.isNotEmpty ?? false,
+          flipToTwo: _listToBuild?.isNotEmpty ?? false,
           buildOne: ({child, children}) => Padding(
               padding: const EdgeInsets.only(bottom: 90), child: child!),
           buildTwo: ({children, child}) => Column(children: children!),
@@ -80,16 +81,19 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: KrqPageSubtitle(
-                    multiple: (_krqNotifications?.length ?? 0) > 1),
+                    multiple: (_listToBuild?.length ?? 0) > 1),
               ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: ListView.builder(
-                  itemCount: _krqNotifications?.length ?? 0,
+                  itemCount: _listToBuild
+                          ?.where((e) => e.accepted != null)
+                          .length ??
+                      0,
                   itemBuilder: (context, index) {
-                    final notification = _krqNotifications![index];
+                    final notification = _listToBuild![index];
                     return FutureBuilder(
                       future: CloudUser.fetchUser(notification.fromUser, false),
                       builder: (context, snapshot) {
@@ -105,7 +109,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
                           notification: notification,
                           index: index,
                           onRemove: () {
-                            setState(() => _krqNotifications!.removeAt(index));
+                            setState(() {});
                           },
                           snapshot: snapshot,
                         );
