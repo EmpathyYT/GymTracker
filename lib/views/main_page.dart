@@ -79,7 +79,6 @@ class _MainPageState extends State<MainPage> {
                   child: CircularProgressIndicator(),
                 );
               }
-
               return Scaffold(
                 appBar: AppBar(
                   toolbarHeight: appBarHeight,

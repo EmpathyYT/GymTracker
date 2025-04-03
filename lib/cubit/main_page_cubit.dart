@@ -89,6 +89,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   Future<void> clearNotifications(RequestsSortingType oldNotifications) async {
     final currentNotifications = oldNotifications;
+
     emit(state.copyWith(notifications: currentNotifications)); //todo check if the notifications were updated while the user was in the page
   }
 

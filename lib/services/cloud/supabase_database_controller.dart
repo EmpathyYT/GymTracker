@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -164,7 +161,6 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<CloudUser?> fetchUser(userId, bool isOwner) async {
-
     if (isOwner) {
       final data = await _supabase
           .from(userTableName)
@@ -173,9 +169,8 @@ class SupabaseDatabaseController implements DatabaseController {
       if (data.isEmpty) return null;
       return CloudUser.fromSubabaseMap(data[0]);
     } else {
-      final castedUserId = userId.runtimeType == String
-          ? int.parse(userId)
-          : userId;
+      final castedUserId =
+          userId.runtimeType == String ? int.parse(userId) : userId;
 
       final data = await _supabase.rpc("public_fetch_user", params: {
         'userid': castedUserId,
@@ -200,12 +195,35 @@ class SupabaseDatabaseController implements DatabaseController {
           .rpc("check_user_name_exists", params: {"username": name}));
     }
   }
+
+  @override
+  Future<List<CloudKinRequest>> fetchSendingFriendRequests(userId) async {
+    final data = await _supabase
+        .from(pendingFriendRequestsTableName)
+        .select()
+        .eq(sendingUserFieldName, userId)
+        .not(acceptedFieldName, "is", null);
+
+    return data.map((e) => CloudKinRequest.fromMap(e)).toList();
+  }
+
+  @override
+  Future<List<CloudSquadRequest>> fetchSendingSquadRequests(userId) async {
+    final data = await _supabase
+        .from(pendingServerRequestsTableName)
+        .select()
+        .eq(sendingUserFieldName, userId)
+        .not(acceptedFieldName, "is", null);
+
+    return data.map((e) => CloudSquadRequest.fromMap(e)).toList();
+  }
+
   @override
   Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
     final data = await _supabase
         .from(pendingFriendRequestsTableName)
         .select()
-        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId")
+        .eq(recipientFieldName, userId)
         .not(acceptedFieldName, "is", null);
 
     return data.map((e) => CloudKinRequest.fromMap(e)).toList();
@@ -216,7 +234,7 @@ class SupabaseDatabaseController implements DatabaseController {
     final data = await _supabase
         .from(pendingServerRequestsTableName)
         .select()
-        .or("$recipientFieldName.eq.$userId,$sendingUserFieldName.eq.$userId")
+        .eq(recipientFieldName, userId)
         .not(acceptedFieldName, "is", null);
     return data.map((e) => CloudSquadRequest.fromMap(e)).toList();
   }
@@ -234,19 +252,6 @@ class SupabaseDatabaseController implements DatabaseController {
 
     _supabase
         .channel("friend-requests-channel")
-        .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: "public",
-            table: pendingFriendRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: recipientFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              insertShape[0] = [event.newRecord];
-              insertCallback(insertShape);
-            })
         .onPostgresChanges(
             event: PostgresChangeEvent.insert,
             schema: "public",

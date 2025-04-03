@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
 
 import '../../constants/cloud_contraints.dart';
@@ -45,7 +43,6 @@ sealed class CloudRequest extends CloudNotification {
   Future<void> rejectRequest();
 
   Future<void> acceptRequest();
-
 }
 
 class CloudKinRequest extends CloudRequest {
@@ -67,8 +64,14 @@ class CloudKinRequest extends CloudRequest {
           toUser: map[recipientFieldName],
           read: map[readFieldName],
           accepted: map[acceptedFieldName],
-          createdAt: DateTime.parse( map[timeCreatedFieldName]),
+          createdAt: DateTime.parse(map[timeCreatedFieldName]),
         );
+
+
+  @override
+  String toString() {
+    return 'CloudKinRequest{id: $id, fromUser: $fromUser, toUser: $toUser, createdAt: $createdAt, read: $read, accepted: $accepted}';
+  }
 
   @override
   Future<void> readRequest() async {
@@ -100,6 +103,12 @@ class CloudKinRequest extends CloudRequest {
     final requests = await dbController.fetchFriendRequests(userId);
 
     return requests;
+  }
+
+  static Future<List<CloudKinRequest>> fetchSendingFriendRequests(
+      userId) async {
+    final kinRequests = await dbController.fetchFriendRequests(userId);
+    return kinRequests;
   }
 
   static friendRequestListener(userId, RealtimeCallback insertCallback,
@@ -137,6 +146,11 @@ class CloudSquadRequest extends CloudRequest {
         );
 
   @override
+  String toString() {
+    return 'CloudSquadRequest{serverId: $serverId, id: $id, fromUser: $fromUser, toUser: $toUser, createdAt: $createdAt, read: $read, accepted: $accepted}';
+  }
+
+  @override
   Future<void> rejectRequest() async {
     dbController.rejectServerRequest(toUser, serverId);
     accepted = null;
@@ -160,6 +174,12 @@ class CloudSquadRequest extends CloudRequest {
 
   static Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
     final serverRequests = await dbController.fetchServerRequests(userId);
+    return serverRequests;
+  }
+
+  static Future<List<CloudSquadRequest>> fetchSendingSquadRequests(
+      userId) async {
+    final serverRequests = await dbController.fetchSendingSquadRequests(userId);
     return serverRequests;
   }
 

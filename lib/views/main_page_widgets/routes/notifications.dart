@@ -1,7 +1,4 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
@@ -38,20 +35,18 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
-        Navigator.of(context).pop<RequestsSortingType>(
-          {
-            newNotifsKeyName: {
-              frqKeyName: [],
-              srqKeyName: _notifications![newNotifsKeyName]![srqKeyName]!,
-              othersKeyName: [],
-            },
-            oldNotifsKeyName: {
-              frqKeyName: _requestsNotifications,
-              srqKeyName: _notifications![oldNotifsKeyName]![srqKeyName]!,
-              othersKeyName: _otherNotifications,
-            },
-          }
-        );
+        Navigator.of(context).pop<RequestsSortingType>({
+          newNotifsKeyName: {
+            frqKeyName: [],
+            srqKeyName: _notifications![newNotifsKeyName]![srqKeyName]!,
+            othersKeyName: [],
+          },
+          oldNotifsKeyName: {
+            frqKeyName: _requestsNotifications,
+            srqKeyName: _notifications![oldNotifsKeyName]![srqKeyName]!,
+            othersKeyName: _otherNotifications,
+          },
+        });
       },
       child: Scaffold(
         appBar: AppBar(
@@ -143,7 +138,6 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     await Navigator.of(context)
         .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
         .then((value) {
-
       setState(
           () => _requestsNotifications = value as List<CloudKinRequest>? ?? []);
     });
@@ -157,12 +151,8 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
 
     for (final values in _notifications!.values) {
       otherNotifs.addAll(values[othersKeyName] ?? []);
-      requestNotifs.addAll((values[frqKeyName]?.where((e) =>
-                  e.fromUser.toString() !=
-                  context.read<MainPageCubit>().currentUser.id) ??
-              [])
-          .map((e) => e as CloudKinRequest)
-          .toList());
+      requestNotifs.addAll(
+          (values[frqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
     }
 
     _otherNotifications = otherNotifs;

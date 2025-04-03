@@ -82,6 +82,14 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.newServerRequestsStream(userId, insertCallback, updateCallback);
 
   @override
+  Future<List<CloudSquadRequest>> fetchSendingSquadRequests(userId) =>
+      _provider.fetchSendingSquadRequests(userId);
+
+  @override
+  Future<List<CloudKinRequest>> fetchSendingFriendRequests(userId) =>
+      _provider.fetchFriendRequests(userId);
+
+  @override
   unsubscribeNewFriendRequestsStream() =>
       _provider.unsubscribeNewFriendRequestsStream();
 

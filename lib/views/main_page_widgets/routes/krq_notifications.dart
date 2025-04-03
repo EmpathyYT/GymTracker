@@ -22,12 +22,10 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
   List<CloudKinRequest>? _krqNotifications;
   List<CloudKinRequest>? _listToBuild;
 
-
   @override
   void didChangeDependencies() {
     _krqNotifications ??= context.arguments<List<CloudKinRequest>>() ?? [];
-    _listToBuild =
-        _krqNotifications!.where((e) => e.accepted != null).toList();
+    _listToBuild = _krqNotifications!.where((e) => e.accepted != null).toList();
 
     super.didChangeDependencies();
   }
@@ -80,18 +78,15 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
               padding: const EdgeInsets.only(top: 20, left: 16),
               child: Align(
                 alignment: Alignment.topLeft,
-                child: KrqPageSubtitle(
-                    multiple: (_listToBuild?.length ?? 0) > 1),
+                child:
+                    KrqPageSubtitle(multiple: (_listToBuild?.length ?? 0) > 1),
               ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: ListView.builder(
-                  itemCount: _listToBuild
-                          ?.where((e) => e.accepted != null)
-                          .length ??
-                      0,
+                  itemCount: _listToBuild?.length,
                   itemBuilder: (context, index) {
                     final notification = _listToBuild![index];
                     return FutureBuilder(
@@ -109,7 +104,9 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
                           notification: notification,
                           index: index,
                           onRemove: () {
-                            setState(() {});
+                            setState(() {
+                              _listToBuild?.removeAt(index);
+                            });
                           },
                           snapshot: snapshot,
                         );
