@@ -1,4 +1,4 @@
-const frqKeyName = 'frq';
+const krqKeyName = 'frq';
 const srqKeyName = 'srq';
 const othersKeyName = 'others';
 const oldNotifsKeyName = 'oldNotifs';

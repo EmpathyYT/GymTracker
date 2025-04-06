@@ -62,7 +62,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
           ),
           buildTwo: ({child, children}) => Expanded(child: child!),
           childrenIfOne: const [
-            BigCenteredText(text: "You stand alone.\nFor now."),
+            BigCenteredText(text: "You stand without a squad.\nFor now."),
           ],
           childrenIfTwo: [
             ListView.builder(
@@ -105,13 +105,13 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
           value: context.read<MainPageCubit>(),
           child: SrqNotificationsWidget(
               notifications:
-                  context.read<MainPageCubit>().state.notifications!),
+                  context.read<MainPageCubit>().state.notifications ?? {}),
         ),
       ),
     )
         .then((value) async {
       if (!context.mounted) return;
-      await context.read<MainPageCubit>().clearNotifications(value);
+      await context.read<MainPageCubit>().clearSquadNotifications(value);
     });
   }
 

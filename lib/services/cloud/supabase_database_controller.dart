@@ -326,19 +326,6 @@ class SupabaseDatabaseController implements DatabaseController {
               insertCallback(insertShape);
             })
         .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: "public",
-            table: pendingServerRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: sendingUserFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              insertShape[0] = [event.newRecord];
-              insertCallback(insertShape);
-            })
-        .onPostgresChanges(
             event: PostgresChangeEvent.update,
             schema: "public",
             table: pendingServerRequestsTableName,

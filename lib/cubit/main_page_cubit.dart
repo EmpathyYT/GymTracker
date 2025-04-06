@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
-import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
@@ -87,10 +86,37 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(state.copyWith(notifications: notificationDiff));
   }
 
-  Future<void> clearNotifications(RequestsSortingType oldNotifications) async {
-    final currentNotifications = oldNotifications;
+  Future<void> clearKinNotifications(RequestsSortingType notifications) async {
+    final currentNotifications = notifications;
+    final newFrqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
+    final krqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
 
-    emit(state.copyWith(notifications: currentNotifications)); //todo check if the notifications were updated while the user was in the page
+    _addMissingNotifications(
+        currentNotifications, krqData, newFrqData, krqKeyName);
+
+    currentNotifications[oldNotifsKeyName]![krqKeyName]!.removeWhere((e) {
+      final notification = e as CloudKinRequest;
+      return (notification.accepted == true || notification.accepted == null);
+    });
+
+    emit(state.copyWith(notifications: currentNotifications));
+  }
+
+  Future<void> clearSquadNotifications(
+      RequestsSortingType notifications) async {
+    final currentNotifications = notifications;
+    final newSrqData = state.notifications![newNotifsKeyName]![srqKeyName]!;
+    final srqData = notifications[oldNotifsKeyName]![srqKeyName]!;
+
+    _addMissingNotifications(
+        currentNotifications, srqData, newSrqData, srqKeyName);
+
+    currentNotifications[oldNotifsKeyName]![srqKeyName]!.removeWhere((e) {
+      final notification = e as CloudSquadRequest;
+      return (notification.accepted == true || notification.accepted == null);
+    });
+
+    emit(state.copyWith(notifications: currentNotifications));
   }
 
   Future<void> emitStartingNotifications() async {
@@ -101,16 +127,14 @@ class MainPageCubit extends Cubit<MainPageState> {
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
-    log(srqData.toString());
-
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
-        frqKeyName: [],
+        krqKeyName: [],
         srqKeyName: [],
         othersKeyName: [], //TODO for the future
       },
       newNotifsKeyName: {
-        frqKeyName: [],
+        krqKeyName: [],
         srqKeyName: [],
         othersKeyName: [],
       }
@@ -118,9 +142,9 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     for (final frq in frqData) {
       if (frq.read) {
-        notifications[oldNotifsKeyName]![frqKeyName]!.add(frq);
+        notifications[oldNotifsKeyName]![krqKeyName]!.add(frq);
       } else {
-        notifications[newNotifsKeyName]![frqKeyName]!.add(frq);
+        notifications[newNotifsKeyName]![krqKeyName]!.add(frq);
       }
     }
 
@@ -135,9 +159,6 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(state.copyWith(notifications: notifications));
   }
 
-
-
-
   VoidCallback listenToNotifications() {
     if (listeningToNotifications) return () {};
     listeningToNotifications = true;
@@ -145,13 +166,8 @@ class MainPageCubit extends Cubit<MainPageState> {
       _currentUser.id,
       (RealtimeNotificationsShape event) {
         final RequestsSortingType currNotifications = state.notifications!;
-        final key = event[0]!.first.containsKey(serverIdFieldName)
-            ? srqKeyName
-            : frqKeyName;
 
-        final newNotification = (key == frqKeyName)
-            ? CloudKinRequest.fromMap(event[0]!.first)
-            : CloudSquadRequest.fromMap(event[0]!.first);
+        final newNotification = CloudKinRequest.fromMap(event[0]!.first);
 
         emit(
           state.copyWith(
@@ -160,7 +176,7 @@ class MainPageCubit extends Cubit<MainPageState> {
                 newNotifsKeyName,
                 (e) => e
                   ..update(
-                    key,
+                    krqKeyName,
                     (e) => e..insert(0, newNotification),
                   ),
               ),
@@ -168,7 +184,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         );
       },
       (event) {
-        log(event.toString()); //todo make update only when accepted is changed to null, for both receiver and sender
+        log("event.toString()"); //todo make update only when accepted is changed to true or null, for both receiver and sender
       },
     );
 
@@ -180,4 +196,13 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   CloudUser get currentUser => _currentUser;
+
+  void _addMissingNotifications(
+      Map currentNotifications, List oldData, List newData, String key) {
+    for (final notification in newData) {
+      if (!oldData.contains(notification)) {
+        currentNotifications[newNotifsKeyName]?[key]?.add(notification);
+      }
+    }
+  }
 }

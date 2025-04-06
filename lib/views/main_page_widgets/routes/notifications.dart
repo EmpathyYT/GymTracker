@@ -37,12 +37,12 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
         if (didPop) return;
         Navigator.of(context).pop<RequestsSortingType>({
           newNotifsKeyName: {
-            frqKeyName: [],
+            krqKeyName: [],
             srqKeyName: _notifications![newNotifsKeyName]![srqKeyName]!,
             othersKeyName: [],
           },
           oldNotifsKeyName: {
-            frqKeyName: _requestsNotifications,
+            krqKeyName: _requestsNotifications,
             srqKeyName: _notifications![oldNotifsKeyName]![srqKeyName]!,
             othersKeyName: _otherNotifications,
           },
@@ -152,7 +152,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     for (final values in _notifications!.values) {
       otherNotifs.addAll(values[othersKeyName] ?? []);
       requestNotifs.addAll(
-          (values[frqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
+          (values[krqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
     }
 
     _otherNotifications = otherNotifs;

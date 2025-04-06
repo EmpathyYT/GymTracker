@@ -42,13 +42,13 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
 
         Navigator.of(context).pop<RequestsSortingType>({
           newNotifsKeyName: {
-            frqKeyName: widget.notifications[newNotifsKeyName]![frqKeyName]!,
+            krqKeyName: widget.notifications[newNotifsKeyName]![krqKeyName]!,
             srqKeyName: [],
             othersKeyName:
                 widget.notifications[newNotifsKeyName]![othersKeyName]!,
           },
           oldNotifsKeyName: {
-            frqKeyName: widget.notifications[oldNotifsKeyName]![frqKeyName]!,
+            krqKeyName: widget.notifications[oldNotifsKeyName]![krqKeyName]!,
             srqKeyName: _squadRequestsNotifications,
             othersKeyName:
                 widget.notifications[oldNotifsKeyName]![othersKeyName]!,

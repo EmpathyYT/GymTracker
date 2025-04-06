@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
 
 import '../../constants/cloud_contraints.dart';
@@ -10,7 +11,7 @@ List: If update the first element represents the old record,
   the second element represents the new record
  */
 
-sealed class CloudNotification {
+sealed class CloudNotification with EquatableMixin {
   final int id;
   final int fromUser;
   final int toUser;
@@ -24,6 +25,10 @@ sealed class CloudNotification {
     required this.createdAt,
     required this.read,
   });
+
+  @override
+  List<Object?> get props => [id];
+
 }
 
 sealed class CloudRequest extends CloudNotification {
@@ -66,6 +71,9 @@ class CloudKinRequest extends CloudRequest {
           accepted: map[acceptedFieldName],
           createdAt: DateTime.parse(map[timeCreatedFieldName]),
         );
+
+  @override
+  List<Object?> get props => [id];
 
 
   @override
@@ -144,6 +152,9 @@ class CloudSquadRequest extends CloudRequest {
           accepted: map[acceptedFieldName],
           createdAt: DateTime.parse(map[timeCreatedFieldName]),
         );
+
+  @override
+  List<Object?> get props => [id];
 
   @override
   String toString() {
