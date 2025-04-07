@@ -25,7 +25,8 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
   @override
   void didChangeDependencies() {
     _krqNotifications ??= context.arguments<List<CloudKinRequest>>() ?? [];
-    _listToBuild = _krqNotifications!.where((e) => e.accepted != null).toList();
+    _listToBuild =
+        _krqNotifications!.where((e) => e.accepted == false).toList();
 
     super.didChangeDependencies();
   }
@@ -85,34 +86,49 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: ListView.builder(
-                  itemCount: _listToBuild?.length,
-                  itemBuilder: (context, index) {
-                    final notification = _listToBuild![index];
-                    return FutureBuilder(
-                      future: CloudUser.fetchUser(notification.fromUser, false),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState != ConnectionState.done) {
-                          return const LoadingListTile();
-                        }
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white60,
+                      width: 0.9,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 9),
+                    child: ListView.builder(
+                      itemCount: _listToBuild?.length,
+                      itemBuilder: (context, index) {
+                        final notification = _listToBuild![index];
+                        return FutureBuilder(
+                          future:
+                              CloudUser.fetchUser(notification.fromUser, false),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const LoadingListTile();
+                            }
 
-                        if (snapshot.hasError) {
-                          return const ErrorListTile();
-                        }
+                            if (snapshot.hasError) {
+                              return const ErrorListTile();
+                            }
 
-                        return AnimatedFriendRequestTile(
-                          notification: notification,
-                          index: index,
-                          onRemove: () {
-                            setState(() {
-                              _listToBuild?.removeAt(index);
-                            });
+                            return AnimatedRequestTile(
+                              notification: notification,
+                              index: index,
+                              onRemove: () {
+                                setState(() {
+                                  _listToBuild?.removeAt(index);
+                                });
+                              },
+                              snapshot: snapshot,
+                            );
                           },
-                          snapshot: snapshot,
                         );
                       },
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ),
             ),

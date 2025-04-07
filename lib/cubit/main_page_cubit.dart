@@ -96,7 +96,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     currentNotifications[oldNotifsKeyName]![krqKeyName]!.removeWhere((e) {
       final notification = e as CloudKinRequest;
-      return (notification.accepted == true || notification.accepted == null);
+      return (notification.accepted != false);
     });
 
     emit(state.copyWith(notifications: currentNotifications));
@@ -113,7 +113,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     currentNotifications[oldNotifsKeyName]![srqKeyName]!.removeWhere((e) {
       final notification = e as CloudSquadRequest;
-      return (notification.accepted == true || notification.accepted == null);
+      return (notification.accepted != false);
     });
 
     emit(state.copyWith(notifications: currentNotifications));

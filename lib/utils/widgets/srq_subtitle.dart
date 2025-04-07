@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-class KrqPageSubtitle extends StatelessWidget {
+class SrqPageSubtitle extends StatelessWidget {
   final bool multiple;
 
-  const KrqPageSubtitle({
+  const SrqPageSubtitle({
     super.key,
     required this.multiple
   });
 
   @override
   Widget build(BuildContext context) {
-    var text = "";
+    var text = "The battlefield stirs—";
     if (!multiple) {
-      text = "A lone squad calls for a worthy warrior.";
+      text += "a warrior seeks your kinship!";
     } else {
-      text += "Allies call across the void—respond to their kinship summons.";
+      text += "warriors seek your kinship!";
     }
     return Text(
       text,

@@ -3,13 +3,13 @@ import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
 import '../../services/cloud/cloud_user.dart';
 
-class AnimatedFriendRequestTile extends StatefulWidget {
+class AnimatedRequestTile extends StatefulWidget {
   final int index;
   final VoidCallback onRemove;
   final AsyncSnapshot<CloudUser?> snapshot;
   final CloudRequest notification;
 
-  const AnimatedFriendRequestTile({
+  const AnimatedRequestTile({
     super.key,
     required this.notification,
     required this.index,
@@ -18,11 +18,11 @@ class AnimatedFriendRequestTile extends StatefulWidget {
   });
 
   @override
-  State<AnimatedFriendRequestTile> createState() =>
-      _AnimatedFriendRequestTileState();
+  State<AnimatedRequestTile> createState() =>
+      _AnimatedRequestTileState();
 }
 
-class _AnimatedFriendRequestTileState extends State<AnimatedFriendRequestTile>
+class _AnimatedRequestTileState extends State<AnimatedRequestTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;

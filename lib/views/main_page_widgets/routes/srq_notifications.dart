@@ -1,8 +1,15 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
 import '../../../constants/code_constraints.dart';
 import '../../../cubit/main_page_cubit.dart';
+import '../../../services/cloud/cloud_user.dart';
+import '../../../utils/widgets/double_widget_flipper.dart';
+import '../../../utils/widgets/error_list_tile.dart';
+import '../../../utils/widgets/loading_list_tile.dart';
+import '../../../utils/widgets/request_notification_tile.dart';
+import '../../../utils/widgets/srq_subtitle.dart';
 
 class SrqNotificationsWidget extends StatefulWidget {
   final RequestsSortingType notifications;
@@ -14,16 +21,16 @@ class SrqNotificationsWidget extends StatefulWidget {
 }
 
 class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
-  List<CloudSquadRequest> _squadRequestsNotifications = [];
+  List<CloudSquadRequest>? _squadRequestsNotifications;
+  List<CloudSquadRequest>? _renderedList;
 
   @override
   void didChangeDependencies() {
-    for (final value in widget.notifications.values) {
-      if (value[srqKeyName] != null) {
-        _squadRequestsNotifications.addAll(
-            value[srqKeyName]?.map((e) => e as CloudSquadRequest) ?? []);
-      }
-    }
+    if (_squadRequestsNotifications == null) _extractNotifications();
+
+    _renderedList =
+        _squadRequestsNotifications?.where((e) => e.accepted == false).toList();
+
     super.didChangeDependencies();
   }
 
@@ -34,7 +41,7 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
       onPopInvokedWithResult: (didPop, res) {
         if (didPop) return;
 
-        for (var e in _squadRequestsNotifications) {
+        for (var e in _squadRequestsNotifications!) {
           if (e.read == false) {
             e.readRequest();
           }
@@ -49,13 +56,119 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
           },
           oldNotifsKeyName: {
             krqKeyName: widget.notifications[oldNotifsKeyName]![krqKeyName]!,
-            srqKeyName: _squadRequestsNotifications,
+            srqKeyName: _squadRequestsNotifications!,
             othersKeyName:
                 widget.notifications[oldNotifsKeyName]![othersKeyName]!,
           },
         });
       },
-      child: const Placeholder(),
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: appBarHeight,
+          title: Padding(
+            padding: const EdgeInsets.only(top: appBarPadding),
+            child: Text(
+              "Squad Calls",
+              style: GoogleFonts.oswald(
+                fontSize: 35,
+              ),
+            ),
+          ),
+        ),
+        body: DoubleWidgetFlipper(
+          flipToTwo: _renderedList?.isNotEmpty ?? false,
+          buildOne: ({child, children}) => Padding(
+              padding: const EdgeInsets.only(bottom: 90), child: child!),
+          buildTwo: ({children, child}) => Column(children: children!),
+          isOneChild: true,
+          isTwoChild: false,
+          childrenIfOne: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5),
+                child: Text(
+                  "No squads are calling for warriors at this moment.",
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.oswald(
+                    fontSize: 35,
+                  ),
+                ),
+              ),
+            )
+          ],
+          childrenIfTwo: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 16),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child:
+                    SrqPageSubtitle(multiple: (_renderedList?.length ?? 0) > 1),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white60,
+                      width: 0.9,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 9),
+                    child: ListView.builder(
+                      itemCount: _renderedList!.length,
+                      itemBuilder: (context, index) {
+                        final notification = _renderedList![index];
+                        return FutureBuilder(
+                          future:
+                              CloudUser.fetchUser(notification.fromUser, false),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const LoadingListTile();
+                            }
+
+                            if (snapshot.hasError) {
+                              return const ErrorListTile();
+                            }
+
+                            return AnimatedRequestTile(
+                              notification: notification,
+                              index: index,
+                              onRemove: () {
+                                setState(() {});
+                              },
+                              snapshot: snapshot,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  void _extractNotifications() {
+    final List<CloudSquadRequest> requestNotifications = [];
+
+    final originalSrqNotifications = widget.notifications;
+
+    for (final values in originalSrqNotifications.values) {
+      requestNotifications.addAll((values[srqKeyName] ?? [])
+          .map((e) => e as CloudSquadRequest)
+          .toList());
+    }
+
+    _squadRequestsNotifications = requestNotifications;
   }
 }

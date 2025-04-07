@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +27,6 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return DoubleWidgetFlipper(
       buildOne: ({child, children}) => Center(child: child),
       buildTwo: ({child, children}) => Column(children: children!),
@@ -61,54 +58,67 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
         ),
         const Padding(padding: EdgeInsets.only(bottom: 10, top: 10)),
         Expanded(
-          child: ListView.builder(
-            itemCount: userFriends!.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: FutureBuilder(
-                  future: CloudUser.fetchUser(userFriends![index], false),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return const LoadingListTile();
-                    }
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.white60,
+                width: 0.9,
+              ),
+              borderRadius:
+                  BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 9),
+              child: ListView.builder(
+                itemCount: userFriends!.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: FutureBuilder(
+                      future: CloudUser.fetchUser(userFriends![index], false),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const LoadingListTile();
+                        }
 
-                    if (snapshot.hasError || snapshot.data == null) {
-                      return const ErrorListTile();
-                    }
+                        if (snapshot.hasError || snapshot.data == null) {
+                          return const ErrorListTile();
+                        }
 
-                    final user = snapshot.data!;
+                        final user = snapshot.data!;
 
-                    return ListTile(
-                      leading:
-                          const CircleAvatar(backgroundColor: Colors.blueGrey),
-                      title: Text(
-                        user.name,
-                        style: GoogleFonts.oswald(
-                          fontSize: 20,
-                        ),
-                      ),
-                      subtitle: Text(
-                        user.bio.length > 20
-                            ? "${user.bio.substring(0, 20)}..."
-                            : user.bio,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onTap: () => showUserCard(
-                        context: context,
-                        user: user,
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+                        return ListTile(
+                          leading: const CircleAvatar(
+                              backgroundColor: Colors.blueGrey),
+                          title: Text(
+                            user.name,
+                            style: GoogleFonts.oswald(
+                              fontSize: 20,
+                            ),
+                          ),
+                          subtitle: Text(
+                            user.bio.length > 20
+                                ? "${user.bio.substring(0, 20)}..."
+                                : user.bio,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onTap: () => showUserCard(
+                            context: context,
+                            user: user,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ],
