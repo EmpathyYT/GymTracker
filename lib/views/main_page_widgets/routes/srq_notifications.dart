@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
 import '../../../constants/code_constraints.dart';
-import '../../../cubit/main_page_cubit.dart';
 import '../../../services/cloud/cloud_user.dart';
 import '../../../utils/widgets/double_widget_flipper.dart';
 import '../../../utils/widgets/error_list_tile.dart';
@@ -12,7 +11,7 @@ import '../../../utils/widgets/request_notification_tile.dart';
 import '../../../utils/widgets/srq_subtitle.dart';
 
 class SrqNotificationsWidget extends StatefulWidget {
-  final RequestsSortingType notifications;
+  final List<CloudSquadRequest> notifications;
 
   const SrqNotificationsWidget({super.key, required this.notifications});
 
@@ -26,7 +25,7 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
 
   @override
   void didChangeDependencies() {
-    if (_squadRequestsNotifications == null) _extractNotifications();
+    _squadRequestsNotifications ??= widget.notifications;
 
     _renderedList =
         _squadRequestsNotifications?.where((e) => e.accepted == false).toList();
@@ -47,20 +46,8 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
           }
         }
 
-        Navigator.of(context).pop<RequestsSortingType>({
-          newNotifsKeyName: {
-            krqKeyName: widget.notifications[newNotifsKeyName]![krqKeyName]!,
-            srqKeyName: [],
-            othersKeyName:
-                widget.notifications[newNotifsKeyName]![othersKeyName]!,
-          },
-          oldNotifsKeyName: {
-            krqKeyName: widget.notifications[oldNotifsKeyName]![krqKeyName]!,
-            srqKeyName: _squadRequestsNotifications!,
-            othersKeyName:
-                widget.notifications[oldNotifsKeyName]![othersKeyName]!,
-          },
-        });
+        Navigator.of(context)
+            .pop<List<CloudSquadRequest>>(_squadRequestsNotifications);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -83,9 +70,9 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
           isOneChild: true,
           isTwoChild: false,
           childrenIfOne: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5, right: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Center(
                 child: Text(
                   "No squads are calling for warriors at this moment.",
                   softWrap: true,
@@ -156,19 +143,5 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
         ),
       ),
     );
-  }
-
-  void _extractNotifications() {
-    final List<CloudSquadRequest> requestNotifications = [];
-
-    final originalSrqNotifications = widget.notifications;
-
-    for (final values in originalSrqNotifications.values) {
-      requestNotifications.addAll((values[srqKeyName] ?? [])
-          .map((e) => e as CloudSquadRequest)
-          .toList());
-    }
-
-    _squadRequestsNotifications = requestNotifications;
   }
 }

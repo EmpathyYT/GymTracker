@@ -151,7 +151,16 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<CloudSquad?> fetchSquad(squadId) async {
+  Future<CloudSquad?> fetchSquad(squadId, isMember) async {
+    if (isMember) {
+      final data = await _supabase
+          .from(squadTableName)
+          .select("*")
+          .eq(idFieldName, squadId);
+      if (data.isEmpty) return null;
+      return CloudSquad.fromSupabaseMap(data[0]);
+    }
+
     final data = await _supabase.rpc("public_fetch_squad", params: {
       'squadid': squadId,
     });

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/dialogs/user_info_card_dialog.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/friend_tile_widget.dart';
 
 import '../../services/cloud/cloud_user.dart';
 import '../../utils/widgets/error_list_tile.dart';
@@ -87,32 +88,7 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
 
                         final user = snapshot.data!;
 
-                        return ListTile(
-                          leading: const CircleAvatar(
-                              backgroundColor: Colors.blueGrey),
-                          title: Text(
-                            user.name,
-                            style: GoogleFonts.oswald(
-                              fontSize: 20,
-                            ),
-                          ),
-                          subtitle: Text(
-                            user.bio.length > 20
-                                ? "${user.bio.substring(0, 20)}..."
-                                : user.bio,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onTap: () => showUserCard(
-                            context: context,
-                            user: user,
-                          ),
-                        );
+                        return FriendTileWidget(user: user);
                       },
                     ),
                   );

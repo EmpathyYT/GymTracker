@@ -54,7 +54,8 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.sendServerRequest(fromUser, toUser, squadId);
 
   @override
-  Future<CloudSquad?> fetchSquad(squadId) => _provider.fetchSquad(squadId);
+  Future<CloudSquad?> fetchSquad(squadId, isMember) =>
+      _provider.fetchSquad(squadId, isMember);
 
   @override
   Future<CloudUser?> fetchUser(userId, bool isOwner) =>

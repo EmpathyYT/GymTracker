@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -21,10 +23,12 @@ class SquadSelectorWidget extends StatefulWidget {
 
 class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
   List<CloudSquadRequest>? _squadNotifications;
+  List<String>? _squads;
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     if (_squadNotifications == null) _extractNotifications();
+    _squads = context.read<MainPageCubit>().currentUser.squads;
     super.didChangeDependencies();
   }
 
@@ -55,43 +59,58 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             thickness: 0.9,
             color: Colors.white60,
           ),
-        ),
+        ), //todo remove divider and make a border around the list
         DoubleWidgetFlipper(
           buildOne: ({child, children}) => Expanded(
             child: child!,
           ),
-          buildTwo: ({child, children}) => Expanded(child: child!),
+          buildTwo: ({child, children}) => Column(children: children!),
           childrenIfOne: const [
             BigCenteredText(text: "You stand without a squad.\nFor now."),
           ],
           childrenIfTwo: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 4, 10, 5),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(_buildSubtitleText(),
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ),
+            ),
             ListView.builder(
-              itemCount: _squadNotifications!.length,
+              shrinkWrap: true,
+              itemCount: _squads!.length,
               itemBuilder: (context, index) {
                 return FutureBuilder(
-                    future: CloudSquad.fetchSquad(
-                        _squadNotifications![index].serverId.toString()),
-                    builder: (context, snapshot) {
-                      final server = snapshot.data;
+                  future: CloudSquad.fetchSquad(_squads![index], true),
+                  builder: (context, snapshot) {
+                    final server = snapshot.data;
 
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const LoadingListTile();
-                      }
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const LoadingListTile();
+                    }
 
-                      if (snapshot.hasError) {
-                        return const ErrorListTile();
-                      }
+                    if (snapshot.hasError) {
+                      log(snapshot.error.toString());
+                      return const ErrorListTile();
+                    }
 
-                      return ListTile(
-                        title: Text(server!.name),
-                      );
-                    });
+                    return ListTile(
+                      title: Text(server!.name),
+                    );
+                  },
+                );
               },
             ),
           ],
           isOneChild: true,
-          isTwoChild: true,
-          flipToTwo: _squadNotifications?.isNotEmpty ?? false,
+          isTwoChild: false,
+          flipToTwo: _squads?.isNotEmpty ?? false,
         ),
       ],
     );
@@ -103,9 +122,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<MainPageCubit>(),
-          child: SrqNotificationsWidget(
-              notifications:
-                  context.read<MainPageCubit>().state.notifications ?? {}),
+          child: SrqNotificationsWidget(notifications: _squadNotifications!),
         ),
       ),
     )
@@ -124,5 +141,28 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
           values[srqKeyName]?.map((e) => e as CloudSquadRequest).toList() ??
               []);
     }
+  }
+
+  Future<void> _updateSquads() async {
+    await context.read<MainPageCubit>().reloadUser();
+    if (!mounted) return;
+    _squads = context.read<MainPageCubit>().currentUser.squads;
+  }
+
+//todo add timer to update squads
+
+  String _buildSubtitleText() {
+    return switch (_squads!.length) {
+      1 =>
+        "A warrior who walks alone is stronger than a thousand with no purpose. "
+            "Choose your battles wisely.",
+      <= 3 =>
+        "A few squads, but you’re already making waves in the battlefield. "
+            "Your influence is spreading.",
+      <= 5 => "You’ve built your presence across multiple squads. "
+          "Each one strengthens your hold on the battlefield.",
+      _ => "Your empire grows as your squads multiply. "
+          "Soon, you will control the entire battlefield."
+    };
   }
 }

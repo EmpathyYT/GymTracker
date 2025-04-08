@@ -28,7 +28,7 @@ abstract class DatabaseController {
 
   Future<CloudUser> createUser(userName, biography, gender);
 
-  Future<CloudSquad?> fetchSquad(squadId);
+  Future<CloudSquad?> fetchSquad(squadId, isMember);
 
   Future<CloudUser?> fetchUser(userId, bool isOwner);
 

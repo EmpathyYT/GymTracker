@@ -35,8 +35,8 @@ class CloudSquad {
     return dbController.createSquad(name, description);
   }
 
-  static Future<CloudSquad?> fetchSquad(String squadId) async {
-    return dbController.fetchSquad(squadId);
+  static Future<CloudSquad?> fetchSquad(String squadId, bool isMember) async {
+    return dbController.fetchSquad(squadId, isMember);
   }
 
   Future<CloudSquad> removeUserFromSquad(String userId) async {

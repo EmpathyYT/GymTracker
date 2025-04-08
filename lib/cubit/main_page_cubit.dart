@@ -13,7 +13,7 @@ part 'main_page_state.dart';
 typedef RequestsSortingType = Map<String, Map<String, List<CloudNotification>>>;
 
 class MainPageCubit extends Cubit<MainPageState> {
-  final CloudUser _currentUser; //todo update user info every few seconds
+  CloudUser _currentUser;
   bool listeningToNotifications = false;
 
   MainPageCubit(this._currentUser) : super(const SquadSelector());
@@ -103,20 +103,16 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   Future<void> clearSquadNotifications(
-      RequestsSortingType notifications) async {
-    final currentNotifications = notifications;
-    final newSrqData = state.notifications![newNotifsKeyName]![srqKeyName]!;
-    final srqData = notifications[oldNotifsKeyName]![srqKeyName]!;
+      List<CloudSquadRequest> notifications) async {
+    final newNotifications = RequestsSortingType.from(state.notifications!);
 
-    _addMissingNotifications(
-        currentNotifications, srqData, newSrqData, srqKeyName);
+    newNotifications[newNotifsKeyName]![srqKeyName]!
+        .removeWhere((e) => notifications.any((x) => x == e));
 
-    currentNotifications[oldNotifsKeyName]![srqKeyName]!.removeWhere((e) {
-      final notification = e as CloudSquadRequest;
-      return (notification.accepted != false);
-    });
+    newNotifications[oldNotifsKeyName]![srqKeyName] = notifications
+      ..removeWhere((e) => e.accepted != false);
 
-    emit(state.copyWith(notifications: currentNotifications));
+    emit(state.copyWith(notifications: newNotifications));
   }
 
   Future<void> emitStartingNotifications() async {
@@ -177,7 +173,7 @@ class MainPageCubit extends Cubit<MainPageState> {
                 (e) => e
                   ..update(
                     krqKeyName,
-                    (e) => e..insert(0, newNotification),
+                    (e) => e..add(newNotification),
                   ),
               ),
           ),
@@ -193,6 +189,10 @@ class MainPageCubit extends Cubit<MainPageState> {
       CloudKinRequest.unsubscribeFriendRequestListener();
       CloudSquadRequest.unsubscribeServerRequestListener();
     };
+  }
+
+  Future<void> reloadUser() async {
+    _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
   }
 
   CloudUser get currentUser => _currentUser;
