@@ -89,7 +89,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> clearKinNotifications(RequestsSortingType notifications) async {
     final currentNotifications = notifications;
     final newFrqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
-    final krqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
+    final krqData = notifications[oldNotifsKeyName]![krqKeyName]!;
 
     _addMissingNotifications(
         currentNotifications, krqData, newFrqData, krqKeyName);
@@ -104,7 +104,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   Future<void> clearSquadNotifications(
       List<CloudSquadRequest> notifications) async {
-    final newNotifications = RequestsSortingType.from(state.notifications!);
+    final newNotifications = state.notifications!;
 
     newNotifications[newNotifsKeyName]![srqKeyName]!
         .removeWhere((e) => notifications.any((x) => x == e));
