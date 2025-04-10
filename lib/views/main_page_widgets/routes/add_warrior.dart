@@ -184,4 +184,3 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
     _searchSubject.add('');
   }
 }
-//todo resert search controller when a request is sent

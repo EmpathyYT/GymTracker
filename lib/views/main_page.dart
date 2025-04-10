@@ -166,7 +166,7 @@ class _MainPageState extends State<MainPage> {
   void _startAppLoop(BuildContext context) async {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       context.read<AuthBloc>().add(const AuthEventReloadUser());
-      context.read<MainPageCubit>().reloadUser();
+      await context.read<MainPageCubit>().reloadUser();
     });
   }
 }

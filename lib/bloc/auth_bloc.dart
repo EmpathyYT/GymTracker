@@ -215,4 +215,3 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return CloudUser.fetchUser(currentAuthUser?.id, true);
   }
 }
-//TODO ADD A REFRESH USER EVENT

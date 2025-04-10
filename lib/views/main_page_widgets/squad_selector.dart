@@ -13,6 +13,7 @@ import '../../services/cloud/cloud_notification.dart';
 import '../../services/cloud/cloud_squads.dart';
 import '../../utils/widgets/error_list_tile.dart';
 import '../../utils/widgets/loading_list_tile.dart';
+import '../../utils/widgets/squad_tile_widget.dart';
 
 class SquadSelectorWidget extends StatefulWidget {
   const SquadSelectorWidget({super.key});
@@ -24,11 +25,13 @@ class SquadSelectorWidget extends StatefulWidget {
 class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
   List<CloudSquadRequest>? _squadNotifications;
   List<String>? _squads;
+  static DateTime? lastUpdate;
 
   @override
   void didChangeDependencies() async {
     if (_squadNotifications == null) _extractNotifications();
     _squads = context.read<MainPageCubit>().currentUser.squads;
+    await _updateSquads();
     super.didChangeDependencies();
   }
 
@@ -59,7 +62,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             thickness: 0.9,
             color: Colors.white60,
           ),
-        ), //todo remove divider and make a border around the list
+        ),
         DoubleWidgetFlipper(
           buildOne: ({child, children}) => Expanded(
             child: child!,
@@ -69,19 +72,19 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             BigCenteredText(text: "You stand without a squad.\nFor now."),
           ],
           childrenIfTwo: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 4, 10, 5),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text(_buildSubtitleText(),
-                    softWrap: true,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    )),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
+            //   child: Align(
+            //     alignment: Alignment.topLeft,
+            //     child: Text(_buildSubtitleText(),
+            //         softWrap: true,
+            //         style: const TextStyle(
+            //           fontSize: 12,
+            //           color: Colors.grey,
+            //           fontWeight: FontWeight.bold,
+            //         )),
+            //   ),
+            // ),
             ListView.builder(
               shrinkWrap: true,
               itemCount: _squads!.length,
@@ -100,8 +103,9 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
                       return const ErrorListTile();
                     }
 
-                    return ListTile(
-                      title: Text(server!.name),
+                    return SquadTileWidget(
+                      title: server!.name,
+                      iconCallBack: () => log("niga"),
                     );
                   },
                 );
@@ -144,25 +148,28 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
   }
 
   Future<void> _updateSquads() async {
+    if (lastUpdate != null &&
+        lastUpdate!.difference(DateTime.now()).inSeconds < 10) {
+      return;
+    }
     await context.read<MainPageCubit>().reloadUser();
     if (!mounted) return;
     _squads = context.read<MainPageCubit>().currentUser.squads;
   }
 
-//todo add timer to update squads
 
-  String _buildSubtitleText() {
-    return switch (_squads!.length) {
-      1 =>
-        "A warrior who walks alone is stronger than a thousand with no purpose. "
-            "Choose your battles wisely.",
-      <= 3 =>
-        "A few squads, but you’re already making waves in the battlefield. "
-            "Your influence is spreading.",
-      <= 5 => "You’ve built your presence across multiple squads. "
-          "Each one strengthens your hold on the battlefield.",
-      _ => "Your empire grows as your squads multiply. "
-          "Soon, you will control the entire battlefield."
-    };
-  }
+  // String _buildSubtitleText() {
+  //   return switch (_squads!.length) {
+  //     1 =>
+  //       "A warrior who walks alone is stronger than a thousand with no purpose. "
+  //           "Choose your battles wisely.",
+  //     <= 3 =>
+  //       "A few squads, but you’re already making waves in the battlefield. "
+  //           "Your influence is spreading.",
+  //     <= 5 => "You’ve built your presence across multiple squads. "
+  //         "Each one strengthens your hold on the battlefield.",
+  //     _ => "Your empire grows as your squads multiply. "
+  //         "Soon, you will control the entire battlefield."
+  //   };
+  // }
 }
