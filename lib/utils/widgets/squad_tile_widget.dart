@@ -16,7 +16,7 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _glowAnimation;
-  bool hasUnreadNotifications = true;
+  bool hasUnreadNotifications = false;
   final Color glowColor = const Color(0xff50b5ea);
 
   @override

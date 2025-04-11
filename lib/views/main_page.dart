@@ -10,7 +10,8 @@ import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/widgets/friend_adder_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
-import 'package:gymtracker/views/main_page_widgets/squad_creator.dart';
+import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
 import '../bloc/auth_state.dart';
@@ -33,7 +34,7 @@ class _MainPageState extends State<MainPage> {
   final destinations = const {
     "Clan Selector": Icon(Icons.groups),
     "Kinship Board": Icon(Icons.handshake),
-    "Clan Creator": Icon(Icons.group_add),
+    "Profile Viewer": Icon(Icons.account_circle),
     "Settings": Icon(Icons.settings)
   };
 
@@ -81,6 +82,7 @@ class _MainPageState extends State<MainPage> {
               }
               return Scaffold(
                 appBar: AppBar(
+                  scrolledUnderElevation: 0,
                   toolbarHeight: appBarHeight,
                   title: Padding(
                     padding: const EdgeInsets.only(top: appBarPadding),
@@ -128,9 +130,9 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.all(16.0),
         child: FriendsViewerWidget(),
       ),
-      NewSquad() => const Padding(
+      ProfileViewer() => const Padding(
         padding: EdgeInsets.all(16.0),
-        child: SquadCreatorWidget(),
+        child: ProfileViewerWidget(),
       ),
       Settings() => const Text("Settings"),
       _ => const Text("Error")
@@ -145,9 +147,9 @@ class _MainPageState extends State<MainPage> {
     } else if (state is KinViewer) {
       currentIndex = 1;
       _title = "Kinship Board";
-    } else if (state is NewSquad) {
+    } else if (state is ProfileViewer) {
       currentIndex = 2;
-      _title = "Clan Creator";
+      _title = "Profile Viewer";
     } else if (state is Settings) {
       currentIndex = 3;
       _title = "Settings";

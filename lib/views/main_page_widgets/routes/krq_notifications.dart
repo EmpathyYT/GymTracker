@@ -45,6 +45,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
       },
       child: Scaffold(
         appBar: AppBar(
+          scrolledUnderElevation: 0,
           toolbarHeight: appBarHeight,
           title: Padding(
             padding: const EdgeInsets.only(top: appBarPadding),

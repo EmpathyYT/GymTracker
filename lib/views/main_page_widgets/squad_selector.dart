@@ -67,11 +67,18 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
           buildOne: ({child, children}) => Expanded(
             child: child!,
           ),
-          buildTwo: ({child, children}) => Column(children: children!),
+          buildTwo: ({child, children}) => Expanded(
+            child: ListView.builder(
+              itemCount: _squads!.length,
+              itemBuilder: (context, index) {
+                return _buildListItems(index);
+              },
+            ),
+          ),
           childrenIfOne: const [
             BigCenteredText(text: "You stand without a squad.\nFor now."),
           ],
-          childrenIfTwo: [
+          childrenIfTwo: const [
             // Padding(
             //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
             //   child: Align(
@@ -85,32 +92,6 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             //         )),
             //   ),
             // ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _squads!.length,
-              itemBuilder: (context, index) {
-                return FutureBuilder(
-                  future: CloudSquad.fetchSquad(_squads![index], true),
-                  builder: (context, snapshot) {
-                    final server = snapshot.data;
-
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return const LoadingListTile();
-                    }
-
-                    if (snapshot.hasError) {
-                      log(snapshot.error.toString());
-                      return const ErrorListTile();
-                    }
-
-                    return SquadTileWidget(
-                      title: server!.name,
-                      iconCallBack: () => log("niga"),
-                    );
-                  },
-                );
-              },
-            ),
           ],
           isOneChild: true,
           isTwoChild: false,
@@ -118,6 +99,28 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         ),
       ],
     );
+  }
+
+  FutureBuilder<CloudSquad?> _buildListItems(index) {
+    return FutureBuilder(
+            future: CloudSquad.fetchSquad(_squads![index], true),
+            builder: (context, snapshot) {
+              final server = snapshot.data;
+
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const LoadingListTile();
+              }
+
+              if (snapshot.hasError) {
+                log(snapshot.error.toString());
+                return const ErrorListTile();
+              }
+              return SquadTileWidget(
+                title: server!.name,
+                iconCallBack: () => log("niga"),
+              );
+            },
+          );
   }
 
   Future<void> _cardIconCallBack(BuildContext context) async {
@@ -157,19 +160,18 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
     _squads = context.read<MainPageCubit>().currentUser.squads;
   }
 
-
-  // String _buildSubtitleText() {
-  //   return switch (_squads!.length) {
-  //     1 =>
-  //       "A warrior who walks alone is stronger than a thousand with no purpose. "
-  //           "Choose your battles wisely.",
-  //     <= 3 =>
-  //       "A few squads, but you’re already making waves in the battlefield. "
-  //           "Your influence is spreading.",
-  //     <= 5 => "You’ve built your presence across multiple squads. "
-  //         "Each one strengthens your hold on the battlefield.",
-  //     _ => "Your empire grows as your squads multiply. "
-  //         "Soon, you will control the entire battlefield."
-  //   };
-  // }
+// String _buildSubtitleText() {
+//   return switch (_squads!.length) {
+//     1 =>
+//       "A warrior who walks alone is stronger than a thousand with no purpose. "
+//           "Choose your battles wisely.",
+//     <= 3 =>
+//       "A few squads, but you’re already making waves in the battlefield. "
+//           "Your influence is spreading.",
+//     <= 5 => "You’ve built your presence across multiple squads. "
+//         "Each one strengthens your hold on the battlefield.",
+//     _ => "Your empire grows as your squads multiply. "
+//         "Soon, you will control the entire battlefield."
+//   };
+// }
 }

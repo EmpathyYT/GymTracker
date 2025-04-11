@@ -27,7 +27,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         emit(KinViewer(notifications: notifications));
         break;
       case 2:
-        emit(NewSquad(notifications: notifications));
+        emit(ProfileViewer(notifications: notifications));
         break;
       case 3:
         emit(Settings(notifications: notifications));

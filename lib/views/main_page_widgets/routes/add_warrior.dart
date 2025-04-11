@@ -70,6 +70,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: appBarHeight,
+          scrolledUnderElevation: 0,
           title: Padding(
             padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(

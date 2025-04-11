@@ -23,6 +23,29 @@ abstract class MainPageState {
 
 }
 
+final class ProfileViewer extends MainPageState {
+  const ProfileViewer(
+      {
+        super.exception,
+        super.isLoading = false,
+        super.loadingText = "",
+        super.success = false,
+        super.notifications,
+      });
+
+  @override
+  MainPageState copyWith({RequestsSortingType? notifications}) {
+    return ProfileViewer(
+      exception: exception,
+      isLoading: isLoading,
+      loadingText: loadingText,
+      success: success,
+      notifications: notifications,
+    );
+  }
+
+}
+
 final class SquadSelector extends MainPageState {
   const SquadSelector(
       {

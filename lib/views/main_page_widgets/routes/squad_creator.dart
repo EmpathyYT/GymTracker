@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 
-import '../../cubit/main_page_cubit.dart';
+import '../../../cubit/main_page_cubit.dart';
 
 class SquadCreatorWidget extends StatefulWidget {
   const SquadCreatorWidget({super.key});
