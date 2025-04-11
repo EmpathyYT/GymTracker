@@ -115,6 +115,11 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
                 log(snapshot.error.toString());
                 return const ErrorListTile();
               }
+
+              if (snapshot.data == null) {
+               return const SizedBox.shrink();
+              }
+
               return SquadTileWidget(
                 title: server!.name,
                 iconCallBack: () => log("niga"),
@@ -156,8 +161,11 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
       return;
     }
     await context.read<MainPageCubit>().reloadUser();
-    if (!mounted) return;
-    _squads = context.read<MainPageCubit>().currentUser.squads;
+
+    setState(() {
+      lastUpdate = DateTime.now();
+      _squads = context.read<MainPageCubit>().currentUser.squads;
+    });
   }
 
 // String _buildSubtitleText() {

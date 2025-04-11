@@ -42,18 +42,18 @@ class MainPageCubit extends Cubit<MainPageState> {
     required String description,
   }) async {
     try {
-      emit(NewSquad(
+      emit(SquadSelector(
         isLoading: true,
         loadingText: "Creating Squad...",
         notifications: state.notifications,
       ));
       await CloudSquad.createSquad(name, description);
-      emit(NewSquad(
+      emit(SquadSelector(
         notifications: state.notifications,
       ));
     } catch (e) {
       log(e.toString());
-      emit(NewSquad(
+      emit(SquadSelector(
         exception: e as Exception,
         notifications: state.notifications,
       ));

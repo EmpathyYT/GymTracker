@@ -93,28 +93,28 @@ final class KinViewer extends MainPageState {
 
 }
 
-final class NewSquad extends MainPageState {
-  const NewSquad(
-      {
-        super.exception,
-        super.isLoading = false,
-        super.loadingText = "",
-        super.success = false,
-        super.notifications,
-      });
-
-  @override
-  NewSquad copyWith({RequestsSortingType? notifications}) {
-    return NewSquad(
-      exception: exception,
-      isLoading: isLoading,
-      loadingText: loadingText,
-      success: success,
-      notifications: notifications,
-    );
-  }
-
-}
+// final class NewSquad extends MainPageState {
+//   const NewSquad(
+//       {
+//         super.exception,
+//         super.isLoading = false,
+//         super.loadingText = "",
+//         super.success = false,
+//         super.notifications,
+//       });
+//
+//   @override
+//   NewSquad copyWith({RequestsSortingType? notifications}) {
+//     return NewSquad(
+//       exception: exception,
+//       isLoading: isLoading,
+//       loadingText: loadingText,
+//       success: success,
+//       notifications: notifications,
+//     );
+//   }
+//
+// }
 
 final class Settings extends MainPageState {
   const Settings(

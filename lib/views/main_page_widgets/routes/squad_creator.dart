@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 
+import '../../../constants/code_constraints.dart';
 import '../../../cubit/main_page_cubit.dart';
 
 class SquadCreatorWidget extends StatefulWidget {
@@ -50,46 +52,64 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
               context, "An error occurred. Please try again.");
         }
       },
-      child: Form(
-        key: _formKey,
-        child: Align(
-          alignment: Alignment.topLeft, // Aligns the content to the top-left
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            // Ensures children align to the left within the Column
-            mainAxisSize: MainAxisSize.min,
-            // Minimizes the Column's height
-            children: [
-              const Text("Name:"),
-              TextFormField(
-                controller: _nameController,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: appBarHeight,
+          scrolledUnderElevation: 0,
+          title: Padding(
+            padding: const EdgeInsets.only(top: appBarPadding),
+            child: Text(
+              'Clan Creator',
+              style: GoogleFonts.oswald(
+                fontSize: 35,
+              ),
+            ),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Align(
+              alignment: Alignment.topLeft, // Aligns the content to the top-left
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // Ensures children align to the left within the Column
+                mainAxisSize: MainAxisSize.min,
+                // Minimizes the Column's height
+                children: [
+                  const Text("Name:"),
+                  TextFormField(
+                    controller: _nameController,
 
+                  ),
+                  const SizedBox(height: 15), // Optional spacing between fields
+                  const Text("Description:"),
+                  TextFormField(
+                    controller: _descriptionController,
+                    minLines: 1,
+                    maxLines: 5,
+                  ),
+                  const SizedBox(height: 20), // Optional spacing
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          await context.read<MainPageCubit>().createSquad(
+                                name: _nameController.text,
+                                description: _descriptionController.text,
+                              );
+                          _nameController.clear();
+                          _descriptionController.clear();
+                          //TODO if it succeeds make it teleport to the squad
+                        }
+                      },
+                      child: const Text("Create Squad"),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 15), // Optional spacing between fields
-              const Text("Description:"),
-              TextFormField(
-                controller: _descriptionController,
-                minLines: 1,
-                maxLines: 5,
-              ),
-              const SizedBox(height: 20), // Optional spacing
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      await context.read<MainPageCubit>().createSquad(
-                            name: _nameController.text,
-                            description: _descriptionController.text,
-                          );
-                      _nameController.clear();
-                      _descriptionController.clear();
-                      //TODO if it succeeds make it teleport to the squad
-                    }
-                  },
-                  child: const Text("Create Squad"),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
