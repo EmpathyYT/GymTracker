@@ -8,6 +8,7 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/utils/widgets/edit_profile_button.dart';
 import 'package:gymtracker/utils/widgets/friend_adder_button.dart';
 import 'package:gymtracker/utils/widgets/squad_creator_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
@@ -95,6 +96,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                   actions: [
+                    EditProfileButton(state: state),
                     FriendAdderButton(state: state),
                     SquadCreatorButton(state: state),
                     NotificationsButton(

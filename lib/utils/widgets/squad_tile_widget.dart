@@ -45,6 +45,7 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
     } else if (!hasUnreadNotifications && _controller.isAnimating) {
       _controller.stop();
     }
+
   }
 
   @override
