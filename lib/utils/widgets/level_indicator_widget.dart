@@ -26,13 +26,18 @@ class LevelIndicatorClipper extends CustomClipper<Path> {
 class LevelIndicatorPainter extends CustomPainter {
   final double slant;
   final double lineLength;
+  final Color color;
 
-  LevelIndicatorPainter({this.slant = 20, this.lineLength = 60});
+  LevelIndicatorPainter({
+    this.slant = 20,
+    this.lineLength = 60,
+    this.color = Colors.white,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white60
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -58,9 +63,11 @@ class LevelIndicatorWidget extends StatefulWidget {
   final int level;
   final int slant;
   final String userName;
+  final Color color;
 
   const LevelIndicatorWidget({
     super.key,
+    required this.color,
     required this.level,
     required this.slant,
     required this.userName,
@@ -115,6 +122,7 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
         CustomPaint(
           key: _clipKey,
           painter: LevelIndicatorPainter(
+            color: widget.color,
             slant: widget.slant.toDouble(),
             lineLength: _lineLength + (leftValue * 1.4),
           ),

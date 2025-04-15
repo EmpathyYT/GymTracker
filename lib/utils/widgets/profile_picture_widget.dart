@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../constants/code_constraints.dart';
+import '../../views/main_page_widgets/profile_viewer.dart';
+
 class ProfilePictureWidget extends StatefulWidget {
   final int userLevel;
 
@@ -12,8 +15,6 @@ class ProfilePictureWidget extends StatefulWidget {
 
 class _ProfilePictureWidgetState extends State<ProfilePictureWidget>
     with SingleTickerProviderStateMixin {
-  final glowLevel = 10;
-  final Color _maxLevelColor = const Color(0xff8e0cf3);
   late AnimationController _maxLevelController;
   late AnimationController _glowLevelController;
   late Animation<Color?> _maxLevelAnimation;
@@ -21,13 +22,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget>
   bool isAnimated = false;
   bool isGlowing = false;
   Color? _borderColor;
-  final List<Tuple2<Color, bool>> _borderColors = [
-    const Tuple2(Color(0xff0a48f5), false),
-    const Tuple2(Color(0xff0583fa), false),
-    const Tuple2(Color(0xff089cf7), false),
-    const Tuple2(Color(0xff00cdff), false),
-    const Tuple2(Color(0xff00fffd), false),
-  ];
 
   @override
   void initState() {
@@ -81,24 +75,14 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget>
   Color? _borderColorBuilder() {
     return switch (widget.userLevel) {
       <= 1 => Colors.transparent,
-      == 2 => _borderColors[0].item1,
-      >= 3 && <= 5 => _borderColors[1].item1,
-      >= 6 && <= 10 => _borderColors[2].item1,
-      >= 11 && <= 20 => _borderColors[3].item1,
-      >= 21 && <= 49 => _borderColors[4].item1,
+      == 2 => borderColors[0].item1,
+      >= 3 && <= 5 => borderColors[1].item1,
+      >= 6 && <= 10 => borderColors[2].item1,
+      >= 11 && <= 20 => borderColors[3].item1,
+      >= 21 && <= 49 => borderColors[4].item1,
       >= 50 => null,
       _ => Colors.transparent,
     };
-  }
-
-  Color darkenColor(Color color, double factor) {
-    assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');
-    return Color.fromRGBO(
-      (color.red * (1 - factor)).toInt(),
-      (color.green * (1 - factor)).toInt(),
-      (color.blue * (1 - factor)).toInt(),
-      color.opacity,
-    );
   }
 
   void _setupGlowLevelAnimation(Color color) {
@@ -120,18 +104,18 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget>
     );
 
     _maxLevelAnimation = TweenSequence<Color?>([
-      for (var i = 0; i < _borderColors.length - 1; i++)
+      for (var i = 0; i < borderColors.length - 1; i++)
         TweenSequenceItem(
           tween: ColorTween(
-            begin: _borderColors[i].item1,
-            end: _borderColors[i + 1].item1,
+            begin: borderColors[i].item1,
+            end: borderColors[i + 1].item1,
           ),
           weight: 1,
         ),
       TweenSequenceItem(
         tween: ColorTween(
-          begin: _borderColors.last.item1,
-          end: _maxLevelColor,
+          begin: borderColors.last.item1,
+          end: maxLevelColor,
         ),
         weight: 3,
       ),

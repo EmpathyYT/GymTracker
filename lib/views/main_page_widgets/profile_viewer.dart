@@ -81,15 +81,18 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(height: verticalOffset.toDouble()),
-                      LevelIndicatorWidget(
-                        userName: _userName!,
-                        level: _userLevel!,
-                        slant: slant,
+                      _buildAnimationIfActive(
+                        (color) => LevelIndicatorWidget(
+                          color: color,
+                          userName: _userName!,
+                          level: _userLevel!,
+                          slant: slant,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Text(
                         softWrap: true,
-                        "Example long bio that is used to showcase this widget and fill in the space"!,
+                        _biography!,
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -106,44 +109,46 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
         Expanded(
           flex: 7,
           child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: darkenColor(
-                  Theme.of(context).scaffoldBackgroundColor,
-                  0.2,
+            child: _buildAnimationIfActive(
+              (color) => Container(
+                decoration: BoxDecoration(
+                  color: darkenColor(
+                    Theme.of(context).scaffoldBackgroundColor,
+                    0.2,
+                  ),
+                  border: Border.all(
+                    color: color,
+                    style: BorderStyle.solid,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                border: Border.all(
-                  color: Colors.white60,
-                  style: BorderStyle.solid,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 10,
-                  left: 15,
-                  right: 15,
-                  bottom: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildStatRow("Workouts Complete:", "0"),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        _buildStatRow("Example Statistic:", "12"),
-                      ],
-                    ),
-                  ],
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 10,
+                    left: 15,
+                    right: 15,
+                    bottom: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildStatRow("Workouts Complete:", "0"),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          _buildStatRow("Example Statistic:", "12"),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -153,46 +158,48 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     );
   }
 
-  Row _buildStatRow(String firstString, String secondString) {
-    return Row(
-      children: [
-        Text(
-          firstString,
-          style: GoogleFonts.oswald(
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4, top: 4),
-          child: Text(
-            secondString,
-            style: GoogleFonts.montserrat(
+  Padding _buildStatRow(String firstString, String secondString) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Text(
+            firstString,
+            style: GoogleFonts.oswald(
               fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.white60,
+              color: Colors.white,
             ),
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(left: 4, top: 4),
+            child: Text(
+              secondString,
+              style: GoogleFonts.montserrat(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.white60,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Color? _borderColorBuilder() {
+  Color? borderColorBuilder() {
     return switch (_userLevel!) {
-      <= 1 => Colors.transparent,
       == 2 => borderColors[0].item1,
       >= 3 && <= 5 => borderColors[1].item1,
       >= 6 && <= 10 => borderColors[2].item1,
       >= 11 && <= 20 => borderColors[3].item1,
       >= 21 && <= 49 => borderColors[4].item1,
       >= 50 => null,
-      _ => Colors.transparent,
+      _ => Colors.white60,
     };
   }
 
   void _setupColors() {
-    final color = _borderColorBuilder();
+    final color = borderColorBuilder();
 
     if (color == null) {
       isAnimated = true;
@@ -210,16 +217,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
       _setupMaxLevelAnimation();
       _maxLevelController.repeat(reverse: true);
     }
-  }
-
-  Color darkenColor(Color color, double factor) {
-    assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');
-    return Color.fromRGBO(
-      (color.red * (1 - factor)).toInt(),
-      (color.green * (1 - factor)).toInt(),
-      (color.blue * (1 - factor)).toInt(),
-      color.opacity,
-    );
   }
 
   void _setupGlowLevelAnimation(Color color) {
@@ -260,8 +257,8 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   }
 
   void _handleLevelUpdates() {
-    final borderColorBuilder = _borderColorBuilder();
-    final newIsAnimated = borderColorBuilder == null;
+    final newBorderColor = borderColorBuilder();
+    final newIsAnimated = newBorderColor == null;
     final newIsGlowing = _userLevel! >= glowLevel && !newIsAnimated;
 
     if (newIsAnimated && !_maxLevelController.isAnimating) {
@@ -275,11 +272,11 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     }
 
     if (newIsAnimated != isAnimated ||
-        _borderColor != borderColorBuilder ||
+        _borderColor != newBorderColor ||
         newIsGlowing != isGlowing) {
       setState(() {
         isAnimated = newIsAnimated;
-        _borderColor = borderColorBuilder;
+        _borderColor = newBorderColor;
         isGlowing = newIsGlowing;
       });
     }
@@ -287,4 +284,27 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
 
   Animation _getActiveAnimation() =>
       isGlowing ? _glowLevelAnimation : _maxLevelAnimation;
+
+  Widget _buildAnimationIfActive(Function(Color color) widget) {
+    if (!isAnimated && !isGlowing) {
+      return widget(_borderColor!);
+    } else {
+      return AnimatedBuilder(
+        animation: _getActiveAnimation(),
+        builder: (context, child) {
+          return widget(_getActiveAnimation().value);
+        },
+      );
+    }
+  }
+}
+
+Color darkenColor(Color color, double factor) {
+  assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');
+  return Color.fromRGBO(
+    (color.red * (1 - factor)).toInt(),
+    (color.green * (1 - factor)).toInt(),
+    (color.blue * (1 - factor)).toInt(),
+    color.opacity,
+  );
 }
