@@ -40,9 +40,9 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateSettingUpProfile) {
-          if (state.exception is InvalidUserNameFormatAuthException) {
+          if (state.exception is InvalidUserNameFormatException) {
             await showErrorDialog(context, "Invalid User Name Format.");
-          } else if (state.exception is UsernameAlreadyUsedAuthException) {
+          } else if (state.exception is UsernameAlreadyUsedException) {
             await showErrorDialog(context, "Username already used.");
           } else if (state.exception is GenericCloudException) {
             await showErrorDialog(

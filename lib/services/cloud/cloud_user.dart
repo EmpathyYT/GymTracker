@@ -73,4 +73,9 @@ class CloudUser with EquatableMixin {
   Future<void> removeFriend(String friendId) {
     return dbController.removeFriend(id, friendId);
   }
+
+  Future<CloudUser> editUser(String name, String bio) {
+    return dbController.editUser(id, name, bio);
+  }
+
 }

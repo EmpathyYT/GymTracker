@@ -74,3 +74,27 @@ class CouldNotAddYourselfAsFriendException implements Exception {
   final String message = 'Could not add yourself as a friend';
 
 }
+
+class InvalidUserNameFormatException implements Exception {
+  final String message = 'Invalid username format';
+}
+
+class InvalidBioFormatException implements Exception {
+  final String message = 'Invalid biography format';
+}
+
+class NoChangesMadeException implements Exception {
+  final String message = 'No changes made';
+}
+
+class BioTooLongException implements Exception {
+  final String message = 'Biography too long';
+}
+
+class UsernameAlreadyUsedException implements Exception {
+  final String message = 'Username already used';
+}
+
+class UserAlreadyInSquadException implements Exception {
+  final String message = 'User already in squad';
+}

@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/utils/dialogs/error_dialog.dart';
+import 'package:gymtracker/utils/dialogs/success_dialog.dart';
 import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
+
+import '../../../exceptions/cloud_exceptions.dart';
 
 class ProfileEditorWidget extends StatefulWidget {
   const ProfileEditorWidget({super.key});
@@ -13,17 +17,8 @@ class ProfileEditorWidget extends StatefulWidget {
 }
 
 class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _bioController;
-
-  @override
-  void initState() {
-    _nameController = TextEditingController();
-    _bioController = TextEditingController();
-    _nameController.text = "Username";
-    _bioController.text = "Biography";
-    super.initState();
-  }
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
 
   @override
   void dispose() {
@@ -34,8 +29,29 @@ class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _nameController.text = context.read<MainPageCubit>().currentUser.name;
+    _bioController.text = context.read<MainPageCubit>().currentUser.bio;
     return BlocListener<MainPageCubit, MainPageState>(
-      listener: (context, state) {},
+      listener: (context, state) async {
+        if (state is ProfileViewer) {
+          if (state.exception is BioTooLongException) {
+            await showErrorDialog(context, "Biography Is Too Long");
+          } else if (state.exception is InvalidUserNameFormatException) {
+            await showErrorDialog(context, "Invalid Username");
+          } else if (state.exception is InvalidBioFormatException) {
+            await showErrorDialog(context, "Invalid Biography Format");
+          } else if (state.exception is NoChangesMadeException) {
+            await showErrorDialog(context, "No Changes Were Made");
+          } else if (state.exception is UsernameAlreadyUsedException) {
+            await showErrorDialog(context, "Username Already Used");
+          }
+          if (state.success && context.mounted) {
+            WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+            await showSuccessDialog(context, "Information Changed Successfully",
+                "Your information has been changed successfully.");
+          }
+        }
+      },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -92,8 +108,8 @@ class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
                                       Theme.of(context).scaffoldBackgroundColor,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(4),
                                   child: Icon(
                                     Icons.edit,
                                     color: Colors.white60,
@@ -141,7 +157,12 @@ class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await context.read<MainPageCubit>().editUser(
+                                  name: _nameController.text,
+                                  bio: _bioController.text,
+                                );
+                          },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Text(

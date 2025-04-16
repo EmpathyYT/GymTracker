@@ -30,18 +30,6 @@ class EmptyCredentialsAuthException implements Exception {
   final String message = 'Please fill in the fields';
 }
 
-class InvalidUserNameFormatAuthException implements Exception {
-  final String message = 'Invalid username format';
-}
-
-class UsernameAlreadyUsedAuthException implements Exception {
-  final String message = 'Username already used';
-}
-
-class UserAlreadyInSquadException implements Exception {
-  final String message = 'User already in squad';
-}
-
 class EmailNotConfirmedAuthException implements Exception {
   final String message = 'Email not confirmed';
 }

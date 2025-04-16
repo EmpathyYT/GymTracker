@@ -2,10 +2,12 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
+import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
 
 part 'main_page_state.dart';
@@ -52,7 +54,6 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications: state.notifications,
       ));
     } catch (e) {
-      log(e.toString());
       emit(SquadSelector(
         exception: e as Exception,
         notifications: state.notifications,
@@ -195,8 +196,6 @@ class MainPageCubit extends Cubit<MainPageState> {
     _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
   }
 
-  CloudUser get currentUser => _currentUser;
-
   void _addMissingNotifications(
       Map currentNotifications, List oldData, List newData, String key) {
     for (final notification in newData) {
@@ -205,4 +204,37 @@ class MainPageCubit extends Cubit<MainPageState> {
       }
     }
   }
+
+  Future<void> editUser({required String name, required String bio}) async {
+    try {
+      emit(ProfileViewer(
+        isLoading: true,
+        loadingText: "Editing Profile...",
+        notifications: state.notifications,
+      ));
+      if (currentUser.name != name &&
+          !await AuthBloc.checkValidUsername(name)) {
+        throw InvalidUserNameFormatException();
+      } else if (!RegExp(r'^[a-zA-Z0-9._ ]+$').hasMatch(bio)) {
+        throw InvalidBioFormatException();
+      } else if (bio.length > 130) {
+        throw BioTooLongException();
+      } else if (bio == currentUser.bio && name == currentUser.name) {
+        throw NoChangesMadeException();
+      }
+      final user = await _currentUser.editUser(name, bio);
+      _currentUser = user;
+      emit(ProfileViewer(
+        success: true,
+        notifications: state.notifications,
+      ));
+    } catch (e) {
+      emit(ProfileViewer(
+        exception: e as Exception,
+        notifications: state.notifications,
+      ));
+    }
+  }
+
+  CloudUser get currentUser => _currentUser;
 }

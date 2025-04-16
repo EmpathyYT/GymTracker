@@ -6,6 +6,7 @@ import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 
+import '../exceptions/cloud_exceptions.dart';
 import '../services/auth/auth_provider.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -46,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
       emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
       if (!await checkValidUsername(name)) {
-        throw InvalidUserNameFormatAuthException();
+        throw InvalidUserNameFormatException();
       }
       final user = _provider.currentUser!;
       final cloudUser = await CloudUser.createUser(name, bio, gender);
@@ -175,9 +176,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  Future<bool> checkValidUsername(String userName) async {
+  static Future<bool> checkValidUsername(String userName) async {
     if (await CloudUser.userExists(name: userName)) {
-      throw UsernameAlreadyUsedAuthException();
+      throw UsernameAlreadyUsedException();
     }
     return RegExp(r'^[a-zA-Z0-9._]+$').hasMatch(userName) &&
         RegExp(r'[a-zA-Z]').allMatches(userName).length >= 3 &&

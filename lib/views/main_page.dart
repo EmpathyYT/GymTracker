@@ -83,6 +83,7 @@ class _MainPageState extends State<MainPage> {
                 );
               }
               return Scaffold(
+                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
                   scrolledUnderElevation: 0,
                   toolbarHeight: appBarHeight,

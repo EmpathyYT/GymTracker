@@ -401,4 +401,21 @@ class SupabaseDatabaseController implements DatabaseController {
   Future<void> initialize() async {
     _supabase = Supabase.instance.client;
   }
+
+  @override
+  Future<CloudUser> editUser(String id, String username, String biography) async {
+   try {
+     final res = await _supabase
+          .from(userTableName)
+          .update({
+            nameFieldName: username,
+            bioFieldName: biography,
+          })
+          .eq(idFieldName, id)
+          .select();
+      return CloudUser.fromSubabaseMap(res[0]);
+   } on Exception catch (_) {
+     rethrow;
+   }
+  }
 }

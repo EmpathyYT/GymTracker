@@ -30,6 +30,8 @@ abstract class DatabaseController {
 
   Future<CloudSquad?> fetchSquad(squadId, isMember);
 
+  Future<CloudUser> editUser(String id, String username, String biography);
+
   Future<CloudUser?> fetchUser(userId, bool isOwner);
 
   Future<bool> userExists({String? authId, String? name});

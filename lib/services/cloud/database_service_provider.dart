@@ -112,4 +112,8 @@ class DatabaseServiceProvider implements DatabaseController {
 
   @override
   Future<void> initialize() => _provider.initialize();
+
+  @override
+  Future<CloudUser> editUser(String id, String username, String biography) =>
+      _provider.editUser(id, username, biography);
 }
