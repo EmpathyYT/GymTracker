@@ -75,6 +75,12 @@ class MainPageCubit extends Cubit<MainPageState> {
         success: true,
         notifications: state.notifications,
       ));
+
+      emit(KinViewer(
+        success: false,
+        notifications: state.notifications,
+      ));
+
     } catch (e) {
       emit(KinViewer(
         exception: e as Exception,
@@ -155,7 +161,6 @@ class MainPageCubit extends Cubit<MainPageState> {
     log(notifications.toString());
     emit(state.copyWith(notifications: notifications));
   }
-
   VoidCallback listenToNotifications() {
     if (listeningToNotifications) return () {};
     listeningToNotifications = true;
@@ -191,6 +196,7 @@ class MainPageCubit extends Cubit<MainPageState> {
       CloudSquadRequest.unsubscribeServerRequestListener();
     };
   }
+
 
   Future<void> reloadUser() async {
     _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
@@ -234,6 +240,44 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications: state.notifications,
       ));
     }
+  }
+
+  Future<void> removeFriend({required String friendId}) async {
+    emit(
+      KinViewer(
+        isLoading: true,
+        loadingText: "Removing Friend...",
+        notifications: state.notifications,
+      ),
+    );
+
+    try {
+      await _currentUser.removeFriend(friendId);
+      emit(
+        KinViewer(
+          success: true,
+          notifications: state.notifications,
+        ),
+      );
+
+      emit(
+        KinViewer(
+          success: false,
+          notifications: state.notifications,
+        ),
+      );
+
+      await reloadUser();
+
+    } catch (e) {
+      emit(
+        KinViewer(
+          exception: e as Exception,
+          notifications: state.notifications,
+        ),
+      );
+    }
+
   }
 
   CloudUser get currentUser => _currentUser;
