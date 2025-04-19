@@ -6,6 +6,7 @@ import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/universal_card.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/squad_page_route.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/srq_notifications.dart';
 
 import '../../cubit/main_page_cubit.dart';
@@ -122,7 +123,16 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
 
               return SquadTileWidget(
                 title: server!.name,
-                iconCallBack: () => log("niga"),
+                iconCallBack: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<MainPageCubit>(),
+                        child: SquadPageRoute(squad: server),
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
