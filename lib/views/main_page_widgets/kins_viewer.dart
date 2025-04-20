@@ -1,10 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/dialogs/success_dialog.dart';
+import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/friend_tile_widget.dart';
 
@@ -28,8 +26,6 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
     super.didChangeDependencies();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<MainPageCubit, MainPageState>(
@@ -52,18 +48,13 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
         isOneChild: true,
         isTwoChild: false,
         flipToTwo: userFriends?.isNotEmpty ?? false,
-        childrenIfOne: [
+        childrenIfOne: const [
           Padding(
-            padding: const EdgeInsets.only(bottom: 50),
-            child: Text(
-              textAlign: TextAlign.center,
-              "Every great warrior has a band of allies."
-              " It’s time to gather yours.",
-              style: GoogleFonts.oswald(
-                fontSize: 35,
-              ),
-            ),
-          ),
+              padding: EdgeInsets.only(bottom: 50),
+              child: BigCenteredText(
+                text: "Every great warrior has a band of allies."
+                    " It’s time to gather yours.",
+              )),
         ],
         childrenIfTwo: [
           Align(

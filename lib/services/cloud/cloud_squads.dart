@@ -8,11 +8,10 @@ class CloudSquad {
   static late final DatabaseController dbController;
   final String id;
   final String name;
-  final List<int> members;
+  final List<String> members;
   final DateTime timeCreated;
   final int ownerId;
   final String description;
-
 
   const CloudSquad({
     required this.id,
@@ -26,7 +25,10 @@ class CloudSquad {
   CloudSquad.fromSupabaseMap(Map<String, dynamic> map)
       : id = map[idFieldName].toString(),
         name = map[squadNameFieldName],
-        members = List<int>.from(map[membersFieldName]),
+        members = (map[membersFieldName] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
         timeCreated = DateTime.parse(map[timeCreatedFieldName]),
         ownerId = map[ownerUserFieldName],
         description = map[squadDescriptionFieldName];
@@ -42,5 +44,4 @@ class CloudSquad {
   Future<CloudSquad> removeUserFromSquad(String userId) async {
     return dbController.removeUserFromSquad(userId, id);
   }
-
 }

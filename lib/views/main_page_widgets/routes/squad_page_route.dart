@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/utils/widgets/member_add_button.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/members_route.dart';
 
 import '../profile_viewer.dart';
 
@@ -16,6 +18,7 @@ class SquadPageRoute extends StatefulWidget {
 
 class _SquadPageRouteState extends State<SquadPageRoute> {
   late CloudSquad squad;
+  Widget? body;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
 
@@ -23,6 +26,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   void initState() {
     super.initState();
     squad = widget.squad;
+    body = _bodyWidgetPicker(_selectedIndex, squad);
   }
 
   @override
@@ -83,6 +87,9 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
             ],
           ),
         ),
+        actions: [
+          MemberAddButton(pageIndex: _selectedIndex)
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -124,6 +131,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                 _closeDrawer();
                 setState(() {
                   _selectedIndex = 0;
+                  body = _bodyWidgetPicker(_selectedIndex, squad);
                 });
               },
             ),
@@ -134,14 +142,16 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                 _closeDrawer();
                 setState(() {
                   _selectedIndex = 1;
+                  body = _bodyWidgetPicker(_selectedIndex, squad);
                 });
               },
             ),
           ],
         ),
       ),
-      body: const Center(
-        child: Text("Squad Page"),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: body,
       ),
     );
   }
@@ -151,4 +161,13 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
       _scaffoldKey.currentState?.openEndDrawer();
     }
   }
+
+  Widget _bodyWidgetPicker(index, squad) {
+    return switch(index) {
+      0 => const Text("Achievements"),
+      1 => MembersSquadRoute(squad: squad),
+      _ => const Text("Error")
+    };
+  }
+
 }
