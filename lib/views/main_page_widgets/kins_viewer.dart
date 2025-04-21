@@ -49,12 +49,10 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
         isTwoChild: false,
         flipToTwo: userFriends?.isNotEmpty ?? false,
         childrenIfOne: const [
-          Padding(
-              padding: EdgeInsets.only(bottom: 50),
-              child: BigCenteredText(
-                text: "Every great warrior has a band of allies."
-                    " It’s time to gather yours.",
-              )),
+          BigAbsoluteCenteredText(
+            text: "Every great warrior has a band of allies."
+                " It’s time to gather yours.",
+          ),
         ],
         childrenIfTwo: [
           Align(

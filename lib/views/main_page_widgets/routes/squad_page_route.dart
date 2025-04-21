@@ -60,7 +60,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                       },
                     ),
                     Positioned(
-                      right: -7,
+                      right: -9,
                       child: Builder(builder: (context) {
                         return IconButton(
                           visualDensity: VisualDensity.compact,
@@ -77,7 +77,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                   ],
                 ),
               ),
-              const SizedBox(width: 7),
+              const SizedBox(width: 9),
               Text(
                 squad.name,
                 style: GoogleFonts.oswald(

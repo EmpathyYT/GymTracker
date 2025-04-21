@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +12,6 @@ import 'package:gymtracker/utils/widgets/friend_adder_button.dart';
 import 'package:gymtracker/utils/widgets/squad_creator_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
-import 'package:gymtracker/views/main_page_widgets/routes/squad_creator.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
 import '../bloc/auth_state.dart';
@@ -32,7 +30,7 @@ class _MainPageState extends State<MainPage> {
   String _title = "";
   Timer? _timer;
   VoidCallback? _notificationUnsubscribe;
-  late final CloudUser _currentUser;
+  CloudUser? _currentUser;
   final destinations = const {
     "Clan Selector": Icon(Icons.groups),
     "Kinship Board": Icon(Icons.handshake),
@@ -55,7 +53,7 @@ class _MainPageState extends State<MainPage> {
         (context.read<AuthBloc>().state as AuthStateAuthenticated).cloudUser!;
 
     return BlocProvider(
-      create: (context) => MainPageCubit(_currentUser),
+      create: (context) => MainPageCubit(_currentUser!),
       child: BlocConsumer<MainPageCubit, MainPageState>(
         listener: (context, state) async {
           if (state.isLoading) {
@@ -75,7 +73,6 @@ class _MainPageState extends State<MainPage> {
           return FutureBuilder(
             future: context.read<MainPageCubit>().emitStartingNotifications(),
             builder: (context, snapshot) {
-
               if (snapshot.connectionState != ConnectionState.done &&
                   (state.notifications == null)) {
                 return const Center(
@@ -97,7 +94,10 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                   actions: [
-                    EditProfileButton(state: state),
+                    EditProfileButton(
+                      state: state,
+                      onPressed: () => setState(() {}),
+                    ),
                     FriendAdderButton(state: state),
                     SquadCreatorButton(state: state),
                     NotificationsButton(
@@ -108,7 +108,6 @@ class _MainPageState extends State<MainPage> {
                         onPressed: () => context
                             .read<AuthBloc>()
                             .add(const AuthEventSignOut())),
-
                   ],
                 ),
                 body: _mainWidgetPicker(state),
@@ -133,13 +132,13 @@ class _MainPageState extends State<MainPage> {
     return switch (state) {
       SquadSelector() => const SquadSelectorWidget(),
       KinViewer() => const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: FriendsViewerWidget(),
-      ),
+          padding: EdgeInsets.all(16.0),
+          child: FriendsViewerWidget(),
+        ),
       ProfileViewer() => const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: ProfileViewerWidget(),
-      ),
+          padding: EdgeInsets.all(16.0),
+          child: ProfileViewerWidget(),
+        ),
       Settings() => const Text("Settings"),
       _ => const Text("Error")
     };

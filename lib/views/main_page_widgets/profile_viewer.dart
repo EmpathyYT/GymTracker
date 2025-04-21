@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,11 +29,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   late Animation<Color?> _glowLevelAnimation;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _maxLevelController.dispose();
     _glowLevelController.dispose();
@@ -59,6 +56,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   Widget build(BuildContext context) {
     const verticalOffset = 17;
     const slant = 15;
+
     return Column(
       children: [
         Flexible(
@@ -166,7 +164,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
           Text(
             firstString,
             style: GoogleFonts.oswald(
-              fontSize: 20,
+              fontSize: 17,
               color: Colors.white,
             ),
           ),
@@ -175,7 +173,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
             child: Text(
               secondString,
               style: GoogleFonts.montserrat(
-                fontSize: 20,
+                fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: Colors.white60,
               ),
@@ -298,6 +296,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     }
   }
 }
+
 
 Color darkenColor(Color color, double factor) {
   assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');

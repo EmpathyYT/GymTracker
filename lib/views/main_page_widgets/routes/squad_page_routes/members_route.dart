@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../services/cloud/cloud_user.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
+import '../../../../utils/widgets/absolute_centered_widget.dart';
 import '../../../../utils/widgets/double_widget_flipper.dart';
 import '../../../../utils/widgets/error_list_tile.dart';
 import '../../../../utils/widgets/friend_tile_widget.dart';
@@ -22,25 +22,10 @@ class MembersSquadRoute extends StatefulWidget {
 }
 
 class _MembersSquadRouteState extends State<MembersSquadRoute> {
-  final _centeredTextKey = GlobalKey();
-  double _centeredTextHeight = 50;
   List<String>? squadMembers;
   CloudUser? user;
+  final GlobalKey _columnKey = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final textBox =
-          _centeredTextKey.currentContext?.findRenderObject() as RenderBox?;
-      if (textBox != null) {
-        final textHeight = textBox.size.width;
-        setState(() {
-          _centeredTextHeight = textHeight;
-        });
-      }
-    });
-  }
 
   @override
   void didChangeDependencies() {
@@ -66,27 +51,14 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
         }
       },
       child: DoubleWidgetFlipper(
-        buildOne: ({child, children}) => LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                Positioned(
-                  top: (constraints.maxHeight / 2) -
-                      (_centeredTextHeight / 2) +
-                      appBarHeight,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    key: _centeredTextKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: children!,
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
+        buildOne: ({child, children}) => AbsoluteCenteredWidget(
+          widgetKey: _columnKey,
+          child: Column(
+            key: _columnKey,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: children!,
+          ),
         ),
         buildTwo: ({child, children}) => Column(children: children!),
         isOneChild: false,
@@ -183,6 +155,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
   }
 
   String _buildSubtitleText() {
-    return "This Squad is composed of ${squadMembers!.length} ${squadMembers!.length == 1 ? "Warrior" : "Warriors"}";
+    return "This Squad is composed of ${squadMembers!.length + 1} "
+        "${squadMembers!.length + 1 == 1 ? "Warrior" : "Warriors"}";
   }
 }

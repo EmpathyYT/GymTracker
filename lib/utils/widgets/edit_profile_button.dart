@@ -5,8 +5,13 @@ import 'package:gymtracker/views/main_page_widgets/routes/profile_editor.dart';
 
 class EditProfileButton extends StatelessWidget {
   final MainPageState state;
+  final VoidCallback onPressed;
 
-  const EditProfileButton({super.key, required this.state});
+  const EditProfileButton({
+    super.key,
+    required this.state,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +19,16 @@ class EditProfileButton extends StatelessWidget {
         ? IconButton(
             iconSize: 37,
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<MainPageCubit>(),
-                    child: const ProfileEditorWidget(),
-                  ),
-                ),
-              );
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<MainPageCubit>(),
+                        child: const ProfileEditorWidget(),
+                      ),
+                    ),
+                  )
+                  .then((_) => onPressed());
             },
             icon: const Icon(Icons.edit_note_sharp),
           )

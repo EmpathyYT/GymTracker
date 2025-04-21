@@ -28,9 +28,14 @@ class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     _nameController.text = context.read<MainPageCubit>().currentUser.name;
     _bioController.text = context.read<MainPageCubit>().currentUser.bio;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocListener<MainPageCubit, MainPageState>(
       listener: (context, state) async {
         if (state is ProfileViewer) {

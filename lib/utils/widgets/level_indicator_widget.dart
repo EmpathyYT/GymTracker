@@ -101,6 +101,23 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant LevelIndicatorWidget oldWidget) {
+    if (oldWidget.userName != widget.userName) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final textBox =
+            _textKey.currentContext?.findRenderObject() as RenderBox?;
+        if (textBox != null) {
+          final textWidth = textBox.size.width;
+          setState(() {
+            _lineLength = textWidth.toInt();
+          });
+        }
+      });
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     const double leftValue = 20;
     return Stack(
