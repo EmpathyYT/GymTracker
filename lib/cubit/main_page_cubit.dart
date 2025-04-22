@@ -80,9 +80,40 @@ class MainPageCubit extends Cubit<MainPageState> {
         success: false,
         notifications: state.notifications,
       ));
-
     } catch (e) {
       emit(KinViewer(
+        exception: e as Exception,
+        notifications: state.notifications,
+      ));
+    }
+  }
+
+  Future<void> addSquadReq({
+    required String userToAddId,
+    required String squadId,
+  }) async {
+    try {
+      emit(SquadSelector(
+        isLoading: true,
+        loadingText: "Inviting Warrior...",
+        notifications: state.notifications,
+      ));
+      await CloudSquadRequest.sendServerRequest(
+        _currentUser.id,
+        userToAddId,
+        squadId,
+      );
+      emit(SquadSelector(
+        success: true,
+        notifications: state.notifications,
+      ));
+
+      emit(SquadSelector(
+        success: false,
+        notifications: state.notifications,
+      ));
+    } catch (e) {
+      emit(SquadSelector(
         exception: e as Exception,
         notifications: state.notifications,
       ));
@@ -161,6 +192,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     log(notifications.toString());
     emit(state.copyWith(notifications: notifications));
   }
+
   VoidCallback listenToNotifications() {
     if (listeningToNotifications) return () {};
     listeningToNotifications = true;
@@ -196,7 +228,6 @@ class MainPageCubit extends Cubit<MainPageState> {
       CloudSquadRequest.unsubscribeServerRequestListener();
     };
   }
-
 
   Future<void> reloadUser() async {
     _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
@@ -268,7 +299,6 @@ class MainPageCubit extends Cubit<MainPageState> {
       );
 
       await reloadUser();
-
     } catch (e) {
       emit(
         KinViewer(
@@ -277,7 +307,6 @@ class MainPageCubit extends Cubit<MainPageState> {
         ),
       );
     }
-
   }
 
   CloudUser get currentUser => _currentUser;

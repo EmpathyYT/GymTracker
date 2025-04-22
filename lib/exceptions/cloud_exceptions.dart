@@ -66,6 +66,10 @@ class AlreadySentFriendRequestException implements Exception {
   final String message = 'Already sent friend request';
 }
 
+class AlreadySentSquadRequestException implements Exception {
+  final String message = 'Already sent squad request';
+}
+
 class CouldNotDeleteFriendRequestException implements Exception {
   final String message = 'Could not delete friend request';
 }

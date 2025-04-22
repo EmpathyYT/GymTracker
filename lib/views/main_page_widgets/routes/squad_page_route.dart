@@ -88,7 +88,10 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
           ),
         ),
         actions: [
-          MemberAddButton(pageIndex: _selectedIndex)
+          MemberAddButton(
+            pageIndex: _selectedIndex,
+            squad: squad,
+          )
         ],
       ),
       drawer: Drawer(
@@ -163,11 +166,10 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   }
 
   Widget _bodyWidgetPicker(index, squad) {
-    return switch(index) {
+    return switch (index) {
       0 => const Text("Achievements"),
       1 => MembersSquadRoute(squad: squad),
       _ => const Text("Error")
     };
   }
-
 }

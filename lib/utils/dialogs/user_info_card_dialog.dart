@@ -6,7 +6,8 @@ typedef AddUserAction = void Function(BuildContext context);
 Future<void> showUserCard({
   required BuildContext context,
   required CloudUser user,
-  AddUserAction? addUserAction,
+  AddUserAction? userAction,
+  Icon? userIcon,
 }) {
   return showDialog(
     context: context,
@@ -21,10 +22,10 @@ Future<void> showUserCard({
               ),
             ),
             const Spacer(),
-            addUserAction != null
+            userAction != null
                 ? IconButton(
-                    onPressed: () => addUserAction(context),
-                    icon: const Icon(Icons.person_add),
+                    onPressed: () => userAction(context),
+                    icon: userIcon!,
                   )
                 : const SizedBox.shrink(),
           ],

@@ -1,41 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/cubit/main_page_cubit.dart';
-import 'package:gymtracker/exceptions/cloud_exceptions.dart';
-import 'package:gymtracker/services/cloud/cloud_user.dart';
-import 'package:gymtracker/utils/dialogs/error_dialog.dart';
-import 'package:gymtracker/utils/dialogs/success_dialog.dart';
-import 'package:gymtracker/utils/dialogs/user_info_card_dialog.dart';
+import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../../utils/widgets/big_centered_text_widget.dart';
+import '../../../../constants/code_constraints.dart';
+import '../../../../cubit/main_page_cubit.dart';
+import '../../../../exceptions/cloud_exceptions.dart';
+import '../../../../services/cloud/cloud_user.dart';
+import '../../../../utils/dialogs/error_dialog.dart';
+import '../../../../utils/dialogs/success_dialog.dart';
+import '../../../../utils/dialogs/user_info_card_dialog.dart';
+import '../../../../utils/widgets/big_centered_text_widget.dart';
 
-class AddWarriorWidget extends StatefulWidget {
-  const AddWarriorWidget({super.key});
+class AddMemberRoute extends StatefulWidget {
+  final CloudSquad squad;
+
+  const AddMemberRoute({super.key, required this.squad});
 
   @override
-  State<AddWarriorWidget> createState() => _AddWarriorWidgetState();
+  State<AddMemberRoute> createState() => _AddMemberRouteState();
 }
 
-class _AddWarriorWidgetState extends State<AddWarriorWidget> {
+class _AddMemberRouteState extends State<AddMemberRoute> {
   final TextEditingController _searchController = TextEditingController();
   final BehaviorSubject<String> _searchSubject = BehaviorSubject<String>();
   late Stream<List<CloudUser>?> _searchStream;
 
   @override
-  void initState() {
+  void didChangeDependencies() {
+    final user = context.read<MainPageCubit>().currentUser;
+
     _searchStream = _searchSubject
         .debounceTime(const Duration(milliseconds: 300))
-        .switchMap((query) {
-      if (query.isEmpty) {
-        return Stream.value(null);
+        .switchMap((query) async* {
+      final loadedUserFriends = <CloudUser>[];
+      for (final friendId in user.friends!) {
+        final friend = await CloudUser.fetchUser(friendId, false);
+        if (friend != null &&
+            !(widget.squad.members.any((e) => e == friend.id))) {
+          loadedUserFriends.add(friend);
+        }
       }
-      return CloudUser.fetchUsersForSearch(query.trim().toLowerCase());
-    });
+      if (query.isEmpty) {
+        yield loadedUserFriends;
+      }
 
-    super.initState();
+      yield () {
+        return loadedUserFriends
+            .where((friend) =>
+                friend.name.toLowerCase().contains(query) &&
+                !(widget.squad.members.any((e) => e == friend.id)))
+            .toList();
+      }();
+    });
+    _searchSubject.add('');
+    super.didChangeDependencies();
   }
 
   @override
@@ -49,21 +69,21 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
   Widget build(BuildContext context) {
     return BlocListener<MainPageCubit, MainPageState>(
       listener: (context, state) async {
-        if (state is KinViewer) {
+        if (state is SquadSelector) {
           if (state.exception != null) {
             if (state.exception is AlreadySentFriendRequestException) {
               await showErrorDialog(
-                  context, "The kinship call has already been sent.");
+                  context, "The Warrior Call has already been sent.");
             } else if (state.exception is UserAlreadyFriendException) {
               await showErrorDialog(
-                  context, "You and this warrior are already kin.");
+                  context, "Warrior is already a member of your squad.");
             } else if (state.exception is GenericCloudException) {
               await showErrorDialog(
-                  context, "The kinship call could not be delivered.");
+                  context, "The Warrior Call could not be delivered.");
             }
           } else if (state.success) {
-            await showSuccessDialog(context, "Kinship Call Sent",
-                "Your kinship request has been sent.");
+            await showSuccessDialog(context, "Warrior Call Sent",
+                "Your Warrior Call has been sent.");
           }
         }
       },
@@ -74,7 +94,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
           title: Padding(
             padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
-              'Send Kinship Call',
+              'Send Warrior Call',
               style: GoogleFonts.oswald(
                 fontSize: 35,
               ),
@@ -112,7 +132,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                     final user = context.read<MainPageCubit>().currentUser;
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const BigCenteredText(text: "Scout For Warriors");
+                      return const BigCenteredText(text: "Scout for Warriors");
                     }
 
                     if (snapshot.data == null) {
@@ -149,9 +169,10 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                           trailing: IconButton(
                             icon: const Icon(Icons.person_add),
                             onPressed: () async {
-                              await context
-                                  .read<MainPageCubit>()
-                                  .addUserReq(userToAddId: user.id);
+                              await context.read<MainPageCubit>().addSquadReq(
+                                    userToAddId: user.id,
+                                    squadId: widget.squad.id,
+                                  );
                               _resetSearch();
                             },
                           ),
@@ -160,9 +181,10 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                               context: context,
                               user: user,
                               userAction: (context) async {
-                                await context
-                                    .read<MainPageCubit>()
-                                    .addUserReq(userToAddId: user.id);
+                                await context.read<MainPageCubit>().addSquadReq(
+                                      userToAddId: user.id,
+                                      squadId: widget.squad.id,
+                                    );
                                 if (!context.mounted) return;
                                 Navigator.of(context).pop();
                                 _resetSearch();
