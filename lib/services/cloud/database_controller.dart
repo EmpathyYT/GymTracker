@@ -36,6 +36,8 @@ abstract class DatabaseController {
 
   Future<bool> userExists({String? authId, String? name});
 
+  Future<List<CloudUser>> fetchUsersForSquadAdding(fromUser, squadId, filter);
+
   Future<List<CloudKinRequest>> fetchSendingFriendRequests(userId);
 
   Future<List<CloudSquadRequest>> fetchSendingSquadRequests(userId);

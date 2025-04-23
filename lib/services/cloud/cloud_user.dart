@@ -33,11 +33,13 @@ class CloudUser with EquatableMixin {
       : id = (data[idFieldName] as int).toString(),
         name = data[nameFieldName],
         friends = (data[friendsFieldName] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ?? [],
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
         squads = (data[squadFieldName] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ?? [],
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
         timeCreated = DateTime.tryParse(data[timeCreatedFieldName] as String)!,
         squadLimit = data[squadLimitFieldName] ?? 0,
         bio = data[bioFieldName] ?? "",
@@ -78,4 +80,8 @@ class CloudUser with EquatableMixin {
     return dbController.editUser(id, name, bio);
   }
 
+  static Future<List<CloudUser>> fetchUsersForSquadAdding(
+      fromUser, squadId, filter) {
+    return dbController.fetchUsersForSquadAdding(fromUser, squadId, filter);
+  }
 }

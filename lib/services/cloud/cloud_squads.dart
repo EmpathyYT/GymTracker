@@ -44,4 +44,7 @@ class CloudSquad {
   Future<CloudSquad> removeUserFromSquad(String userId) async {
     return dbController.removeUserFromSquad(userId, id);
   }
+
+
+
 }

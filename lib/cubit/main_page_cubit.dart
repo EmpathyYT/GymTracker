@@ -119,7 +119,8 @@ class MainPageCubit extends Cubit<MainPageState> {
       ));
     }
   }
-  //todo implement get warriors for search for squad adding
+
+
   void newNotifications(RequestsSortingType notificationDiff) {
     emit(state.copyWith(notifications: notificationDiff));
   }

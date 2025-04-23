@@ -66,6 +66,10 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.userExists(authId: authId, name: name);
 
   @override
+  Future<List<CloudUser>> fetchUsersForSquadAdding(fromUser, squadId, filter) =>
+      _provider.fetchUsersForSquadAdding(fromUser, squadId, filter);
+
+  @override
   Future<List<CloudKinRequest>> fetchFriendRequests(userId) =>
       _provider.fetchFriendRequests(userId);
 

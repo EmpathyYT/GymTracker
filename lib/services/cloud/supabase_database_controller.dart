@@ -151,6 +151,21 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
+  Future<List<CloudUser>> fetchUsersForSquadAdding(fromUser, squadId, filter) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    final data = await _supabase.rpc(
+      "get_users_for_squad_adding",
+      params: {
+        'user_id': fromUser,
+        'serverr_id': squadId,
+        'filter': filter,
+      },
+    ).select();
+    return data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
+  }
+
+
+  @override
   Future<CloudSquad?> fetchSquad(squadId, isMember) async {
     if (isMember) {
       final data = await _supabase

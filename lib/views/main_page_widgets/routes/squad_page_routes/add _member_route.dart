@@ -34,25 +34,11 @@ class _AddMemberRouteState extends State<AddMemberRoute> {
     _searchStream = _searchSubject
         .debounceTime(const Duration(milliseconds: 300))
         .switchMap((query) async* {
-      final loadedUserFriends = <CloudUser>[];
-      for (final friendId in user.friends!) {
-        final friend = await CloudUser.fetchUser(friendId, false);
-        if (friend != null &&
-            !(widget.squad.members.any((e) => e == friend.id))) {
-          loadedUserFriends.add(friend);
-        }
-      }
-      if (query.isEmpty) {
-        yield loadedUserFriends;
-      }
-
-      yield () {
-        return loadedUserFriends
-            .where((friend) =>
-                friend.name.toLowerCase().contains(query) &&
-                !(widget.squad.members.any((e) => e == friend.id)))
-            .toList();
-      }();
+      yield await CloudUser.fetchUsersForSquadAdding(
+        user.id,
+        widget.squad.id,
+        query,
+      );
     });
     _searchSubject.add('');
     super.didChangeDependencies();
