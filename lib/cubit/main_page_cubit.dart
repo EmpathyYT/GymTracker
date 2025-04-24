@@ -120,7 +120,6 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-
   void newNotifications(RequestsSortingType notificationDiff) {
     emit(state.copyWith(notifications: notificationDiff));
   }
@@ -201,7 +200,6 @@ class MainPageCubit extends Cubit<MainPageState> {
       _currentUser.id,
       (RealtimeNotificationsShape event) {
         final RequestsSortingType currNotifications = state.notifications!;
-
         final newNotification = CloudKinRequest.fromMap(event[0]!.first);
 
         emit(
@@ -218,8 +216,44 @@ class MainPageCubit extends Cubit<MainPageState> {
           ),
         );
       },
-      (event) {
-        log("event.toString()"); //todo make update only when accepted is changed to true or null, for both receiver and sender
+      (RealtimeNotificationsShape event) {
+        final (oldSrq, newSrq) = (
+          CloudKinRequest.fromMap(event[0]!.first),
+          CloudKinRequest.fromMap(event[1]!.first)
+        );
+        if (newSrq.accepted != false) {
+          log("event.toString()");
+        }
+      },
+    );
+
+    CloudSquadRequest.serverRequestListener(
+      _currentUser.id,
+      (RealtimeNotificationsShape event) {
+        final RequestsSortingType currNotifications = state.notifications!;
+        final newNotification = CloudSquadRequest.fromMap(event[0]!.first);
+        emit(
+          state.copyWith(
+            notifications: currNotifications
+              ..update(
+                newNotifsKeyName,
+                (e) => e
+                  ..update(
+                    srqKeyName,
+                    (e) => e..add(newNotification),
+                  ),
+              ),
+          ),
+        );
+      },
+      (RealtimeNotificationsShape event) {
+        final (oldSrq, newSrq) = (
+          CloudSquadRequest.fromMap(event[0]!.first),
+          CloudSquadRequest.fromMap(event[1]!.first)
+        );
+        if (newSrq.accepted != false) {
+          log("event.toString()");
+        }
       },
     );
 
@@ -308,6 +342,44 @@ class MainPageCubit extends Cubit<MainPageState> {
         ),
       );
     }
+  }
+
+
+  Future<CloudSquad?> removeMember(CloudSquad squad, memberId) async {
+    emit(
+      SquadSelector(
+        isLoading: true,
+        loadingText: "Removing Member...",
+        notifications: state.notifications,
+      ),
+    );
+
+    try {
+      await squad.removeUserFromSquad(memberId);
+      emit(
+        SquadSelector(
+          success: true,
+          notifications: state.notifications,
+        ),
+      );
+
+      emit(
+        SquadSelector(
+          success: false,
+          notifications: state.notifications,
+        ),
+      );
+
+      return await CloudSquad.fetchSquad(squad.id, true);
+    } catch (e) {
+      emit(
+        SquadSelector(
+          exception: e as Exception,
+          notifications: state.notifications,
+        ),
+      );
+    }
+    return null;
   }
 
   CloudUser get currentUser => _currentUser;

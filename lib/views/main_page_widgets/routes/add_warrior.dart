@@ -107,73 +107,73 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
             ),
             Expanded(
               child: StreamBuilder<List<CloudUser>?>(
-                  stream: _searchStream,
-                  builder: (context, snapshot) {
-                    final user = context.read<MainPageCubit>().currentUser;
+                stream: _searchStream,
+                builder: (context, snapshot) {
+                  final user = context.read<MainPageCubit>().currentUser;
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const BigCenteredText(text: "Scout For Warriors");
+                  }
+
+                  if (snapshot.data == null) {
+                    if (_searchController.text == user.name) {
+                      return const BigCenteredText(
+                          text: "Look Into The Mirror");
+                    } else {
                       return const BigCenteredText(text: "Scout For Warriors");
                     }
+                  }
 
-                    if (snapshot.data == null) {
-                      if (_searchController.text == user.name) {
-                        return const BigCenteredText(
-                            text: "Look Into The Mirror");
-                      } else {
-                        return const BigCenteredText(
-                            text: "Scout For Warriors");
-                      }
+                  final users = snapshot.data!;
+                  if (users.isEmpty) {
+                    if (_searchController.text == user.name) {
+                      return const BigCenteredText(
+                          text: "Look Into The Mirror");
+                    } else {
+                      return const BigCenteredText(text: "No Warriors Found");
                     }
+                  }
+                  return ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
 
-                    final users = snapshot.data!;
-                    if (users.isEmpty) {
-                      if (_searchController.text == user.name) {
-                        return const BigCenteredText(
-                            text: "Look Into The Mirror");
-                      } else {
-                        return const BigCenteredText(text: "No Warriors Found");
-                      }
-                    }
-                    return ListView.builder(
-                      itemCount: users.length,
-                      itemBuilder: (context, index) {
-                        final user = users[index];
-
-                        return ListTile(
-                          title: Text(
-                            user.name,
-                            style: GoogleFonts.oswald(
-                              fontSize: 25,
-                            ),
+                      return ListTile(
+                        title: Text(
+                          user.name,
+                          style: GoogleFonts.oswald(
+                            fontSize: 25,
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.person_add),
-                            onPressed: () async {
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.person_add),
+                          onPressed: () async {
+                            await context
+                                .read<MainPageCubit>()
+                                .addUserReq(userToAddId: user.id);
+                            _resetSearch();
+                          },
+                        ),
+                        onTap: () async {
+                          await showUserCard(
+                            context: context,
+                            user: user,
+                            userAction: (context) async {
                               await context
                                   .read<MainPageCubit>()
                                   .addUserReq(userToAddId: user.id);
+                              if (!context.mounted) return;
+                              Navigator.of(context).pop();
                               _resetSearch();
                             },
-                          ),
-                          onTap: () async {
-                            await showUserCard(
-                              context: context,
-                              user: user,
-                              userAction: (context) async {
-                                await context
-                                    .read<MainPageCubit>()
-                                    .addUserReq(userToAddId: user.id);
-                                if (!context.mounted) return;
-                                Navigator.of(context).pop();
-                                _resetSearch();
-                              },
-                              userIcon: const Icon(Icons.person_add),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  }),
+                            userIcon: const Icon(Icons.person_add),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

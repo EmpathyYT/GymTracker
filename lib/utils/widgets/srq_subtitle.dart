@@ -10,11 +10,11 @@ class SrqPageSubtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var text = "The battlefield stirs—";
+    var text = "";
     if (!multiple) {
-      text += "a warrior seeks your kinship!";
+      text += "One of your kin beckons you to the front lines!";
     } else {
-      text += "warriors seek your kinship!";
+      text += "Your kin beckon you to the front lines.";
     }
     return Text(
       text,

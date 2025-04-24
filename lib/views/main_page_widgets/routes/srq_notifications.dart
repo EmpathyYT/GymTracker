@@ -96,7 +96,7 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 70),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
@@ -128,7 +128,9 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
                               notification: notification,
                               index: index,
                               onRemove: () {
-                                setState(() {});
+                                setState(() {
+                                  _renderedList!.removeAt(index);
+                                });
                               },
                               snapshot: snapshot,
                             );

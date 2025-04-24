@@ -10,7 +10,7 @@ class CloudSquad {
   final String name;
   final List<String> members;
   final DateTime timeCreated;
-  final int ownerId;
+  final String ownerId;
   final String description;
 
   const CloudSquad({
@@ -30,7 +30,7 @@ class CloudSquad {
                 .toList() ??
             [],
         timeCreated = DateTime.parse(map[timeCreatedFieldName]),
-        ownerId = map[ownerUserFieldName],
+        ownerId = map[ownerUserFieldName].toString(),
         description = map[squadDescriptionFieldName];
 
   static Future<CloudSquad> createSquad(String name, String description) async {
@@ -44,7 +44,4 @@ class CloudSquad {
   Future<CloudSquad> removeUserFromSquad(String userId) async {
     return dbController.removeUserFromSquad(userId, id);
   }
-
-
-
 }

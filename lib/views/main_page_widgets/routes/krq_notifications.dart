@@ -86,7 +86,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 70),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(

@@ -151,6 +151,9 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         .then((value) async {
       if (!context.mounted) return;
       await context.read<MainPageCubit>().clearSquadNotifications(value);
+      setState(() {
+        _squadNotifications = value as List<CloudSquadRequest>? ?? [];
+      });
     });
   }
 

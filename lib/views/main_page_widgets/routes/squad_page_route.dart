@@ -168,7 +168,10 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   Widget _bodyWidgetPicker(index, squad) {
     return switch (index) {
       0 => const Text("Achievements"),
-      1 => MembersSquadRoute(squad: squad),
+      1 => MembersSquadRoute(
+          squad: squad,
+          onChanged: (squad) => setState(() => this.squad = squad),
+        ),
       _ => const Text("Error")
     };
   }

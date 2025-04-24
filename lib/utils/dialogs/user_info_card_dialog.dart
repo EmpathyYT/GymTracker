@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
-typedef AddUserAction = void Function(BuildContext context);
+typedef UserAction = void Function(BuildContext context);
 
 Future<void> showUserCard({
   required BuildContext context,
   required CloudUser user,
-  AddUserAction? userAction,
+  UserAction? userAction,
   Icon? userIcon,
 }) {
   return showDialog(

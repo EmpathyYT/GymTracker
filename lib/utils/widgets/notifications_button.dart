@@ -13,15 +13,16 @@ class NotificationsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isEmpty =
-        _notifications[newNotifsKeyName]?.values.any((e) => e.isNotEmpty) ??
-            false;
+    final bool isEmpty = [
+      krqKeyName,
+      othersKeyName
+    ].any((key) => _notifications[newNotifsKeyName]![key]!.any((e) => e.read));
 
     return IconButton(
       icon: isEmpty
           ? const Icon(
               Icons.notifications_active,
-              color: Colors.red,
+              color: Color(0xff0583fa),
             )
           : const Icon(Icons.notifications),
       iconSize: 30,

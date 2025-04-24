@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/utils/widgets/squad_member_tile_widget.dart';
 
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../services/cloud/cloud_user.dart';
@@ -9,13 +10,17 @@ import '../../../../utils/dialogs/success_dialog.dart';
 import '../../../../utils/widgets/absolute_centered_widget.dart';
 import '../../../../utils/widgets/double_widget_flipper.dart';
 import '../../../../utils/widgets/error_list_tile.dart';
-import '../../../../utils/widgets/friend_tile_widget.dart';
 import '../../../../utils/widgets/loading_list_tile.dart';
 
 class MembersSquadRoute extends StatefulWidget {
   final CloudSquad squad;
+  final ValueChanged<CloudSquad> onChanged;
 
-  const MembersSquadRoute({super.key, required this.squad});
+  const MembersSquadRoute({
+    super.key,
+    required this.squad,
+    required this.onChanged,
+  });
 
   @override
   State<MembersSquadRoute> createState() => _MembersSquadRouteState();
@@ -23,14 +28,13 @@ class MembersSquadRoute extends StatefulWidget {
 
 class _MembersSquadRouteState extends State<MembersSquadRoute> {
   List<String>? squadMembers;
-  CloudUser? user;
   final GlobalKey _columnKey = GlobalKey();
-
+  CloudUser? user;
 
   @override
   void didChangeDependencies() {
     user ??= context.read<MainPageCubit>().currentUser;
-    squadMembers ??= widget.squad.members.where((e) => e != user!.id).toList();
+    squadMembers ??= widget.squad.members;
     super.didChangeDependencies();
   }
 
@@ -97,54 +101,57 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
           ),
           const Padding(padding: EdgeInsets.only(bottom: 10, top: 10)),
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white60,
-                  width: 0.9,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 70),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white60,
+                    width: 0.9,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 9),
-                child: ListView.builder(
-                  itemCount: squadMembers!.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: FutureBuilder(
-                        future:
-                            CloudUser.fetchUser(squadMembers![index], false),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState !=
-                              ConnectionState.done) {
-                            return const LoadingListTile();
-                          }
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 9),
+                  child: ListView.builder(
+                    itemCount: squadMembers!.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: FutureBuilder(
+                          future:
+                              CloudUser.fetchUser(squadMembers![index], false),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const LoadingListTile();
+                            }
 
-                          if (snapshot.hasError || snapshot.data == null) {
-                            return const ErrorListTile();
-                          }
+                            if (snapshot.hasError || snapshot.data == null) {
+                              return const ErrorListTile();
+                            }
 
-                          final user = snapshot.data!;
+                            final user = snapshot.data!;
 
-                          return FriendTileWidget(
-                            user: user,
-                            onRemove: () async {
-                              await context
-                                  .read<MainPageCubit>()
-                                  .removeFriend(friendId: user.id);
-                              setState(() {
-                                squadMembers = context
+                            return SquadMemberTileWidget(
+                              isSelf: user.id == this.user!.id,
+                              isOwner: widget.squad.ownerId == this.user!.id,
+                              user: user,
+                              onRemove: () async {
+                                final squad = await context
                                     .read<MainPageCubit>()
-                                    .currentUser
-                                    .friends;
-                              });
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  },
+                                    .removeMember(widget.squad, user.id);
+
+                                if (squad != null) {
+                                  widget.onChanged(squad);
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -155,7 +162,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
   }
 
   String _buildSubtitleText() {
-    return "This Squad is composed of ${squadMembers!.length + 1} "
+    return "This Squad is composed of ${squadMembers!.length} "
         "${squadMembers!.length + 1 == 1 ? "Warrior" : "Warriors"}";
   }
 }
