@@ -16,7 +16,7 @@ class NotificationsButton extends StatelessWidget {
     final bool isEmpty = [
       krqKeyName,
       othersKeyName
-    ].any((key) => _notifications[newNotifsKeyName]![key]!.any((e) => e.read));
+    ].any((key) => _notifications[newNotifsKeyName]![key]!.any((e) => !e.read));
 
     return IconButton(
       icon: isEmpty

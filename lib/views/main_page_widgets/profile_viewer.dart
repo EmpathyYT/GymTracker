@@ -36,18 +36,13 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   }
 
   @override
-  void didChangeDependencies() {
+  void didUpdateWidget(covariant ProfileViewerWidget oldWidget) {
     _userName = context.read<MainPageCubit>().currentUser.name;
     _biography = context.read<MainPageCubit>().currentUser.bio;
     _userLevel = context.read<MainPageCubit>().currentUser.level;
     if (_borderColor == null) {
       _setupColors();
     }
-    super.didChangeDependencies();
-  }
-
-  @override
-  void didUpdateWidget(covariant ProfileViewerWidget oldWidget) {
     _handleLevelUpdates();
     super.didUpdateWidget(oldWidget);
   }

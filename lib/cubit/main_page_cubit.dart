@@ -353,7 +353,6 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications: state.notifications,
       ),
     );
-
     try {
       await squad.removeUserFromSquad(memberId);
       emit(

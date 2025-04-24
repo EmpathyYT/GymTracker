@@ -112,10 +112,13 @@ class SupabaseDatabaseController implements DatabaseController {
 
     final server = await _supabase
         .from(squadTableName)
-        .select("members")
+        .select(membersFieldName)
         .eq(idFieldName, squadId);
 
-    final serverMembers = server[0]["members"] as List<int>;
+    final serverMembers = (server[0][membersFieldName] as List<dynamic>)
+        .map((e) => e.toString())
+        .toList();
+
     if (!serverMembers.remove(userId)) throw UserNotInSquadException();
 
     final data = await _supabase
@@ -408,7 +411,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .from("ServerRequests")
         .update({acceptedFieldName: true})
         .eq(recipientFieldName, toUser)
-        .eq(sendingUserFieldName, squadId)
+        .eq(serverIdFieldName, squadId)
         .not(acceptedFieldName, "is", null);
   }
 
@@ -434,3 +437,4 @@ class SupabaseDatabaseController implements DatabaseController {
    }
   }
 }
+

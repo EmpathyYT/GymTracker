@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -20,6 +22,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   late CloudSquad squad;
   Widget? body;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  Timer? _squadTimer;
   int _selectedIndex = 0;
 
   @override
@@ -30,7 +33,17 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   }
 
   @override
+  void dispose() {
+    _squadTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_squadTimer == null) {
+      _startReloadTimer();
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -60,7 +73,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                       },
                     ),
                     Positioned(
-                      right: -9,
+                      right: -12,
                       child: Builder(builder: (context) {
                         return IconButton(
                           visualDensity: VisualDensity.compact,
@@ -77,7 +90,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                   ],
                 ),
               ),
-              const SizedBox(width: 9),
+              const SizedBox(width: 12),
               Text(
                 squad.name,
                 style: GoogleFonts.oswald(
@@ -175,4 +188,13 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
       _ => const Text("Error")
     };
   }
+
+  void _startReloadTimer() {
+    _squadTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      setState(() async {
+       squad = (await CloudSquad.fetchSquad(squad.id, true))!;
+      });
+    });
+  }
+
 }
