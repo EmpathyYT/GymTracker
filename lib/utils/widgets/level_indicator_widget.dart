@@ -108,9 +108,7 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
             _textKey.currentContext?.findRenderObject() as RenderBox?;
         if (textBox != null) {
           final textWidth = textBox.size.width;
-          setState(() {
-            _lineLength = textWidth.toInt();
-          });
+          _lineLength = textWidth.toInt();
         }
       });
     }

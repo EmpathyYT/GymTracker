@@ -16,7 +16,7 @@ class ProfileViewerWidget extends StatefulWidget {
 }
 
 class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String? _userName;
   String? _biography;
   int? _userLevel;
@@ -36,13 +36,19 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   }
 
   @override
-  void didUpdateWidget(covariant ProfileViewerWidget oldWidget) {
+  void didChangeDependencies() {
     _userName = context.read<MainPageCubit>().currentUser.name;
     _biography = context.read<MainPageCubit>().currentUser.bio;
     _userLevel = context.read<MainPageCubit>().currentUser.level;
     if (_borderColor == null) {
       _setupColors();
     }
+    super.didChangeDependencies();
+  }
+
+
+  @override
+  void didUpdateWidget(covariant ProfileViewerWidget oldWidget) {
     _handleLevelUpdates();
     super.didUpdateWidget(oldWidget);
   }
@@ -193,21 +199,20 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
 
   void _setupColors() {
     final color = borderColorBuilder();
-
     if (color == null) {
       isAnimated = true;
     } else {
       _borderColor = color;
       isGlowing = _userLevel! >= glowLevel;
     }
+    _setupMaxLevelAnimation();
+    _setupGlowLevelAnimation(_borderColor!);
 
     if (isGlowing) {
-      _setupGlowLevelAnimation(_borderColor!);
       _glowLevelController.repeat(reverse: true);
     }
 
     if (isAnimated) {
-      _setupMaxLevelAnimation();
       _maxLevelController.repeat(reverse: true);
     }
   }
@@ -264,15 +269,9 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
       _glowLevelController.stop();
     }
 
-    if (newIsAnimated != isAnimated ||
-        _borderColor != newBorderColor ||
-        newIsGlowing != isGlowing) {
-      setState(() {
-        isAnimated = newIsAnimated;
-        _borderColor = newBorderColor;
-        isGlowing = newIsGlowing;
-      });
-    }
+    isAnimated = newIsAnimated;
+    _borderColor = newBorderColor;
+    isGlowing = newIsGlowing;
   }
 
   Animation _getActiveAnimation() =>

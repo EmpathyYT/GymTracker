@@ -22,7 +22,6 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   late CloudSquad squad;
   Widget? body;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  Timer? _squadTimer;
   int _selectedIndex = 0;
 
   @override
@@ -33,17 +32,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   }
 
   @override
-  void dispose() {
-    _squadTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_squadTimer == null) {
-      _startReloadTimer();
-    }
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -143,9 +132,11 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
             ListTile(
               selected: _selectedIndex == 0,
               title: const Text('Squad Achievements'),
-              onTap: () {
+              onTap: () async {
+                final newSquad = await _reloadSquad();
                 _closeDrawer();
                 setState(() {
+                  squad = newSquad;
                   _selectedIndex = 0;
                   body = _bodyWidgetPicker(_selectedIndex, squad);
                 });
@@ -154,9 +145,11 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
             ListTile(
               selected: _selectedIndex == 1,
               title: const Text('Squad Warriors'),
-              onTap: () {
+              onTap: () async {
+                final newSquad = await _reloadSquad();
                 _closeDrawer();
                 setState(() {
+                  squad = newSquad;
                   _selectedIndex = 1;
                   body = _bodyWidgetPicker(_selectedIndex, squad);
                 });
@@ -189,12 +182,8 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
     };
   }
 
-  void _startReloadTimer() {
-    _squadTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      setState(() async {
-       squad = (await CloudSquad.fetchSquad(squad.id, true))!;
-      });
-    });
+  Future<CloudSquad> _reloadSquad() async {
+    return (await CloudSquad.fetchSquad(squad.id, true))!;
   }
 
 }
