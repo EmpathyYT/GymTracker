@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
 
@@ -13,31 +15,66 @@ List: If update the first element represents the old record,
 
 sealed class CloudNotification with EquatableMixin {
   final int id;
-  final int fromUser;
-  final int toUser;
   final DateTime createdAt;
   bool read;
 
   CloudNotification({
     required this.id,
-    required this.fromUser,
-    required this.toUser,
     required this.createdAt,
     required this.read,
   });
 
   @override
   List<Object?> get props => [id];
+}
 
+class CloudAchievement extends CloudNotification {
+  String message;
+  static late final DatabaseController dbController;
+
+  CloudAchievement({
+    required super.id,
+    required super.createdAt,
+    required super.read,
+    required this.message,
+  });
+
+  void readAchievement() {
+    read = true;
+  } // todo will keep track of reading through cache
+
+  CloudAchievement.fromMap(Map<String, dynamic> map)
+      : message = map[messageFieldName],
+        super(
+          id: map[idFieldName],
+          createdAt: DateTime.parse(map[timeCreatedFieldName]),
+          read: false,
+        );
+
+  static Future<List<CloudAchievement>> fetchUserAchievements(userId) async {
+    return dbController.fetchAchievements(userId: userId);
+  }
+
+  static Future<List<CloudAchievement>> fetchSquadAchievements(squadId) async {
+    return dbController.fetchAchievements(squadId: squadId);
+  }
+
+  static achievementListener(userId, RealtimeCallback insertCallback) =>
+      dbController.newAchievementsStream(userId, insertCallback);
+
+  static unsubscribeAchievementListener() =>
+      dbController.unsubscribeNewAchievementsStream();
 }
 
 sealed class CloudRequest extends CloudNotification {
   bool? accepted;
+  final int fromUser;
+  final int toUser;
 
   CloudRequest({
     required super.id,
-    required super.fromUser,
-    required super.toUser,
+    required this.fromUser,
+    required this.toUser,
     required super.createdAt,
     required super.read,
     required this.accepted,
@@ -75,7 +112,6 @@ class CloudKinRequest extends CloudRequest {
   @override
   List<Object?> get props => [id];
 
-
   @override
   String toString() {
     return 'CloudKinRequest{id: $id, fromUser: $fromUser, toUser: $toUser, createdAt: $createdAt, read: $read, accepted: $accepted}';
@@ -108,15 +144,12 @@ class CloudKinRequest extends CloudRequest {
   }
 
   static Future<List<CloudKinRequest>> fetchFriendRequests(userId) async {
-    final requests = await dbController.fetchFriendRequests(userId);
-
-    return requests;
+    return dbController.fetchFriendRequests(userId);
   }
 
   static Future<List<CloudKinRequest>> fetchSendingFriendRequests(
       userId) async {
-    final kinRequests = await dbController.fetchFriendRequests(userId);
-    return kinRequests;
+    return dbController.fetchFriendRequests(userId);
   }
 
   static friendRequestListener(userId, RealtimeCallback insertCallback,
@@ -184,14 +217,13 @@ class CloudSquadRequest extends CloudRequest {
   }
 
   static Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
-    final serverRequests = await dbController.fetchServerRequests(userId);
-    return serverRequests;
+   return dbController.fetchServerRequests(userId);
+
   }
 
   static Future<List<CloudSquadRequest>> fetchSendingSquadRequests(
       userId) async {
-    final serverRequests = await dbController.fetchSendingSquadRequests(userId);
-    return serverRequests;
+    return dbController.fetchSendingSquadRequests(userId);
   }
 
   static serverRequestListener(userId, RealtimeCallback insertCallback,

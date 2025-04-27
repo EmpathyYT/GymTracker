@@ -3,7 +3,7 @@ import 'package:tuple/tuple.dart';
 
 const krqKeyName = 'frq';
 const srqKeyName = 'srq';
-const othersKeyName = 'others';
+const achievementsKeyName = 'achievements';
 const oldNotifsKeyName = 'oldNotifs';
 const newNotifsKeyName = 'newNotifs';
 const appBarHeight = 70.0;

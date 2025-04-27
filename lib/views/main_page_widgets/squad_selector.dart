@@ -104,38 +104,39 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
 
   FutureBuilder<CloudSquad?> _buildListItems(index) {
     return FutureBuilder(
-            future: CloudSquad.fetchSquad(_squads![index], true),
-            builder: (context, snapshot) {
-              final server = snapshot.data;
+      future: CloudSquad.fetchSquad(_squads![index], true),
+      builder: (context, snapshot) {
+        final server = snapshot.data;
 
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const LoadingListTile();
-              }
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const LoadingListTile();
+        }
 
-              if (snapshot.hasError) {
-                log(snapshot.error.toString());
-                return const ErrorListTile();
-              }
+        if (snapshot.hasError) {
+          log(snapshot.error.toString());
+          return const ErrorListTile();
+        }
 
-              if (snapshot.data == null) {
-               return const SizedBox.shrink();
-              }
+        if (snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
 
-              return SquadTileWidget(
-                title: server!.name,
-                iconCallBack: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<MainPageCubit>(),
-                        child: SquadPageRoute(squad: server),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
+        return SquadTileWidget(
+          title: server!.name,
+          hasUnreadNotifications: server.achievements.any((e) => !e.read),
+          iconCallBack: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<MainPageCubit>(),
+                  child: SquadPageRoute(squad: server),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _cardIconCallBack(BuildContext context) async {
@@ -173,7 +174,6 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         lastUpdate!.difference(DateTime.now()).inSeconds < 10) {
       return;
     }
-    await context.read<MainPageCubit>().reloadUser();
 
     setState(() {
       lastUpdate = DateTime.now();

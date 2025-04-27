@@ -31,6 +31,14 @@ const squadDescriptionFieldName = 'description';
 //^ The Squad Constraints
 
 
+const achievementsTableName = 'Achievements';
+const messageFieldName = 'achievement';
+const userIdFieldName = 'user_id';
+const achievementSquadsFieldName = 'squads';
+//^ The Achievement Constraints
+
+
+
 const timeCreatedFieldName = 'created_at';
 const idFieldName = 'id';
 //^ The Shared Constraints

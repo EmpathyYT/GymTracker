@@ -70,6 +70,10 @@ class AlreadySentSquadRequestException implements Exception {
   final String message = 'Already sent squad request';
 }
 
+class CouldNotFetchAchievementsException implements Exception {
+  final String message = 'Could not fetch achievements';
+}
+
 class CouldNotDeleteFriendRequestException implements Exception {
   final String message = 'Could not delete friend request';
 }

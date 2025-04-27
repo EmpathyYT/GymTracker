@@ -4,9 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 class SquadTileWidget extends StatefulWidget {
   final String title;
   final VoidCallback iconCallBack;
+  final bool hasUnreadNotifications;
 
-  const SquadTileWidget(
-      {super.key, required this.title, required this.iconCallBack});
+  const SquadTileWidget({
+    super.key,
+    required this.title,
+    required this.iconCallBack,
+    required this.hasUnreadNotifications,
+  });
 
   @override
   State<SquadTileWidget> createState() => _SquadTileWidgetState();
@@ -16,7 +21,6 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _glowAnimation;
-  bool hasUnreadNotifications = false;
   final Color glowColor = const Color(0xff50b5ea);
 
   @override
@@ -31,7 +35,7 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
       end: Colors.white,
     ).animate(_controller);
 
-    if (hasUnreadNotifications) {
+    if (widget.hasUnreadNotifications) {
       _controller.repeat(reverse: true);
     }
   }
@@ -40,18 +44,11 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
   void didUpdateWidget(covariant SquadTileWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (hasUnreadNotifications && !_controller.isAnimating) {
+    if (widget.hasUnreadNotifications && !_controller.isAnimating) {
       _controller.repeat(reverse: true);
-    } else if (!hasUnreadNotifications && _controller.isAnimating) {
+    } else if (!widget.hasUnreadNotifications && _controller.isAnimating) {
       _controller.stop();
     }
-
-  }
-
-  @override
-  void didChangeDependencies() {
-    //hasUnreadNotifications = _checkForNotifications();
-    super.didChangeDependencies();
   }
 
   @override
@@ -65,8 +62,9 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
               side: BorderSide(
-                color: hasUnreadNotifications ? _glowAnimation.value! : Colors
-                    .grey,
+                color: widget.hasUnreadNotifications
+                    ? _glowAnimation.value!
+                    : Colors.grey,
                 width: 1.5,
               ),
             ),
@@ -79,7 +77,8 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
                   children: [
                     ...() {
                       List<Widget> widgets = [
-                        const CircleAvatar(backgroundColor: Colors.blueGrey,
+                        const CircleAvatar(
+                          backgroundColor: Colors.blueGrey,
                           radius: 22,
                         ),
                       ];
@@ -105,8 +104,9 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
                     Icons.arrow_forward_ios,
                   ),
                   iconSize: 23,
-                  color: hasUnreadNotifications ? _glowAnimation.value! : Colors
-                      .white,
+                  color: widget.hasUnreadNotifications
+                      ? _glowAnimation.value!
+                      : Colors.white,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   hoverColor: Colors.transparent,
@@ -116,8 +116,7 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   @override

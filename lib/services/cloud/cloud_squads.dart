@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 
 import '../../constants/cloud_contraints.dart';
@@ -6,6 +7,7 @@ import '../../constants/cloud_contraints.dart';
 @immutable
 class CloudSquad {
   static late final DatabaseController dbController;
+  final List<CloudAchievement> achievements = [];
   final String id;
   final String name;
   final List<String> members;
@@ -13,7 +15,7 @@ class CloudSquad {
   final String ownerId;
   final String description;
 
-  const CloudSquad({
+  CloudSquad({
     required this.id,
     required this.name,
     required this.members,
@@ -38,10 +40,16 @@ class CloudSquad {
   }
 
   static Future<CloudSquad?> fetchSquad(String squadId, bool isMember) async {
-    return dbController.fetchSquad(squadId, isMember);
+    return (await dbController.fetchSquad(squadId, isMember))
+      ?..getAchievements();
   }
 
   Future<CloudSquad> removeUserFromSquad(String userId) async {
     return dbController.removeUserFromSquad(userId, id);
+  }
+
+  Future<void> getAchievements() async {
+    final achievements = await CloudAchievement.fetchSquadAchievements(id);
+    this.achievements.addAll(achievements);
   }
 }

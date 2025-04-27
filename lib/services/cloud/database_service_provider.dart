@@ -120,4 +120,16 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   Future<CloudUser> editUser(String id, String username, String biography) =>
       _provider.editUser(id, username, biography);
+
+  @override
+  Future<List<CloudAchievement>> fetchAchievements({squadId, userId}) =>
+      _provider.fetchAchievements(squadId: squadId, userId: userId);
+
+  @override
+  newAchievementsStream(userId, RealtimeCallback insertCallback) =>
+      _provider.newAchievementsStream(userId, insertCallback);
+
+  @override
+  unsubscribeNewAchievementsStream() =>
+      _provider.unsubscribeNewAchievementsStream();
 }

@@ -161,18 +161,22 @@ class MainPageCubit extends Cubit<MainPageState> {
     final srqData =
         await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
+    final achievements =
+        await CloudAchievement.fetchUserAchievements(_currentUser.id);
+
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
         krqKeyName: [],
         srqKeyName: [],
-        othersKeyName: [], //TODO for the future
+        achievementsKeyName: [],
       },
       newNotifsKeyName: {
         krqKeyName: [],
         srqKeyName: [],
-        othersKeyName: [],
+        achievementsKeyName: [],
       }
     };
+
 
     for (final frq in frqData) {
       if (frq.read) {
@@ -189,6 +193,15 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications[newNotifsKeyName]![srqKeyName]!.add(srq);
       }
     }
+
+    for (final achievement in achievements) {
+      if (achievement.read) {
+        notifications[oldNotifsKeyName]![achievementsKeyName]!.add(achievement);
+      } else {
+        notifications[newNotifsKeyName]![achievementsKeyName]!.add(achievement);
+      }
+    }
+
     log(notifications.toString());
     emit(state.copyWith(notifications: notifications));
   }
@@ -257,10 +270,30 @@ class MainPageCubit extends Cubit<MainPageState> {
       },
     );
 
+    CloudAchievement.achievementListener(
+      _currentUser.id,
+      (RealtimeNotificationsShape event) {
+        final RequestsSortingType currNotifications = state.notifications!;
+        final newNotification = CloudAchievement.fromMap(event[0]!.first);
+        emit(state.copyWith(
+          notifications: currNotifications
+            ..update(
+              newNotifsKeyName,
+              (e) => e
+                ..update(
+                  achievementsKeyName,
+                  (e) => e..add(newNotification),
+                ),
+            ),
+        ));
+      },
+    );
+
     return () {
       listeningToNotifications = false;
       CloudKinRequest.unsubscribeFriendRequestListener();
       CloudSquadRequest.unsubscribeServerRequestListener();
+      CloudAchievement.unsubscribeAchievementListener();
     };
   }
 
@@ -343,7 +376,6 @@ class MainPageCubit extends Cubit<MainPageState> {
       );
     }
   }
-
 
   Future<CloudSquad?> removeMember(CloudSquad squad, memberId) async {
     emit(

@@ -39,12 +39,12 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           newNotifsKeyName: {
             krqKeyName: [],
             srqKeyName: _notifications![newNotifsKeyName]![srqKeyName]!,
-            othersKeyName: [],
+            achievementsKeyName: [],
           },
           oldNotifsKeyName: {
             krqKeyName: _requestsNotifications,
             srqKeyName: _notifications![oldNotifsKeyName]![srqKeyName]!,
-            othersKeyName: _otherNotifications,
+            achievementsKeyName: _otherNotifications,
           },
         });
       },
@@ -151,7 +151,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     _notifications = widget.notifications;
 
     for (final values in _notifications!.values) {
-      otherNotifs.addAll(values[othersKeyName] ?? []);
+      otherNotifs.addAll(values[achievementsKeyName] ?? []);
       requestNotifs.addAll(
           (values[krqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
     }

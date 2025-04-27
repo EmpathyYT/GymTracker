@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/utils/widgets/member_add_button.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/achievements_route.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/members_route.dart';
 
 import '../profile_viewer.dart';
@@ -173,7 +174,9 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
 
   Widget _bodyWidgetPicker(index, squad) {
     return switch (index) {
-      0 => const Text("Achievements"),
+      0 => AchievementsRoute(
+        squad: squad,
+      ),
       1 => MembersSquadRoute(
           squad: squad,
           onChanged: (squad) => setState(() => this.squad = squad),

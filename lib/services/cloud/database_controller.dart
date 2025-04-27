@@ -48,6 +48,8 @@ abstract class DatabaseController {
 
   Stream<List<CloudUser>> fetchUsersForSearch(String query);
 
+  Future<List<CloudAchievement>> fetchAchievements({squadId, userId});
+
   Future<void> initialize();
 
   newFriendRequestsStream(
@@ -60,10 +62,15 @@ abstract class DatabaseController {
 
   unsubscribeNewServerRequestsStream();
 
+  newAchievementsStream(userId, RealtimeCallback insertCallback);
+
+  unsubscribeNewAchievementsStream();
+
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;
     CloudKinRequest.dbController = controller;
     CloudSquadRequest.dbController = controller;
+    CloudAchievement.dbController = controller;
   }
 }

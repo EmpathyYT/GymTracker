@@ -15,7 +15,7 @@ class NotificationsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isEmpty = [
       krqKeyName,
-      othersKeyName
+      achievementsKeyName
     ].any((key) => _notifications[newNotifsKeyName]![key]!.any((e) => !e.read));
 
     return IconButton(

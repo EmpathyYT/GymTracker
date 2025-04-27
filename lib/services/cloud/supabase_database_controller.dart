@@ -154,7 +154,8 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudUser>> fetchUsersForSquadAdding(fromUser, squadId, filter) async {
+  Future<List<CloudUser>> fetchUsersForSquadAdding(
+      fromUser, squadId, filter) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
     final data = await _supabase.rpc(
       "get_users_for_squad_adding",
@@ -166,7 +167,6 @@ class SupabaseDatabaseController implements DatabaseController {
     ).select();
     return data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
   }
-
 
   @override
   Future<CloudSquad?> fetchSquad(squadId, isMember) async {
@@ -421,9 +421,10 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<CloudUser> editUser(String id, String username, String biography) async {
-   try {
-     final res = await _supabase
+  Future<CloudUser> editUser(
+      String id, String username, String biography) async {
+    try {
+      final res = await _supabase
           .from(userTableName)
           .update({
             nameFieldName: username,
@@ -432,9 +433,61 @@ class SupabaseDatabaseController implements DatabaseController {
           .eq(idFieldName, id)
           .select();
       return CloudUser.fromSubabaseMap(res[0]);
-   } on Exception catch (_) {
-     rethrow;
-   }
+    } on Exception catch (_) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<CloudAchievement>> fetchAchievements({squadId, userId}) async {
+    if (squadId == null && userId == null) {
+      throw CouldNotFetchAchievementsException();
+    }
+
+    if (squadId != null) {
+      final data = await _supabase
+          .from(achievementsTableName)
+          .select()
+          .containedBy(achievementSquadsFieldName, [squadId]);
+
+      return data.map((e) => CloudAchievement.fromMap(e)).toList();
+    } else {
+      final data = await _supabase
+          .from(achievementsTableName)
+          .select()
+          .eq(userIdFieldName, userId);
+
+      return data.map((e) => CloudAchievement.fromMap(e)).toList();
+    }
+  }
+
+  @override
+  newAchievementsStream(userId, RealtimeCallback insertCallback) {
+    final RealtimeNotificationsShape insertShape = {
+      0: [],
+    };
+
+    _supabase
+        .channel("server-requests-channel")
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: "public",
+          table: pendingServerRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: recipientFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            insertShape[0] = [event.newRecord];
+            insertCallback(insertShape);
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  unsubscribeNewAchievementsStream() {
+    _supabase.channel("server-requests-channel").unsubscribe();
   }
 }
-
