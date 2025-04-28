@@ -124,9 +124,4 @@ class _SquadTileWidgetState extends State<SquadTileWidget>
     _controller.dispose();
     super.dispose();
   }
-
-  bool _checkForNotifications() {
-    //todo implement notification check
-    throw UnimplementedError();
-  }
 }

@@ -44,7 +44,7 @@ class CloudUser with EquatableMixin {
         squadLimit = data[squadLimitFieldName] ?? 0,
         bio = data[bioFieldName] ?? "",
         level = data[levelFieldName],
-        authId = data[authIdFieldName];
+        authId = data[authIdFieldName] ?? "";
 
   @override
   String toString() {
@@ -52,7 +52,7 @@ class CloudUser with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => [authId];
+  List<Object?> get props => [id];
 
   ///In case param [isOwner] is true, pass the authId as the userId.
   static Future<CloudUser?> fetchUser(userId, bool isOwner) {

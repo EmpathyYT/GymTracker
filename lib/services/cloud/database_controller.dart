@@ -49,6 +49,7 @@ abstract class DatabaseController {
   Stream<List<CloudUser>> fetchUsersForSearch(String query);
 
   Future<List<CloudAchievement>> fetchAchievements({squadId, userId});
+  Future<void> leaveSquad(squadId);
 
   Future<void> initialize();
 

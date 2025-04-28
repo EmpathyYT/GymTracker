@@ -101,7 +101,6 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
                               );
                           _nameController.clear();
                           _descriptionController.clear();
-                          //TODO if it succeeds make it teleport to the squad
                         }
                       },
                       child: const Text("Create Squad"),

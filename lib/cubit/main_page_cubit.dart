@@ -6,6 +6,7 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
@@ -49,10 +50,13 @@ class MainPageCubit extends Cubit<MainPageState> {
         loadingText: "Creating Squad...",
         notifications: state.notifications,
       ));
-      await CloudSquad.createSquad(name, description);
+      final squad = await CloudSquad.createSquad(name, description);
       emit(SquadSelector(
-        notifications: state.notifications,
+        squad: squad,
+        notifications: state.notifications
       ));
+
+
     } catch (e) {
       emit(SquadSelector(
         exception: e as Exception,
@@ -122,6 +126,32 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   void newNotifications(RequestsSortingType notificationDiff) {
     emit(state.copyWith(notifications: notificationDiff));
+  }
+
+  Future<void> leaveSquad(CloudSquad squad) async {
+    emit(
+      SquadSelector(
+        isLoading: true,
+        loadingText: "Leaving Squad...",
+        notifications: state.notifications,
+      ),
+    );
+
+    await CloudSquad.leaveSquad(squad.id);
+
+    emit(
+      SquadSelector(
+        success: true,
+        notifications: state.notifications,
+      ),
+    );
+
+    emit(
+      SquadSelector(
+        success: false,
+        notifications: state.notifications,
+      ),
+    );
   }
 
   Future<void> clearKinNotifications(RequestsSortingType notifications) async {

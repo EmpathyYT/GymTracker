@@ -490,4 +490,16 @@ class SupabaseDatabaseController implements DatabaseController {
   unsubscribeNewAchievementsStream() {
     _supabase.channel("server-requests-channel").unsubscribe();
   }
+
+  @override
+  Future<void> leaveSquad(squadId) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+
+    await _supabase.rpc(
+      "leave_squad",
+      params: {
+        'squad_id': squadId,
+      },
+    );
+  }
 }

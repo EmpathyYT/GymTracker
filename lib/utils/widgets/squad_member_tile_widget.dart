@@ -6,7 +6,7 @@ import '../dialogs/user_info_card_dialog.dart';
 
 class SquadMemberTileWidget extends StatelessWidget {
   final CloudUser user;
-  final VoidCallback onRemove;
+  final Future<void> Function() onRemove;
   final bool isOwner;
   final bool isSelf;
 
@@ -41,12 +41,14 @@ class SquadMemberTileWidget extends StatelessWidget {
       onTap: () => showUserCard(
         context: context,
         user: user,
-        userAction: (isOwner && !isSelf) ? (context) => onRemove() : null,
+        userAction: (isOwner != isSelf)
+            ? (context) async => await onRemove()
+            : null,
         userIcon: const Icon(
           Icons.person_remove,
         ),
       ),
-      trailing: (isOwner && !isSelf)
+      trailing: (isOwner != isSelf)
           ? IconButton(
               onPressed: onRemove,
               icon: const Icon(

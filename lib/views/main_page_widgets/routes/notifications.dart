@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/routes.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/extensions/date_time_extension.dart';
+import 'package:gymtracker/helpers/achievement_sorter.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
@@ -21,7 +23,7 @@ class NotificationsRoute extends StatefulWidget {
 class _NotificationsRouteState extends State<NotificationsRoute> {
   RequestsSortingType? _notifications;
   List<CloudKinRequest> _requestsNotifications = [];
-  List<CloudNotification> _otherNotifications = [];
+  List<CloudAchievement> _otherNotifications = [];
 
   @override
   void didChangeDependencies() {
@@ -104,31 +106,33 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                 text:
                     "The campfire burns quietly.\nNo reports from the frontlines.")
           ],
-          childrenIfTwo: const [
-            Placeholder() //TODO fix this later
-            // Expanded(
-            //   child: ListView.builder(
-            //     itemCount: (_otherNotifications!.length +
-            //         _otherNotifications!.numberOfDifferentDates()),
-            //     itemBuilder: (context, index) {
-            //       return _notificationWidgets![index];
-            // final notificationInfo = normalNotifications![]
-            // return FutureBuilder(
-            //   future: _firestoreUserController
-            //       .fetchUser(notificationInfo.fromUserId),
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState != ConnectionState.done) {
-            //       return _loadingListTile();
-            //     } else if (snapshot.hasError) {
-            //       return _errorListTile();
-            //     }
-            //     return _normalNotificationTile(
-            //         notificationInfo);
-            //   },
-            // );
-            //   },
-            // ),
-            // ),
+          childrenIfTwo: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: _otherNotifications.length,
+                itemBuilder: (context, builder) {
+                  final notificationInfo = _otherNotifications[builder];
+                  return ListTile(
+                    title: Text(
+                      notificationInfo.message,
+                      style: GoogleFonts.oswald(
+                        fontSize: 18,
+                      ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top:4),
+                      child: Text(
+                        notificationInfo.createdAt.toReadableTzTime(),
+                        style: GoogleFonts.montserrat(
+                          fontSize: 15,
+                          color: Colors.white60,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),
@@ -145,18 +149,24 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   }
 
   void _extractNotifications() {
-    final List<CloudNotification> otherNotifs = [];
+    final List<CloudAchievement> otherNotifs = [];
     final List<CloudKinRequest> requestNotifs = [];
 
     _notifications = widget.notifications;
 
     for (final values in _notifications!.values) {
-      otherNotifs.addAll(values[achievementsKeyName] ?? []);
+      otherNotifs.addAll((values[achievementsKeyName] ?? [])
+          .map((e) => e as CloudAchievement)
+          .toList());
+
       requestNotifs.addAll(
           (values[krqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
     }
 
-    _otherNotifications = otherNotifs;
+    _otherNotifications = AchievementSorter.sortByDate(
+      achievements: otherNotifs
+    ).achievementsSorted;
+
     _requestsNotifications = requestNotifs;
   }
 }

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/extensions/date_time_extension.dart';
+import 'package:gymtracker/helpers/achievement_sorter.dart';
+import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
 import '../../../../services/cloud/cloud_squads.dart';
 
@@ -12,6 +16,18 @@ class AchievementsRoute extends StatefulWidget {
 }
 
 class _AchievementsRouteState extends State<AchievementsRoute> {
+  final achievements = <CloudAchievement>[];
+
+  @override
+  void initState() {
+    super.initState();
+    final newAchievements = AchievementSorter.sortByDate(
+      achievements: achievements,
+      squad: widget.squad,
+    ).achievementsSorted;
+    achievements.addAll(newAchievements);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -42,9 +58,26 @@ class _AchievementsRouteState extends State<AchievementsRoute> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 9),
                 child: ListView.builder(
-                  itemCount: widget.squad.achievements.length,
+                  itemCount: achievements.length,
                   itemBuilder: (context, index) {
-                    Text("soemthign");
+                    return ListTile(
+                      title: Text(
+                        achievements[index].message,
+                        style: GoogleFonts.oswald(
+                          fontSize: 20,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top:4),
+                        child: Text(
+                          achievements[index].createdAt.toReadableTzTime(),
+                          style: GoogleFonts.montserrat(
+                            fontSize: 17,
+                            color: Colors.white60,
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),

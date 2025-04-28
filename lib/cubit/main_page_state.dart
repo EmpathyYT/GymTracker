@@ -47,6 +47,8 @@ final class ProfileViewer extends MainPageState {
 }
 
 final class SquadSelector extends MainPageState {
+  final CloudSquad? squad;
+
   const SquadSelector(
       {
         super.exception,
@@ -54,6 +56,7 @@ final class SquadSelector extends MainPageState {
         super.loadingText = "",
         super.success = false,
         super.notifications,
+        this.squad
       });
 
   @override

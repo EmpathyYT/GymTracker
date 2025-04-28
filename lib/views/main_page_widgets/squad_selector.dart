@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -38,67 +36,81 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 10, bottom: 10),
-        ),
-        UniversalCard(
-          flipToTwo: _squadNotifications!.any((e) => e.read != true),
-          iconCallBack: () async => await _cardIconCallBack(context),
-          title1: "No New Squads Calling",
-          title2: (_squadNotifications!.length == 1)
-              ? "A Squad Calls upon you"
-              : "Multiple Squads Calling upon you",
-        ),
-        const Padding(padding: EdgeInsets.all(2.0)),
-        Container(
-          padding: const EdgeInsets.only(
-            top: 3,
-            bottom: 3,
-            left: 5,
-            right: 5,
+    return BlocListener<MainPageCubit, MainPageState>(
+      listenWhen: (previous, current) {
+        if (current is SquadSelector) {
+          return current.squad != null;
+        }
+        return false;
+      },
+      listener: (context, state) async {
+        state as SquadSelector;
+        Navigator.of(context).pop();
+        _pushSquadRoute(context, state.squad!);
+        await _forceUpdateSquads();
+      },
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
           ),
-          child: const Divider(
-            thickness: 0.9,
-            color: Colors.white60,
+          UniversalCard(
+            flipToTwo: _squadNotifications!.any((e) => e.read != true),
+            iconCallBack: () async => await _srqCardIconCallBack(context),
+            title1: "No New Squads Calling",
+            title2: (_squadNotifications!.length == 1)
+                ? "A Squad Calls upon you"
+                : "Multiple Squads Calling upon you",
           ),
-        ),
-        DoubleWidgetFlipper(
-          buildOne: ({child, children}) => Expanded(
-            child: child!,
-          ),
-          buildTwo: ({child, children}) => Expanded(
-            child: ListView.builder(
-              itemCount: _squads!.length,
-              itemBuilder: (context, index) {
-                return _buildListItems(index);
-              },
+          const Padding(padding: EdgeInsets.all(2.0)),
+          Container(
+            padding: const EdgeInsets.only(
+              top: 3,
+              bottom: 3,
+              left: 5,
+              right: 5,
+            ),
+            child: const Divider(
+              thickness: 0.9,
+              color: Colors.white60,
             ),
           ),
-          childrenIfOne: const [
-            BigCenteredText(text: "You stand without a squad.\nFor now."),
-          ],
-          childrenIfTwo: const [
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
-            //   child: Align(
-            //     alignment: Alignment.topLeft,
-            //     child: Text(_buildSubtitleText(),
-            //         softWrap: true,
-            //         style: const TextStyle(
-            //           fontSize: 12,
-            //           color: Colors.grey,
-            //           fontWeight: FontWeight.bold,
-            //         )),
-            //   ),
-            // ),
-          ],
-          isOneChild: true,
-          isTwoChild: false,
-          flipToTwo: _squads?.isNotEmpty ?? false,
-        ),
-      ],
+          DoubleWidgetFlipper(
+            buildOne: ({child, children}) => Expanded(
+              child: child!,
+            ),
+            buildTwo: ({child, children}) => Expanded(
+              child: ListView.builder(
+                itemCount: _squads!.length,
+                itemBuilder: (context, index) {
+                  return _buildListItems(index);
+                },
+              ),
+            ),
+            childrenIfOne: const [
+              BigCenteredText(text: "You stand without a squad.\nFor now."),
+            ],
+            childrenIfTwo: const [
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
+              //   child: Align(
+              //     alignment: Alignment.topLeft,
+              //     child: Text(_buildSubtitleText(),
+              //         softWrap: true,
+              //         style: const TextStyle(
+              //           fontSize: 12,
+              //           color: Colors.grey,
+              //           fontWeight: FontWeight.bold,
+              //         )),
+              //   ),
+              // ),
+            ],
+            isOneChild: true,
+            isTwoChild: false,
+            flipToTwo: _squads?.isNotEmpty ?? false,
+          ),
+        ],
+      ),
     );
   }
 
@@ -113,7 +125,6 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         }
 
         if (snapshot.hasError) {
-          log(snapshot.error.toString());
           return const ErrorListTile();
         }
 
@@ -125,21 +136,33 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
           title: server!.name,
           hasUnreadNotifications: server.achievements.any((e) => !e.read),
           iconCallBack: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<MainPageCubit>(),
-                  child: SquadPageRoute(squad: server),
-                ),
-              ),
-            );
+            _pushSquadRoute(context, server);
           },
         );
       },
     );
   }
 
-  Future<void> _cardIconCallBack(BuildContext context) async {
+  void _pushSquadRoute(BuildContext context, CloudSquad server) {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<MainPageCubit>(),
+              child: SquadPageRoute(squad: server),
+            ),
+          ),
+        )
+        .then(
+          (e) {
+            if (e) {
+              _forceUpdateSquads();
+            }
+          },
+        );
+  }
+
+  Future<void> _srqCardIconCallBack(BuildContext context) async {
     await Navigator.of(context)
         .push(
       MaterialPageRoute(
@@ -174,6 +197,15 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         lastUpdate!.difference(DateTime.now()).inSeconds < 10) {
       return;
     }
+
+    setState(() {
+      lastUpdate = DateTime.now();
+      _squads = context.read<MainPageCubit>().currentUser.squads;
+    });
+  }
+
+  Future<void> _forceUpdateSquads() async {
+    await context.read<MainPageCubit>().reloadUser();
 
     setState(() {
       lastUpdate = DateTime.now();

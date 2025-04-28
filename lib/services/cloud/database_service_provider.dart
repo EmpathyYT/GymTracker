@@ -132,4 +132,7 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   unsubscribeNewAchievementsStream() =>
       _provider.unsubscribeNewAchievementsStream();
+
+  @override
+  Future<void> leaveSquad(squadId) => _provider.leaveSquad(squadId);
 }

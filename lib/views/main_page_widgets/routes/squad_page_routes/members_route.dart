@@ -132,18 +132,30 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
                             }
 
                             final user = snapshot.data!;
-
                             return SquadMemberTileWidget(
-                              isSelf: user.id == this.user!.id,
+                              isSelf: user == this.user!,
                               isOwner: widget.squad.ownerId == this.user!.id,
                               user: user,
                               onRemove: () async {
-                                final squad = await context
-                                    .read<MainPageCubit>()
-                                    .removeMember(widget.squad, user.id);
+                                if (this.user != user) {
+                                  final squad = await context
+                                      .read<MainPageCubit>()
+                                      .removeMember(widget.squad, user.id);
 
-                                if (squad != null) {
-                                  widget.onChanged(squad);
+                                  if (squad != null) {
+                                    widget.onChanged(squad);
+                                  }
+                                } else {
+                                  await context
+                                      .read<MainPageCubit>()
+                                      .leaveSquad(widget.squad);
+
+                                  if (context.mounted) {
+                                    Navigator.pop(
+                                      context,
+                                      true,
+                                    );
+                                  }
                                 }
                               },
                             );
@@ -163,6 +175,6 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
 
   String _buildSubtitleText() {
     return "This Squad is composed of ${squadMembers!.length} "
-        "${squadMembers!.length + 1 == 1 ? "Warrior" : "Warriors"}";
+        "${squadMembers!.length == 1 ? "Warrior" : "Warriors"}";
   }
 }
