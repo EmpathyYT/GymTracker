@@ -48,10 +48,16 @@ class CloudSquad {
     return dbController.removeUserFromSquad(userId, id);
   }
 
+  Future<CloudSquad> edit(
+      String name,
+      String description,
+    ) async {
+    return dbController.editSquad(id, name, description);
+  }
+
   static Future<void> leaveSquad(squadId) async {
     return dbController.leaveSquad(squadId);
   }
-
 
   Future<void> getAchievements() async {
     final achievements = await CloudAchievement.fetchSquadAchievements(id);

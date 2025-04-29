@@ -6,7 +6,6 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
-import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
@@ -30,9 +29,12 @@ class MainPageCubit extends Cubit<MainPageState> {
         emit(KinViewer(notifications: notifications));
         break;
       case 2:
-        emit(ProfileViewer(notifications: notifications));
+        emit(WorkoutPlanner(notifications: notifications));
         break;
       case 3:
+        emit(ProfileViewer(notifications: notifications));
+        break;
+      case 4:
         emit(Settings(notifications: notifications));
         break;
       default:
@@ -51,12 +53,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         notifications: state.notifications,
       ));
       final squad = await CloudSquad.createSquad(name, description);
-      emit(SquadSelector(
-        squad: squad,
-        notifications: state.notifications
-      ));
-
-
+      emit(SquadSelector(squad: squad, notifications: state.notifications));
     } catch (e) {
       emit(SquadSelector(
         exception: e as Exception,
@@ -189,10 +186,10 @@ class MainPageCubit extends Cubit<MainPageState> {
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
 
     final srqData =
-        await CloudSquadRequest.fetchServerRequests(_currentUser.id);
+    await CloudSquadRequest.fetchServerRequests(_currentUser.id);
 
     final achievements =
-        await CloudAchievement.fetchUserAchievements(_currentUser.id);
+    await CloudAchievement.fetchUserAchievements(_currentUser.id);
 
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
@@ -206,7 +203,6 @@ class MainPageCubit extends Cubit<MainPageState> {
         achievementsKeyName: [],
       }
     };
-
 
     for (final frq in frqData) {
       if (frq.read) {
@@ -241,7 +237,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     listeningToNotifications = true;
     CloudKinRequest.friendRequestListener(
       _currentUser.id,
-      (RealtimeNotificationsShape event) {
+          (RealtimeNotificationsShape event) {
         final RequestsSortingType currNotifications = state.notifications!;
         final newNotification = CloudKinRequest.fromMap(event[0]!.first);
 
@@ -250,19 +246,20 @@ class MainPageCubit extends Cubit<MainPageState> {
             notifications: currNotifications
               ..update(
                 newNotifsKeyName,
-                (e) => e
+                    (e) =>
+                e
                   ..update(
                     krqKeyName,
-                    (e) => e..add(newNotification),
+                        (e) => e..add(newNotification),
                   ),
               ),
           ),
         );
       },
-      (RealtimeNotificationsShape event) {
+          (RealtimeNotificationsShape event) {
         final (oldSrq, newSrq) = (
-          CloudKinRequest.fromMap(event[0]!.first),
-          CloudKinRequest.fromMap(event[1]!.first)
+        CloudKinRequest.fromMap(event[0]!.first),
+        CloudKinRequest.fromMap(event[1]!.first)
         );
         if (newSrq.accepted != false) {
           log("event.toString()");
@@ -272,7 +269,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     CloudSquadRequest.serverRequestListener(
       _currentUser.id,
-      (RealtimeNotificationsShape event) {
+          (RealtimeNotificationsShape event) {
         final RequestsSortingType currNotifications = state.notifications!;
         final newNotification = CloudSquadRequest.fromMap(event[0]!.first);
         emit(
@@ -280,19 +277,20 @@ class MainPageCubit extends Cubit<MainPageState> {
             notifications: currNotifications
               ..update(
                 newNotifsKeyName,
-                (e) => e
+                    (e) =>
+                e
                   ..update(
                     srqKeyName,
-                    (e) => e..add(newNotification),
+                        (e) => e..add(newNotification),
                   ),
               ),
           ),
         );
       },
-      (RealtimeNotificationsShape event) {
+          (RealtimeNotificationsShape event) {
         final (oldSrq, newSrq) = (
-          CloudSquadRequest.fromMap(event[0]!.first),
-          CloudSquadRequest.fromMap(event[1]!.first)
+        CloudSquadRequest.fromMap(event[0]!.first),
+        CloudSquadRequest.fromMap(event[1]!.first)
         );
         if (newSrq.accepted != false) {
           log("event.toString()");
@@ -302,17 +300,18 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     CloudAchievement.achievementListener(
       _currentUser.id,
-      (RealtimeNotificationsShape event) {
+          (RealtimeNotificationsShape event) {
         final RequestsSortingType currNotifications = state.notifications!;
         final newNotification = CloudAchievement.fromMap(event[0]!.first);
         emit(state.copyWith(
           notifications: currNotifications
             ..update(
               newNotifsKeyName,
-              (e) => e
+                  (e) =>
+              e
                 ..update(
                   achievementsKeyName,
-                  (e) => e..add(newNotification),
+                      (e) => e..add(newNotification),
                 ),
             ),
         ));
@@ -331,12 +330,43 @@ class MainPageCubit extends Cubit<MainPageState> {
     _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
   }
 
-  void _addMissingNotifications(
-      Map currentNotifications, List oldData, List newData, String key) {
+  void _addMissingNotifications(Map currentNotifications, List oldData,
+      List newData, String key) {
     for (final notification in newData) {
       if (!oldData.contains(notification)) {
         currentNotifications[newNotifsKeyName]?[key]?.add(notification);
       }
+    }
+  }
+
+  Future<CloudSquad?> editSquad({
+    required CloudSquad squad,
+    required String name,
+    required String description,
+  }) async {
+    try {
+      emit(SquadSelector(
+        isLoading: true,
+        loadingText: "Editing Squad...",
+        notifications: state.notifications,
+      ));
+      final newSquad = await squad.edit(name, description);
+
+      emit(SquadSelector(
+        success: true,
+        notifications: state.notifications,
+      ));
+      emit(SquadSelector(
+        success: false,
+        notifications: state.notifications,
+      ));
+      return newSquad;
+    } catch (e) {
+      emit(SquadSelector(
+        exception: e as Exception,
+        notifications: state.notifications,
+      ));
+      return null;
     }
   }
 

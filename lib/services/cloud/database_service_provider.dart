@@ -135,4 +135,8 @@ class DatabaseServiceProvider implements DatabaseController {
 
   @override
   Future<void> leaveSquad(squadId) => _provider.leaveSquad(squadId);
+
+  @override
+  Future<CloudSquad> editSquad(String id, String name, String description) =>
+      _provider.editSquad(id, name, description);
 }

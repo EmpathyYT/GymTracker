@@ -87,8 +87,20 @@ class InvalidUserNameFormatException implements Exception {
   final String message = 'Invalid username format';
 }
 
+class InvalidSquadNameFormatException implements Exception {
+  final String message = 'Invalid squad name format';
+}
+
 class InvalidBioFormatException implements Exception {
   final String message = 'Invalid biography format';
+}
+
+class InvalidSquadBioFormatException implements Exception {
+  final String message = 'Invalid squad biography format';
+}
+
+class SquadDescriptionTooLongException implements Exception {
+  final String message = 'Squad description too long';
 }
 
 class NoChangesMadeException implements Exception {

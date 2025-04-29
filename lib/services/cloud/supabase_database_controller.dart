@@ -421,6 +421,24 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
+  Future<CloudSquad> editSquad(
+      String id, String name, String description) async {
+    try {
+      final res = await _supabase
+          .from(squadTableName)
+          .update({
+            squadNameFieldName: name,
+            squadDescriptionFieldName: description,
+          })
+          .eq(idFieldName, id)
+          .select();
+      return CloudSquad.fromSupabaseMap(res[0]);
+    } on Exception catch (_) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<CloudUser> editUser(
       String id, String username, String biography) async {
     try {

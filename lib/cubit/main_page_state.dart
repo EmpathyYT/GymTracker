@@ -1,7 +1,5 @@
 part of 'main_page_cubit.dart';
 
-
-
 abstract class MainPageState {
   final Exception? exception;
   final bool isLoading;
@@ -12,26 +10,21 @@ abstract class MainPageState {
   MainPageState copyWith({RequestsSortingType? notifications});
 
   const MainPageState(
-      {
-        this.exception,
-        this.isLoading = false,
-        this.loadingText = "",
-        this.success = false,
-        this.notifications
-      });
-
-
+      {this.exception,
+      this.isLoading = false,
+      this.loadingText = "",
+      this.success = false,
+      this.notifications});
 }
 
 final class ProfileViewer extends MainPageState {
-  const ProfileViewer(
-      {
-        super.exception,
-        super.isLoading = false,
-        super.loadingText = "",
-        super.success = false,
-        super.notifications,
-      });
+  const ProfileViewer({
+    super.exception,
+    super.isLoading = false,
+    super.loadingText = "",
+    super.success = false,
+    super.notifications,
+  });
 
   @override
   MainPageState copyWith({RequestsSortingType? notifications}) {
@@ -43,21 +36,39 @@ final class ProfileViewer extends MainPageState {
       notifications: notifications,
     );
   }
+}
 
+final class WorkoutPlanner extends MainPageState {
+  const WorkoutPlanner({
+    super.exception,
+    super.isLoading = false,
+    super.loadingText = "",
+    super.success = false,
+    super.notifications,
+  });
+
+  @override
+  WorkoutPlanner copyWith({RequestsSortingType? notifications}) {
+    return WorkoutPlanner(
+      exception: exception,
+      isLoading: isLoading,
+      loadingText: loadingText,
+      success: success,
+      notifications: notifications,
+    );
+  }
 }
 
 final class SquadSelector extends MainPageState {
   final CloudSquad? squad;
 
   const SquadSelector(
-      {
-        super.exception,
-        super.isLoading = false,
-        super.loadingText = "",
-        super.success = false,
-        super.notifications,
-        this.squad
-      });
+      {super.exception,
+      super.isLoading = false,
+      super.loadingText = "",
+      super.success = false,
+      super.notifications,
+      this.squad});
 
   @override
   SquadSelector copyWith({RequestsSortingType? notifications}) {
@@ -69,19 +80,16 @@ final class SquadSelector extends MainPageState {
       notifications: notifications,
     );
   }
-
-
 }
 
 final class KinViewer extends MainPageState {
-  const KinViewer(
-      {
-        super.exception,
-        super.isLoading = false,
-        super.loadingText = "",
-        super.success = false,
-        super.notifications,
-      });
+  const KinViewer({
+    super.exception,
+    super.isLoading = false,
+    super.loadingText = "",
+    super.success = false,
+    super.notifications,
+  });
 
   @override
   KinViewer copyWith({RequestsSortingType? notifications}) {
@@ -93,7 +101,6 @@ final class KinViewer extends MainPageState {
       notifications: notifications,
     );
   }
-
 }
 
 // final class NewSquad extends MainPageState {
@@ -120,14 +127,13 @@ final class KinViewer extends MainPageState {
 // }
 
 final class Settings extends MainPageState {
-  const Settings(
-      {
-        super.exception,
-        super.isLoading = false,
-        super.loadingText = "",
-        super.success = false,
-        super.notifications,
-      });
+  const Settings({
+    super.exception,
+    super.isLoading = false,
+    super.loadingText = "",
+    super.success = false,
+    super.notifications,
+  });
 
   @override
   Settings copyWith({RequestsSortingType? notifications}) {
@@ -139,5 +145,4 @@ final class Settings extends MainPageState {
       notifications: notifications,
     );
   }
-
 }

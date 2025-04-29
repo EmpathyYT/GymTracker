@@ -18,6 +18,7 @@ import '../bloc/auth_state.dart';
 import '../helpers/loading/loading_dialog.dart';
 import '../services/cloud/cloud_user.dart';
 import '../utils/widgets/notifications_button.dart';
+import 'main_page_widgets/workout_planner.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -32,10 +33,11 @@ class _MainPageState extends State<MainPage> {
   VoidCallback? _notificationUnsubscribe;
   CloudUser? _currentUser;
   final destinations = const {
-    "Clan Selector": Icon(Icons.groups),
-    "Kinship Board": Icon(Icons.handshake),
-    "Profile Viewer": Icon(Icons.account_circle),
-    "Settings": Icon(Icons.settings)
+    "Clan Selector": Icon(Icons.groups, size: 30),
+    "Kinship Board": Icon(Icons.handshake, size: 30),
+    "Plan Workout": Icon(Icons.fitness_center, size: 30),
+    "Profile Viewer": Icon(Icons.account_circle, size: 30),
+    "Settings": Icon(Icons.settings, size: 30)
   };
 
   @override
@@ -111,14 +113,37 @@ class _MainPageState extends State<MainPage> {
                   ],
                 ),
                 body: _mainWidgetPicker(state),
-                bottomNavigationBar: NavigationBar(
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: (int index) {
-                    context
-                        .read<MainPageCubit>()
-                        .changePage(index, notifications: state.notifications);
-                  },
-                  destinations: _destinationArrayBuilder(destinations),
+                bottomNavigationBar: BottomAppBar(
+                  shape: AutomaticNotchedShape(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ), //TODO draw custom shape
+                  color: darkenColor(
+                    Theme.of(context).scaffoldBackgroundColor,
+                    0.1,
+                  ),
+                  child: NavigationBar(
+                    backgroundColor: darkenColor(
+                      Theme.of(context).scaffoldBackgroundColor,
+                      0.1,
+                    ),
+                    height: 60,
+                    selectedIndex: currentIndex,
+                    destinations: _destinationArrayBuilder(destinations),
+                    onDestinationSelected: (int index) {
+                      context.read<MainPageCubit>().changePage(
+                            index,
+                            notifications: state.notifications,
+                          );
+                    },
+                    animationDuration: const Duration(milliseconds: 200),
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.alwaysHide,
+                  ),
                 ),
               );
             },
@@ -140,6 +165,10 @@ class _MainPageState extends State<MainPage> {
           child: ProfileViewerWidget(),
         ),
       Settings() => const Text("Settings"),
+      WorkoutPlanner() => const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: WorkoutPlannerWidget(),
+        ),
       _ => const Text("Error")
     };
   }
@@ -152,11 +181,14 @@ class _MainPageState extends State<MainPage> {
     } else if (state is KinViewer) {
       currentIndex = 1;
       _title = "Kinship Board";
-    } else if (state is ProfileViewer) {
+    } else if (state is WorkoutPlanner) {
       currentIndex = 2;
+      _title = "Workout Planner";
+    } else if (state is ProfileViewer) {
+      currentIndex = 3;
       _title = "Profile Viewer";
     } else if (state is Settings) {
-      currentIndex = 3;
+      currentIndex = 4;
       _title = "Settings";
     } else {
       currentIndex = 0;
@@ -166,7 +198,7 @@ class _MainPageState extends State<MainPage> {
 
   List<Widget> _destinationArrayBuilder(Map destinations) {
     return destinations.entries
-        .map((e) => NavigationDestination(icon: e.value, label: e.key))
+        .map((e) => NavigationDestination(icon: e.value, label: ""))
         .toList();
   }
 

@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/utils/widgets/member_add_button.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/achievements_route.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/edit_squad_route.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/members_route.dart';
 
+import '../../../services/cloud/cloud_user.dart';
 import '../profile_viewer.dart';
 
 class SquadPageRoute extends StatefulWidget {
@@ -21,6 +25,7 @@ class SquadPageRoute extends StatefulWidget {
 
 class _SquadPageRouteState extends State<SquadPageRoute> {
   late CloudSquad squad;
+  late CloudUser currentUser;
   Widget? body;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
@@ -29,12 +34,19 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   void initState() {
     super.initState();
     squad = widget.squad;
-    body = _bodyWidgetPicker(_selectedIndex, squad);
+    body = _bodyWidgetPicker(_selectedIndex);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    currentUser = context.read<MainPageCubit>().currentUser;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       appBar: AppBar(
         titleSpacing: 0,
@@ -139,7 +151,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                 setState(() {
                   squad = newSquad;
                   _selectedIndex = 0;
-                  body = _bodyWidgetPicker(_selectedIndex, squad);
+                  body = _bodyWidgetPicker(_selectedIndex);
                 });
               },
             ),
@@ -152,10 +164,23 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                 setState(() {
                   squad = newSquad;
                   _selectedIndex = 1;
-                  body = _bodyWidgetPicker(_selectedIndex, squad);
+                  body = _bodyWidgetPicker(_selectedIndex);
                 });
               },
             ),
+            currentUser.id == squad.ownerId
+                ? ListTile(
+                    selected: _selectedIndex == 2,
+                    title: const Text('Squad Settings'),
+                    onTap: () async {
+                      _closeDrawer();
+                      setState(() {
+                        _selectedIndex = 2;
+                        body = _bodyWidgetPicker(_selectedIndex);
+                      });
+                    },
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -172,12 +197,16 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
     }
   }
 
-  Widget _bodyWidgetPicker(index, squad) {
+  Widget _bodyWidgetPicker(index) {
     return switch (index) {
       0 => AchievementsRoute(
-        squad: squad,
-      ),
+          squad: squad,
+        ),
       1 => MembersSquadRoute(
+          squad: squad,
+          onChanged: (squad) => setState(() => this.squad = squad),
+        ),
+    2 => EditSquadRoute(
           squad: squad,
           onChanged: (squad) => setState(() => this.squad = squad),
         ),
@@ -188,5 +217,4 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   Future<CloudSquad> _reloadSquad() async {
     return (await CloudSquad.fetchSquad(squad.id, true))!;
   }
-
 }

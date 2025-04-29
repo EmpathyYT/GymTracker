@@ -53,6 +53,9 @@ abstract class DatabaseController {
 
   Future<void> initialize();
 
+  Future<CloudSquad> editSquad(
+      String id, String name, String description);
+
   newFriendRequestsStream(
       userId, RealtimeCallback insertCallback, RealtimeCallback updateCallback);
 
