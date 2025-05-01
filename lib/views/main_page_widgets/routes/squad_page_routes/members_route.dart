@@ -67,7 +67,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
         buildTwo: ({child, children}) => Column(children: children!),
         isOneChild: false,
         isTwoChild: false,
-        flipToTwo: squadMembers?.isNotEmpty ?? false,
+        flipToTwo: (squadMembers?.length ?? 0) > 1,
         childrenIfOne: [
           const Icon(Icons.shield_outlined, size: 80, color: Colors.white24),
           const SizedBox(height: 16),
