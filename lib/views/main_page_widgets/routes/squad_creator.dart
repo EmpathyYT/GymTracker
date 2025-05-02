@@ -61,7 +61,7 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
             child: Text(
               'Clan Creator',
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),
@@ -71,26 +71,25 @@ class _SquadCreatorWidgetState extends State<SquadCreatorWidget> {
           child: Form(
             key: _formKey,
             child: Align(
-              alignment: Alignment.topLeft, // Aligns the content to the top-left
+              alignment: Alignment.topLeft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                // Ensures children align to the left within the Column
                 mainAxisSize: MainAxisSize.min,
-                // Minimizes the Column's height
+
                 children: [
                   const Text("Name:"),
                   TextFormField(
                     controller: _nameController,
 
                   ),
-                  const SizedBox(height: 15), // Optional spacing between fields
+                  const SizedBox(height: 15),
                   const Text("Description:"),
                   TextFormField(
                     controller: _descriptionController,
                     minLines: 1,
                     maxLines: 5,
                   ),
-                  const SizedBox(height: 20), // Optional spacing
+                  const SizedBox(height: 20),
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {

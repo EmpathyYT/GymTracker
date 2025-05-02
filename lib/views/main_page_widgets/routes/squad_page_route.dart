@@ -96,7 +96,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
               Text(
                 squad.name,
                 style: GoogleFonts.oswald(
-                  fontSize: 35,
+                  fontSize: appBarTitleSize,
                 ),
               ),
             ],
@@ -126,7 +126,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                   Text(
                     squad.name,
                     style: GoogleFonts.oswald(
-                      fontSize: 35,
+                      fontSize: appBarTitleSize,
                       color: Colors.white,
                     ),
                   ),

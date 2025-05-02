@@ -76,7 +76,7 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
             child: Text(
               'Send Kinship Call',
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),

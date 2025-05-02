@@ -59,7 +59,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
             child: Text(
               "Frontline Reports",
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),

@@ -7,6 +7,7 @@ const achievementsKeyName = 'achievements';
 const oldNotifsKeyName = 'oldNotifs';
 const newNotifsKeyName = 'newNotifs';
 const appBarHeight = 70.0;
+const appBarTitleSize = 35.0;
 const appBarPadding = 7.0;
 const glowLevel = 10;
 

@@ -57,12 +57,14 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
         childrenIfTwo: [
           Align(
             alignment: Alignment.topLeft,
-            child: Text(_buildSubtitleText(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                )),
+            child: Text(
+              _buildSubtitleText(),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const Padding(padding: EdgeInsets.only(bottom: 10, top: 10)),
           Expanded(

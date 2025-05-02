@@ -52,7 +52,7 @@ class _KinRequestRouteState extends State<KinRequestRoute> {
             child: Text(
               "Kinship Calls",
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),

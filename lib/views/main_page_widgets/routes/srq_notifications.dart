@@ -58,7 +58,7 @@ class _SrqNotificationsWidgetState extends State<SrqNotificationsWidget> {
             child: Text(
               "Squad Calls",
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),

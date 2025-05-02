@@ -91,7 +91,7 @@ class _MainPageState extends State<MainPage> {
                     child: Text(
                       _title,
                       style: GoogleFonts.oswald(
-                        fontSize: 35,
+                        fontSize: appBarTitleSize,
                       ),
                     ),
                   ),

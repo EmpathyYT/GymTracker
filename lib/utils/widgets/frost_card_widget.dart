@@ -53,7 +53,7 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  margin: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(8),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -72,7 +72,7 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  margin: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(8),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(
                       sigmaX: widget.blurSigma,

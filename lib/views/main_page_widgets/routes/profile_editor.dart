@@ -67,7 +67,7 @@ class _ProfileEditorWidgetState extends State<ProfileEditorWidget> {
             child: Text(
               "Profile Editor",
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),

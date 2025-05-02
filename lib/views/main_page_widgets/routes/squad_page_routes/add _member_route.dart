@@ -82,7 +82,7 @@ class _AddMemberRouteState extends State<AddMemberRoute> {
             child: Text(
               'Send Warrior Call',
               style: GoogleFonts.oswald(
-                fontSize: 35,
+                fontSize: appBarTitleSize,
               ),
             ),
           ),
