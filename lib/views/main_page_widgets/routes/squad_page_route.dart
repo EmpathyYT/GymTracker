@@ -206,7 +206,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
           squad: squad,
           onChanged: (squad) => setState(() => this.squad = squad),
         ),
-    2 => EditSquadRoute(
+      2 => EditSquadRoute(
           squad: squad,
           onChanged: (squad) => setState(() => this.squad = squad),
         ),

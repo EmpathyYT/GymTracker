@@ -7,16 +7,16 @@ import 'package:tuple/tuple.dart';
 
 class FrostCardWidget extends StatefulWidget {
   final Widget widget;
-  final Color frostColor;
   final double blurSigma;
   final Key frostKey;
+  final int level;
 
   const FrostCardWidget({
     super.key,
     required this.widget,
-    required this.frostColor,
     required this.blurSigma,
     required this.frostKey,
+    required this.level,
   });
 
   @override
@@ -26,6 +26,7 @@ class FrostCardWidget extends StatefulWidget {
 class _FrostCardWidgetState extends State<FrostCardWidget>
     with AutomaticKeepAliveClientMixin {
   List _cachedGradient = [];
+  Color? _frostColor;
 
   @override
   bool get wantKeepAlive => true;
@@ -33,6 +34,7 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
   @override
   void initState() {
     super.initState();
+    _frostColor = frostColorBuilder();
     _cachedGradient = _generateRandomBackgroundColor().toList();
   }
 
@@ -86,11 +88,11 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
 
             Container(
               decoration: BoxDecoration(
-                color: frostColor.withOpacity(0.3),
+                color: _frostColor!.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: frostColor.withOpacity(0.15),
+                    color: _frostColor!.withOpacity(0.15),
                     blurRadius: 10,
                     spreadRadius: 0.5,
                     offset: Offset(0, 2),
@@ -136,7 +138,18 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
     );
   }
 
-  Color get frostColor => widget.frostColor;
+  Color frostColorBuilder() {
+    return switch (level) {
+      == 2 => borderColors[0].item1,
+      >= 3 && <= 5 => borderColors[1].item1,
+      >= 6 && <= 10 => borderColors[2].item1,
+      >= 11 && <= 20 => borderColors[3].item1,
+      >= 21 && <= 49 => borderColors[4].item1,
+      >= 50 => Colors.deepPurpleAccent,
+      _ => const Color(0xff00599F),
+    };
+  }
 
+  int get level => widget.level;
   Widget get widgetToFrost => widget.widget;
 }

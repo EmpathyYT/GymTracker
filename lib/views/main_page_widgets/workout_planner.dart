@@ -20,6 +20,8 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
   CloudUser? _user;
   List<Widget>? _carouselItems;
 
+
+
   @override
   void didChangeDependencies() {
     _user ??= context.read<MainPageCubit>().currentUser;
@@ -34,21 +36,10 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     );
   }
 
-  Color frostColorBuilder() {
-    return switch (_user!.level) {
-      == 2 => borderColors[0].item1,
-      >= 3 && <= 5 => borderColors[1].item1,
-      >= 6 && <= 10 => borderColors[2].item1,
-      >= 11 && <= 20 => borderColors[3].item1,
-      >= 21 && <= 49 => borderColors[4].item1,
-      >= 50 => Colors.deepPurpleAccent,
-      _ => const Color(0xff00599F),
-    };
-  }
-
   List<Widget> _generateCarouselItems() {
     return [
       FrostCardWidget(
+        level: _user!.level,
         frostKey: const PageStorageKey("frost_item_1"),
         blurSigma: 10,
         widget: Column(
@@ -87,7 +78,6 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
             ),
           ],
         ),
-        frostColor: frostColorBuilder(),
       ),
       // FrostCardWidget(
       //   frostKey: const PageStorageKey("frost_item_0"),

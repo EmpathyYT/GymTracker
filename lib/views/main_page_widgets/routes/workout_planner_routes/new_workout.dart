@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:tuple/tuple.dart';
+
+import '../../../../utils/widgets/workout_builder_widget.dart';
 
 class NewWorkoutRoute extends StatefulWidget {
   const NewWorkoutRoute({super.key});
@@ -10,9 +15,33 @@ class NewWorkoutRoute extends StatefulWidget {
 }
 
 class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
+  TextEditingController exerciseNameController = TextEditingController();
+  TextEditingController exerciseRepsController = TextEditingController();
+  TextEditingController exerciseSetsController = TextEditingController();
+  final StreamController<FilteredExerciseFormat> _controller =
+      StreamController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.add({
+      1: [],
+    });
+  }
+
+  @override
+  void dispose() {
+    exerciseNameController.dispose();
+    exerciseRepsController.dispose();
+    exerciseSetsController.dispose();
+    _controller.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: appBarHeight,
         scrolledUnderElevation: 0,
@@ -41,119 +70,24 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
             ),
           ),
           const SizedBox(
-            height: 80,
+            height: 50,
           ),
-          Text(
-            "Day 1",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.oswald(
-              fontSize: 30,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.6,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white60,
-                width: 0.9,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        counterText: "",
-                        border: InputBorder.none,
-                        hintText: "Exercise Name",
-                        hintStyle: GoogleFonts.montserrat(
-                          color: Colors.grey,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      autofocus: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      maxLength: 50,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  "X",
-                  style: GoogleFonts.oswald(
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 30,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        counterText: "",
-                        border: InputBorder.none,
-                        hintText: "S",
-                        hintStyle: GoogleFonts.montserrat(
-                          color: Colors.grey,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      maxLength: 2,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  "X",
-                  style: GoogleFonts.oswald(
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 30,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        counterText: "",
-                        border: InputBorder.none,
-                        hintText: "R",
-                        hintStyle: GoogleFonts.montserrat(
-                          color: Colors.grey,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      maxLength: 2,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {},
-            child: const Icon(
-              Icons.arrow_downward,
-              size: 35,
-            ),
+          ExerciseBuilderWidget(
+            exerciseStream: _controller.stream,
+            day: 1, //paginate this obviously
           ),
         ],
       ),
     );
+  }
+
+  void _addToStream(int day, Tuple3 exercise) async {
+    _controller.sink.add({
+      ...await _controller.stream.last,
+    }..update(
+        day,
+        (e) => e..add(exercise),
+        ifAbsent: () => [exercise],
+      ));
   }
 }
