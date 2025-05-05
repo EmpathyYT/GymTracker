@@ -79,43 +79,6 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
           ],
         ),
       ),
-      // FrostCardWidget(
-      //   frostKey: const PageStorageKey("frost_item_0"),
-      //   blurSigma: 10,
-      //   widget: Stack(
-      //     alignment: Alignment.topCenter,
-      //     children: [
-      //       Padding(
-      //         padding: const EdgeInsets.only(top: 25),
-      //         child: Text(
-      //           "New Workout",
-      //           textAlign: TextAlign.center,
-      //           style: GoogleFonts.oswald(
-      //             fontSize: 34,
-      //           ),
-      //         ),
-      //       ),
-      //       Padding(
-      //         padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-      //         child: Column(
-      //           mainAxisSize: MainAxisSize.max,
-      //           mainAxisAlignment: MainAxisAlignment.center,
-      //           children: [
-      //             Text(
-      //               textAlign: TextAlign.center,
-      //               softWrap: true,
-      //               "Press the button below to create your first workout plan.",
-      //               style: GoogleFonts.montserrat(
-      //                 fontSize: 16,
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       )
-      //     ],
-      //   ),
-      //   frostColor: frostColorBuilder(),
-      // ),
     ];
   }
 

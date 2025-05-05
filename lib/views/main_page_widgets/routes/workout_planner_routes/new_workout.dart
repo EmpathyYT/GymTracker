@@ -1,9 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:tuple/tuple.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../../utils/widgets/workout_builder_widget.dart';
 
@@ -15,11 +13,9 @@ class NewWorkoutRoute extends StatefulWidget {
 }
 
 class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
-  TextEditingController exerciseNameController = TextEditingController();
-  TextEditingController exerciseRepsController = TextEditingController();
-  TextEditingController exerciseSetsController = TextEditingController();
-  final StreamController<FilteredExerciseFormat> _controller =
-      StreamController();
+  final BehaviorSubject<FilteredExerciseFormat> _controller = BehaviorSubject();
+  final PageController _pageController = PageController();
+  List<Widget>? _workoutWidgets;
 
   @override
   void initState() {
@@ -27,13 +23,11 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
     _controller.add({
       1: [],
     });
+    _workoutWidgets ??= _buildWorkoutWidgets();
   }
 
   @override
   void dispose() {
-    exerciseNameController.dispose();
-    exerciseRepsController.dispose();
-    exerciseSetsController.dispose();
     _controller.close();
     super.dispose();
   }
@@ -72,22 +66,38 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           const SizedBox(
             height: 50,
           ),
-          ExerciseBuilderWidget(
-            exerciseStream: _controller.stream,
-            day: 1, //paginate this obviously
-          ),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              pageSnapping: true,
+              itemCount: 7,
+              itemBuilder: (context, index) => _workoutWidgets![index],
+            ),
+          )
         ],
       ),
     );
   }
-
-  void _addToStream(int day, Tuple3 exercise) async {
-    _controller.sink.add({
-      ...await _controller.stream.last,
-    }..update(
-        day,
-        (e) => e..add(exercise),
-        ifAbsent: () => [exercise],
-      ));
+  //todo: add a button to save the workout
+  List<Widget> _buildWorkoutWidgets() {
+    return List.generate(7, (index) {
+      return ExerciseBuilderWidget(
+        day: index + 1,
+        behaviorController: _controller,
+        arrowNavigationCallback: (bool moveToRight) {
+          if (moveToRight) {
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeIn,
+            );
+          } else {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeIn,
+            );
+          }
+        },
+      );
+    });
   }
 }

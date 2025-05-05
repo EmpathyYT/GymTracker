@@ -2,39 +2,77 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
+import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
-typedef FilteredExerciseFormat = Map<int, List<Tuple3>>;
+typedef FilteredExerciseFormat = Map<int, List<ExerciseType>>;
+typedef ExerciseType = Tuple3<String, int, int>;
 
 class ExerciseBuilderWidget extends StatefulWidget {
   final int day;
-
-  // int is the day of the format, useful for filtering for the day
-  final Stream<FilteredExerciseFormat> exerciseStream;
+  final Function(bool moveToRight) arrowNavigationCallback;
+  final BehaviorSubject<FilteredExerciseFormat> behaviorController;
 
   const ExerciseBuilderWidget({
     super.key,
     required this.day,
-    required this.exerciseStream,
+    required this.behaviorController,
+    required this.arrowNavigationCallback,
   });
 
   @override
   State<ExerciseBuilderWidget> createState() => _ExerciseBuilderWidgetState();
 }
 
-class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
-  final ValueNotifier<List<Tuple3>> _exerciseListNotifier = ValueNotifier([]);
+class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
+    with SingleTickerProviderStateMixin {
+  final ValueNotifier<List<ExerciseType>> _exerciseListNotifier =
+      ValueNotifier([]);
+  final TextEditingController _exerciseNameController = TextEditingController();
+  final TextEditingController _exerciseRepsController = TextEditingController();
+  final TextEditingController _exerciseSetsController = TextEditingController();
+
+  late final AnimationController _snackBarController;
+  late final Animation<double> _snackBarAnimation;
   late final StreamSubscription<FilteredExerciseFormat>
       _exerciseStreamSubscription;
 
   @override
   void initState() {
-    // Subscribe to the exercise stream
+    _exerciseListNotifier.value = _initExercises() ?? [];
+    _exerciseStreamSubscription = _exerciseController.listen(
+      (event) => _streamEventCallback(event),
+    );
+    _exerciseListNotifier.addListener(() {
+      if (_exerciseListNotifier.value.isNotEmpty) {
+        _exerciseNameController.clear();
+        _exerciseRepsController.clear();
+        _exerciseSetsController.clear();
+      }
+    });
+    _snackBarController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _snackBarAnimation =
+        CurvedAnimation(parent: _snackBarController, curve: Curves.easeInOut)
+          ..addStatusListener((status) async {
+            if (status == AnimationStatus.completed) {
+              await Future.delayed(
+                const Duration(milliseconds: 2500),
+                () => _snackBarController.reverse(),
+              );
+            }
+          });
     super.initState();
   }
 
   @override
   void dispose() {
+    _snackBarController.dispose();
     _exerciseStreamSubscription.cancel();
     _exerciseListNotifier.dispose();
     super.dispose();
@@ -46,7 +84,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
       child: Column(
         children: [
           Text(
-            "Day 1",
+            "Day $day",
             textAlign: TextAlign.center,
             style: GoogleFonts.oswald(
               fontSize: 30,
@@ -70,6 +108,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: TextField(
+                      controller: _exerciseNameController,
                       decoration: InputDecoration(
                         counterText: "",
                         border: InputBorder.none,
@@ -100,6 +139,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: TextField(
+                      controller: _exerciseSetsController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         counterText: "",
@@ -128,6 +168,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: TextField(
+                      controller: _exerciseRepsController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         counterText: "",
@@ -148,7 +189,14 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
           ),
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: () {},
+            onTap: () => _addExerciseButtonOnClick(
+              day,
+              Tuple3(
+                _exerciseNameController.text,
+                _exerciseSetsController.text,
+                _exerciseRepsController.text,
+              ),
+            ),
             child: const Icon(
               Icons.arrow_downward,
               size: 35,
@@ -174,9 +222,22 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                     itemBuilder: (context, index) {
                       final exercise = value[index];
                       return ListTile(
-                        title: Text(exercise.item1),
+                        dense: true,
+                        contentPadding: const EdgeInsets.fromLTRB(15, 2, 0, 0),
+                        title: Text(
+                          exercise.item1.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         subtitle: Text(
                           "${exercise.item2} x ${exercise.item3}",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       );
                     },
@@ -187,13 +248,11 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
           ),
           Flexible(
             flex: 1,
-            child: Center(
-              child: GestureDetector(
-                onTap: () {},
-                child: const Icon(
-                  Icons.arrow_forward,
-                  size: 35,
-                ),
+            child: NavigationIconsWidget(
+              type: _navigationType,
+              arrowNavigationCallback: (bool moveToRight) =>
+                  arrowNavigationCallback(
+                moveToRight,
               ),
             ),
           ),
@@ -202,7 +261,144 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
     );
   }
 
+  void _streamEventCallback(FilteredExerciseFormat event) {
+    final exercises = event[day] ?? [];
+    _exerciseListNotifier.value = [...exercises];
+  }
+
+  List<ExerciseType>? _initExercises() {
+    try {
+      final exercises = _exerciseController.valueOrNull;
+      return exercises?[day] ?? [];
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _addToStream(int day, ExerciseType exercise) {
+    _exerciseController.add({
+      ..._exerciseController.valueOrNull ?? {},
+    }..update(
+        day,
+        (e) => e..add(exercise),
+        ifAbsent: () => [exercise],
+      ));
+  }
+
+  bool _inputValidation() {
+    final exerciseName = _exerciseNameController.text;
+    final sets = _exerciseSetsController.text;
+    final reps = _exerciseRepsController.text;
+    final color = darkenColor(
+      Theme.of(context).scaffoldBackgroundColor,
+      0.2,
+    );
+    if (_validateNameInput(exerciseName) != null) {
+      _showSnackBar(_validateNameInput(exerciseName)!, color);
+      return false;
+    } else if (_validateRepsInput(reps) != null) {
+      _showSnackBar(_validateRepsInput(reps)!, color);
+      return false;
+    } else if (_validateSetsInput(sets) != null) {
+      _showSnackBar(_validateSetsInput(sets)!, color);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  void _showSnackBar(String text, Color color) {
+    _snackBarController.forward();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: FadeTransition(
+          opacity: _snackBarController,
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        duration: const Duration(seconds: 3),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        animation: _snackBarAnimation,
+        margin: const EdgeInsets.all(20),
+        elevation: 10,
+      ),
+    );
+  }
+
+  void _addExerciseButtonOnClick(int day, Tuple3 exercise) {
+    if (!_inputValidation()) return;
+
+    _addToStream(
+        day,
+        Tuple3(
+          exercise.item1,
+          int.parse(exercise.item2),
+          int.parse(exercise.item3),
+        ));
+  }
+
+  String? _validateNameInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter the exercise name in the name field.";
+    } else if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+      return "Please enter a valid exercise name.";
+    }
+    return null;
+  }
+
+  String? _validateRepsInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter a number in the reps field.";
+    } else if (int.tryParse(value) == null) {
+      return "Please enter a valid number in the reps field.";
+    } else {
+      if (int.parse(value) < 1) {
+        return "Please enter a number greater than 0 in the reps field.";
+      } else if (int.parse(value) > 60) {
+        return "What blasphemy are you doing? "
+            "Enter a number less than 60 in the reps field.";
+      }
+    }
+    return null;
+  }
+
+  String? _validateSetsInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter a number in the sets field.";
+    } else if (int.tryParse(value) == null) {
+      return "Please enter a valid number in the sets field.";
+    } else {
+      if (int.parse(value) < 1) {
+        return "Please enter a number greater than 0 in the sets field.";
+      } else if (int.parse(value) > 30) {
+        return "What on God's green earth are you thinking?? "
+            "Enter a number less than 30 in the sets field.";
+      }
+    }
+    return null;
+  }
+
   int get day => widget.day;
 
-  Stream<FilteredExerciseFormat> get exerciseStream => widget.exerciseStream;
+  Function(bool moveToRight) get arrowNavigationCallback =>
+      widget.arrowNavigationCallback;
+
+  NavigationType get _navigationType {
+    if (day == 1) {
+      return NavigationType.right;
+    } else if (day == 7) {
+      return NavigationType.left;
+    } else {
+      return NavigationType.double;
+    }
+  }
+
+  BehaviorSubject<FilteredExerciseFormat> get _exerciseController =>
+      widget.behaviorController;
 }
