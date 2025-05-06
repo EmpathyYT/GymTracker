@@ -10,7 +10,7 @@ secrets/
 .history
 .svn/
 migrate_working_dir/
-
+/lib/helpers/*.g
 # IntelliJ related
 *.iml
 *.ipr
@@ -35,7 +35,6 @@ migrate_working_dir/
 *.env
 # Symbolication related
 app.*.symbols
-
 # Obfuscation related
 app.*.map.json
 

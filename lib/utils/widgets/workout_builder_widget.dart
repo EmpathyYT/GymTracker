@@ -7,8 +7,9 @@ import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../helpers/exercise_type.dart';
+
 typedef FilteredExerciseFormat = Map<int, List<ExerciseType>>;
-typedef ExerciseType = Tuple3<String, int, int>;
 
 class ExerciseBuilderWidget extends StatefulWidget {
   final int day;
@@ -189,14 +190,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
           ),
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: () => _addExerciseButtonOnClick(
-              day,
-              Tuple3(
-                _exerciseNameController.text,
-                _exerciseSetsController.text,
-                _exerciseRepsController.text,
-              ),
-            ),
+            onTap: () => _addExerciseButtonOnClick(),
             child: const Icon(
               Icons.arrow_downward,
               size: 35,
@@ -225,14 +219,14 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                         dense: true,
                         contentPadding: const EdgeInsets.fromLTRB(15, 2, 0, 0),
                         title: Text(
-                          exercise.item1.toUpperCase(),
+                          exercise.name,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         subtitle: Text(
-                          "${exercise.item2} x ${exercise.item3}",
+                          "${exercise.sets} x ${exercise.reps}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 14,
@@ -331,16 +325,18 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     );
   }
 
-  void _addExerciseButtonOnClick(int day, Tuple3 exercise) {
+  void _addExerciseButtonOnClick() {
     if (!_inputValidation()) return;
 
     _addToStream(
-        day,
-        Tuple3(
-          exercise.item1,
-          int.parse(exercise.item2),
-          int.parse(exercise.item3),
-        ));
+      day,
+      ExerciseType(
+        name: _exerciseNameController.text,
+        sets: int.parse(_exerciseSetsController.text),
+        reps: int.parse(_exerciseRepsController.text),
+        weightRange: const Tuple2(0, 0),
+      ),
+    );
   }
 
   String? _validateNameInput(String? value) {
