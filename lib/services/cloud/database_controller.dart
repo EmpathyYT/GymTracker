@@ -1,7 +1,11 @@
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
+
+import '../../helpers/exercise_type.dart';
+import '../../utils/widgets/workout_builder_widget.dart';
 
 abstract class DatabaseController {
   Future<void> sendFriendRequest(fromUser, toUser);
@@ -56,6 +60,8 @@ abstract class DatabaseController {
   Future<CloudSquad> editSquad(
       String id, String name, String description);
 
+  Future<CloudWorkout> createWorkout(Map<String, dynamic> workout);
+
   newFriendRequestsStream(
       userId, RealtimeCallback insertCallback, RealtimeCallback updateCallback);
 
@@ -70,11 +76,14 @@ abstract class DatabaseController {
 
   unsubscribeNewAchievementsStream();
 
+
+
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;
     CloudKinRequest.dbController = controller;
     CloudSquadRequest.dbController = controller;
     CloudAchievement.dbController = controller;
+    CloudWorkout.dbController = controller;
   }
 }

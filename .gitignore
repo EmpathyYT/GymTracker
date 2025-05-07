@@ -10,7 +10,7 @@ secrets/
 .history
 .svn/
 migrate_working_dir/
-/lib/helpers/*.g
+/lib/helpers/*.g.dart
 # IntelliJ related
 *.iml
 *.ipr
@@ -43,3 +43,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/google-services.json
+#/lib/helpers/workout_json_adapter.g.dart

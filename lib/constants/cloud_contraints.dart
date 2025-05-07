@@ -24,7 +24,6 @@ const serverIdFieldName = 'server_id';
 
 
 const squadTableName = 'Servers';
-const ownerUserFieldName = 'owner_id';
 const squadNameFieldName = 'name';
 const membersFieldName = 'members';
 const squadDescriptionFieldName = 'description';
@@ -37,8 +36,12 @@ const userIdFieldName = 'user_id';
 const achievementSquadsFieldName = 'squads';
 //^ The Achievement Constraints
 
-
+const workoutTableName = 'WorkoutPlans';
+const planFieldName = 'plan';
+//^ The Workout Constraints
 
 const timeCreatedFieldName = 'created_at';
 const idFieldName = 'id';
+const ownerUserFieldName = 'owner_id';
 //^ The Shared Constraints
+

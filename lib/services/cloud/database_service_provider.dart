@@ -1,9 +1,13 @@
+import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
+
+import '../../utils/widgets/workout_builder_widget.dart';
 
 class DatabaseServiceProvider implements DatabaseController {
   final DatabaseController _provider;
@@ -139,4 +143,8 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   Future<CloudSquad> editSquad(String id, String name, String description) =>
       _provider.editSquad(id, name, description);
+
+  @override
+  Future<CloudWorkout> createWorkout(Map<String, dynamic> workout) =>
+      _provider.createWorkout(workout);
 }

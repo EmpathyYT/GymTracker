@@ -88,7 +88,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
             scrollBehavior: const ScrollBehavior().copyWith(overscroll: false),
             itemCount: _carouselItems!.length,
             itemBuilder: (context, index) {
-              return RepaintBoundary(child: _carouselItems![index]);
+              return _carouselItems![index];
             },
           )
         : _carouselItems!.first;

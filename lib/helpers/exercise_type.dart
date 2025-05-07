@@ -7,12 +7,13 @@ class ExerciseType {
   final Tuple2<int, int> weightRange;
   final String notes;
 
-  const ExerciseType(
-      {required this.name,
-      required this.reps,
-      required this.sets,
-      required this.weightRange,
-      this.notes = ''});
+  const ExerciseType({
+    required this.name,
+    required this.reps,
+    required this.sets,
+    required this.weightRange,
+    this.notes = '',
+  });
 
   ExerciseType.fromMap(Map<String, dynamic> map)
       : name = map['name'] as String,

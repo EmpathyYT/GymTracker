@@ -64,14 +64,18 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
             ),
           ),
           const SizedBox(
-            height: 50,
+            height: 20,
           ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               pageSnapping: true,
               itemCount: 7,
-              itemBuilder: (context, index) => _workoutWidgets![index],
+              itemBuilder: (context, index) => Column(
+                children: [
+                  _workoutWidgets![index],
+                ],
+              ),
             ),
           )
         ],
