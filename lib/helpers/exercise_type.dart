@@ -5,14 +5,16 @@ class ExerciseType {
   final int reps;
   final int sets;
   final Tuple2<int, int> weightRange;
-  final String notes;
+  String notes;
+  final bool isKg;
 
-  const ExerciseType({
+  ExerciseType({
     required this.name,
     required this.reps,
     required this.sets,
     required this.weightRange,
     this.notes = '',
+    this.isKg = true,
   });
 
   ExerciseType.fromMap(Map<String, dynamic> map)
@@ -21,7 +23,8 @@ class ExerciseType {
         sets = map['sets'] as int,
         weightRange = Tuple2<int, int>(
             map['weightRange'][0] as int, map['weightRange'][1] as int? ?? 0),
-        notes = map['notes'] as String? ?? '';
+        notes = map['notes'] as String? ?? '',
+        isKg = true; //todo when settings are added
 
   Map<String, dynamic> toMap() {
     return {
@@ -32,4 +35,16 @@ class ExerciseType {
       'notes': notes,
     };
   }
+
+  String get exerciseWeightToString {
+    String initialWeight = weightRange.item1.toString();
+    if (weightRange.item2 == 0 || weightRange.item2 == weightRange.item1) {
+      initialWeight += " kg";
+    } else {
+      initialWeight += " - ${weightRange.item2} kg";
+    }
+    return initialWeight;
+  }
+
+
 }
