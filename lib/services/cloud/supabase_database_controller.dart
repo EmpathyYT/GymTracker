@@ -1,7 +1,6 @@
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
-import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
@@ -9,7 +8,6 @@ import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../utils/widgets/workout_builder_widget.dart';
 import '../auth/auth_provider.dart';
 
 typedef RealtimeCallback = void Function(RealtimeNotificationsShape event);
@@ -525,11 +523,21 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<CloudWorkout> createWorkout(Map<String, dynamic> workout) async {
-    final resWorkout = await _supabase.from(workoutTableName).insert({
-      planFieldName: workout,
-      ownerUserFieldName: _auth.currentUser!.id
-    }).select();
+  Future<CloudWorkout> createWorkout(
+      userId, Map<String, dynamic> workout) async {
+    final resWorkout = await _supabase
+        .from(workoutTableName)
+        .insert({planFieldName: workout, ownerUserFieldName: userId}).select();
     return CloudWorkout.fromSupabaseMap(resWorkout[0]);
   }
+
+  @override
+  Future<List<CloudWorkout>> fetchWorkouts(userId) async {
+    final resWorkouts = await _supabase
+        .from(workoutTableName)
+        .select()
+        .eq(ownerUserFieldName, userId);
+    return resWorkouts.map((e) => CloudWorkout.fromSupabaseMap(e)).toList();
+  }
+
 }

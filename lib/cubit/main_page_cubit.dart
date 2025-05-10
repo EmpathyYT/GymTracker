@@ -6,9 +6,11 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
+import '../services/cloud/cloud_workout.dart';
 
 part 'main_page_state.dart';
 
@@ -472,6 +474,64 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
     return null;
   }
+
+  Future<void> fetchWorkouts(List<CloudWorkout> initialWorkouts) async {
+
+    try {
+      final workouts = await CloudWorkout.fetchWorkouts(currentUser.id);
+      if (initialWorkouts == workouts) return;
+      emit (
+        WorkoutPlanner(
+          workouts: workouts,
+          notifications: state.notifications,
+        )
+      );
+    } catch (e) {
+      emit (
+        WorkoutPlanner(
+          exception: e as Exception,
+          notifications: state.notifications,
+        )
+      );
+    }
+
+  }
+
+  Future<void> saveWorkout(FilteredExerciseFormat exercise) async {
+    emit (
+      WorkoutPlanner(
+        isLoading: true,
+        loadingText: "Saving Workout...",
+        notifications: state.notifications,
+      )
+    );
+
+    try {
+      final data = await CloudWorkout.createWorkout(currentUser.id, exercise);
+      final workouts = (state as WorkoutPlanner).workouts;
+      emit (
+        WorkoutPlanner(
+          success: true,
+          notifications: state.notifications,
+        )
+      );
+      emit (
+        WorkoutPlanner(
+          workouts: (workouts ?? [])..add(data),
+          success: false,
+          notifications: state.notifications,
+        )
+      );
+    } catch (e) {
+      emit (
+        WorkoutPlanner(
+          exception: e as Exception,
+          notifications: state.notifications,
+        ),
+      );
+    }
+  }
+
 
   CloudUser get currentUser => _currentUser;
 }

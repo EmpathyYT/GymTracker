@@ -1,12 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:gymtracker/helpers/workout_json_adapter.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 
 import '../../constants/cloud_contraints.dart';
 import '../../utils/widgets/workout_builder_widget.dart';
 
-class CloudWorkout extends WorkoutJsonAdapter {
+class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
   static late final DatabaseController dbController;
-
+  final String name;
   final String id;
   final String ownerId;
   final DateTime timeCreated;
@@ -15,6 +16,7 @@ class CloudWorkout extends WorkoutJsonAdapter {
     required this.id,
     required this.ownerId,
     required this.timeCreated,
+    this.name = "",
     required super.workouts,
   });
 
@@ -22,11 +24,25 @@ class CloudWorkout extends WorkoutJsonAdapter {
       : id = map[idFieldName].toString(),
         ownerId = map[ownerUserFieldName].toString(),
         timeCreated = DateTime.parse(map[timeCreatedFieldName]),
-        super(workouts: map[planFieldName]);
+        name = '',
+        super(workouts: WorkoutJsonAdapter.mapFromJson(map[planFieldName]));
 
   static Future<CloudWorkout> createWorkout(
-      FilteredExerciseFormat workouts) async {
+      userId, FilteredExerciseFormat workouts) async {
     final json = WorkoutJsonAdapter(workouts: workouts).toJson();
-    return await dbController.createWorkout(json);
+    return await dbController.createWorkout(userId, json);
   }
+
+  static Future<List<CloudWorkout>> fetchWorkouts(userId) async {
+    return await dbController.fetchWorkouts(userId);
+  }
+
+  @override
+  String toString() {
+    return 'CloudWorkout{id: $id, ownerId: $ownerId, '
+        'timeCreated: $timeCreated, workouts: $workouts}';
+  }
+
+  @override
+  List<Object?> get props => [id];
 }

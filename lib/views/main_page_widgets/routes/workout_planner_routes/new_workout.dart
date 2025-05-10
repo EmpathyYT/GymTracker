@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../utils/widgets/workout_builder_widget.dart';
@@ -20,9 +22,12 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
   @override
   void initState() {
     super.initState();
-    _controller.add({
-      1: [],
-    });
+    _controller.add(
+      FilteredExerciseFormat.fromEntries(List.generate(
+        7,
+        (i) => MapEntry(i + 1, []),
+      )),
+    );
     _workoutWidgets ??= _buildWorkoutWidgets();
   }
 
@@ -34,54 +39,65 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        toolbarHeight: appBarHeight,
-        scrolledUnderElevation: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(top: appBarPadding),
-          child: Text(
-            "New Workout",
-            style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await context.read<MainPageCubit>().saveWorkout(
+              _controller.valueOrNull ?? {},
+            );
+        if (context.mounted) Navigator.pop(context);
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          toolbarHeight: appBarHeight,
+          scrolledUnderElevation: 0,
+          title: Padding(
+            padding: const EdgeInsets.only(top: appBarPadding),
+            child: Text(
+              "New Workout",
+              style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+            ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          const Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: EdgeInsets.only(top: 20, left: 16),
-              child: Text(
-                "Fill the field below to input into the table.",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+        body: Column(
+          children: [
+            const Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.only(top: 20, left: 16),
+                child: Text(
+                  "Fill the field below to input into the table.",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              pageSnapping: true,
-              itemCount: 7,
-              itemBuilder: (context, index) => Column(
-                children: [
-                  _workoutWidgets![index],
-                ],
-              ),
+            const SizedBox(
+              height: 20,
             ),
-          )
-        ],
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                pageSnapping: true,
+                itemCount: 7,
+                itemBuilder: (context, index) => Column(
+                  children: [
+                    _workoutWidgets![index],
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
+
   //todo: add a button to save the workout
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {

@@ -9,12 +9,11 @@ abstract class MainPageState {
 
   MainPageState copyWith({RequestsSortingType? notifications});
 
-  const MainPageState(
-      {this.exception,
-      this.isLoading = false,
-      this.loadingText = "",
-      this.success = false,
-      this.notifications});
+  const MainPageState({this.exception,
+    this.isLoading = false,
+    this.loadingText = "",
+    this.success = false,
+    this.notifications});
 }
 
 final class ProfileViewer extends MainPageState {
@@ -39,7 +38,10 @@ final class ProfileViewer extends MainPageState {
 }
 
 final class WorkoutPlanner extends MainPageState {
+  final List<CloudWorkout>? workouts;
+
   const WorkoutPlanner({
+    this.workouts,
     super.exception,
     super.isLoading = false,
     super.loadingText = "",
@@ -48,8 +50,9 @@ final class WorkoutPlanner extends MainPageState {
   });
 
   @override
-  WorkoutPlanner copyWith({RequestsSortingType? notifications}) {
+  WorkoutPlanner copyWith({RequestsSortingType? notifications, workouts}) {
     return WorkoutPlanner(
+      workouts: workouts ?? this.workouts,
       exception: exception,
       isLoading: isLoading,
       loadingText: loadingText,
@@ -62,13 +65,12 @@ final class WorkoutPlanner extends MainPageState {
 final class SquadSelector extends MainPageState {
   final CloudSquad? squad;
 
-  const SquadSelector(
-      {super.exception,
-      super.isLoading = false,
-      super.loadingText = "",
-      super.success = false,
-      super.notifications,
-      this.squad});
+  const SquadSelector({super.exception,
+    super.isLoading = false,
+    super.loadingText = "",
+    super.success = false,
+    super.notifications,
+    this.squad});
 
   @override
   SquadSelector copyWith({RequestsSortingType? notifications}) {

@@ -60,7 +60,9 @@ abstract class DatabaseController {
   Future<CloudSquad> editSquad(
       String id, String name, String description);
 
-  Future<CloudWorkout> createWorkout(Map<String, dynamic> workout);
+  Future<CloudWorkout> createWorkout(userId, Map<String, dynamic> workout);
+
+  Future<List<CloudWorkout>> fetchWorkouts(userId);
 
   newFriendRequestsStream(
       userId, RealtimeCallback insertCallback, RealtimeCallback updateCallback);
