@@ -38,6 +38,7 @@ class ExerciseType {
 
   String get exerciseWeightToString {
     String initialWeight = weightRange.item1.toString();
+    if (initialWeight.isEmpty) return '';
     if (weightRange.item2 == 0 || weightRange.item2 == weightRange.item1) {
       initialWeight += " kg";
     } else {

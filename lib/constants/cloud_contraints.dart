@@ -24,7 +24,6 @@ const serverIdFieldName = 'server_id';
 
 
 const squadTableName = 'Servers';
-const squadNameFieldName = 'name';
 const membersFieldName = 'members';
 const squadDescriptionFieldName = 'description';
 //^ The Squad Constraints
@@ -40,6 +39,8 @@ const workoutTableName = 'WorkoutPlans';
 const planFieldName = 'plan';
 //^ The Workout Constraints
 
+
+const rowName = 'name';
 const timeCreatedFieldName = 'created_at';
 const idFieldName = 'id';
 const ownerUserFieldName = 'owner_id';

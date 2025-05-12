@@ -7,6 +7,7 @@ import '../../utils/widgets/workout_builder_widget.dart';
 
 class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
   static late final DatabaseController dbController;
+
   final String name;
   final String id;
   final String ownerId;
@@ -28,9 +29,9 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
         super(workouts: WorkoutJsonAdapter.mapFromJson(map[planFieldName]));
 
   static Future<CloudWorkout> createWorkout(
-      userId, FilteredExerciseFormat workouts) async {
+      userId, FilteredExerciseFormat workouts, String name,) async {
     final json = WorkoutJsonAdapter(workouts: workouts).toJson();
-    return await dbController.createWorkout(userId, json);
+    return await dbController.createWorkout(userId, json, name);
   }
 
   static Future<List<CloudWorkout>> fetchWorkouts(userId) async {

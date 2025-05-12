@@ -142,8 +142,9 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.editSquad(id, name, description);
 
   @override
-  Future<CloudWorkout> createWorkout(userId, Map<String, dynamic> workout) =>
-      _provider.createWorkout(userId, workout);
+  Future<CloudWorkout> createWorkout(
+          userId, Map<String, dynamic> workout, String name) =>
+      _provider.createWorkout(userId, workout, name);
 
   @override
   Future<List<CloudWorkout>> fetchWorkouts(userId) =>

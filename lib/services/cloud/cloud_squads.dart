@@ -26,7 +26,7 @@ class CloudSquad {
 
   CloudSquad.fromSupabaseMap(Map<String, dynamic> map)
       : id = map[idFieldName].toString(),
-        name = map[squadNameFieldName],
+        name = map[rowName],
         members = (map[membersFieldName] as List<dynamic>?)
                 ?.map((e) => e.toString())
                 .toList() ??

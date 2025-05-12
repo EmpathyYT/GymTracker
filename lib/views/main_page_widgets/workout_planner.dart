@@ -8,6 +8,7 @@ import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
 import 'package:gymtracker/utils/widgets/frost_card_widget.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/workout_planner_routes/new_workout.dart';
+import 'package:gymtracker/views/main_page_widgets/routes/workout_planner_routes/workout_viewer.dart';
 
 import '../../services/cloud/cloud_user.dart';
 import '../../utils/dialogs/success_dialog.dart';
@@ -21,7 +22,6 @@ class WorkoutPlannerWidget extends StatefulWidget {
 
 class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
   CloudUser? _user;
-  WorkoutPlanner? _oldState;
   static List<Widget>? _carouselItems;
   static List<CloudWorkout> _workouts = [];
 
@@ -30,7 +30,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     _user ??= context
         .read<MainPageCubit>()
         .currentUser;
-    _carouselItems = _generateCarouselItems(_workouts);
+    _carouselItems ??= _generateCarouselItems(_workouts);
     super.didChangeDependencies();
   }
 
@@ -59,8 +59,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
           context.read<MainPageCubit>().fetchWorkouts(_workouts);
         }
 
-        if (_oldState?.workouts != state.workouts) {
-          _oldState = state;
+        if (_workouts != (state.workouts ?? [])) {
           _workouts = state.workouts ?? [];
           _carouselItems = _generateCarouselItems(_workouts);
         }
@@ -153,7 +152,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
                     size: 50,
                     color: Colors.white60,
                   ),
-                  onPressed: _newWorkoutButton,
+                  onPressed: () => _openWorkoutButton(workouts[i]),
                 ),
               ),
             ],
@@ -188,4 +187,17 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
       ),
     );
   }
+
+  void _openWorkoutButton(CloudWorkout workout) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            BlocProvider.value(
+              value: context.read<MainPageCubit>(),
+              child: WorkoutViewerRoute(workout: workout),
+            ),
+      ),
+    );
+  }
+
 }

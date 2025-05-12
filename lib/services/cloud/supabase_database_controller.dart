@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -26,7 +28,7 @@ class SupabaseDatabaseController implements DatabaseController {
 
     final data = await _supabase.from(squadTableName).insert(
       {
-        squadNameFieldName: name,
+        rowName: name,
         squadDescriptionFieldName: description,
         ownerUserFieldName: user!.id,
       },
@@ -428,7 +430,7 @@ class SupabaseDatabaseController implements DatabaseController {
       final res = await _supabase
           .from(squadTableName)
           .update({
-            squadNameFieldName: name,
+            rowName: name,
             squadDescriptionFieldName: description,
           })
           .eq(idFieldName, id)
@@ -524,10 +526,15 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<CloudWorkout> createWorkout(
-      userId, Map<String, dynamic> workout) async {
-    final resWorkout = await _supabase
-        .from(workoutTableName)
-        .insert({planFieldName: workout, ownerUserFieldName: userId}).select();
+    userId,
+    Map<String, dynamic> workout,
+    String name,
+  ) async {
+    final resWorkout = await _supabase.from(workoutTableName).insert({
+      planFieldName: workout,
+      ownerUserFieldName: userId,
+      rowName: name,
+    }).select();
     return CloudWorkout.fromSupabaseMap(resWorkout[0]);
   }
 
@@ -539,5 +546,4 @@ class SupabaseDatabaseController implements DatabaseController {
         .eq(ownerUserFieldName, userId);
     return resWorkouts.map((e) => CloudWorkout.fromSupabaseMap(e)).toList();
   }
-
 }

@@ -5,6 +5,7 @@ import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/widgets/workout_builder_widget.dart';
 
 class NewWorkoutRoute extends StatefulWidget {
@@ -15,6 +16,7 @@ class NewWorkoutRoute extends StatefulWidget {
 }
 
 class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
+  late final TextEditingController _nameController;
   final BehaviorSubject<FilteredExerciseFormat> _controller = BehaviorSubject();
   final PageController _pageController = PageController();
   List<Widget>? _workoutWidgets;
@@ -29,6 +31,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
       )),
     );
     _workoutWidgets ??= _buildWorkoutWidgets();
+    _nameController = TextEditingController();
   }
 
   @override
@@ -43,8 +46,16 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        if (_nameController.text.isEmpty) {
+          await showErrorDialog(
+            context,
+            "Please enter a name for your workout.",
+          );
+          return;
+        }
         await context.read<MainPageCubit>().saveWorkout(
               _controller.valueOrNull ?? {},
+              _nameController.text,
             );
         if (context.mounted) Navigator.pop(context);
       },
@@ -55,9 +66,18 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           scrolledUnderElevation: 0,
           title: Padding(
             padding: const EdgeInsets.only(top: appBarPadding),
-            child: Text(
-              "New Workout",
+            child: TextField(
+              controller: _nameController,
               style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: "New Workout",
+                border: InputBorder.none,
+                hintStyle: TextStyle(
+                  fontSize: appBarTitleSize,
+                  color: Colors.grey,
+                ),
+              ),
             ),
           ),
         ),
@@ -98,7 +118,6 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
     );
   }
 
-  //todo: add a button to save the workout
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {
       return ExerciseBuilderWidget(
