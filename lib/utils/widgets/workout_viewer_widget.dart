@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
+import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 
 import 'navigation_icons_widget.dart';
 
@@ -24,6 +25,38 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
   Widget build(BuildContext context) {
     mainSize ??= MediaQuery.of(context).size.width * 0.9;
 
+    if (exercise.isEmpty) {
+      return Expanded(
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              child: Text(
+                "Day $day",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            _centerWidgetIfListEmpty() ?? const SizedBox(),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: NavigationIconsWidget(
+                type: _navigationType,
+                arrowNavigationCallback:
+                    (bool moveToRight) => arrowNavigationCallback(moveToRight),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -31,10 +64,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
           Text(
             "Day $day",
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
           ),
           Expanded(
             child: SizedBox(
@@ -60,7 +90,10 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                               Flexible(
                                 fit: FlexFit.tight,
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                  padding: const EdgeInsets.only(
+                                    top: 5,
+                                    bottom: 5,
+                                  ),
                                   child: Text(
                                     exerciseElement.name,
                                     textAlign: TextAlign.center,
@@ -79,7 +112,10 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                               Flexible(
                                 fit: FlexFit.tight,
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                  padding: const EdgeInsets.only(
+                                    top: 5,
+                                    bottom: 5,
+                                  ),
                                   child: Text(
                                     exerciseElement.exerciseWeightToString,
                                     textAlign: TextAlign.center,
@@ -106,7 +142,8 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                   NavigationIconsWidget(
                     type: _navigationType,
                     arrowNavigationCallback:
-                        (bool moveToRight) => arrowNavigationCallback(moveToRight),
+                        (bool moveToRight) =>
+                            arrowNavigationCallback(moveToRight),
                   ),
                 ],
               ),
@@ -115,6 +152,13 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
         ],
       ),
     );
+  }
+
+  Widget? _centerWidgetIfListEmpty() {
+    if (exercise.isEmpty) {
+      return const BigAbsoluteCenteredText(text: "No exercises for today.");
+    }
+    return null;
   }
 
   List<ExerciseType> get exercise => widget.exercise.value;
