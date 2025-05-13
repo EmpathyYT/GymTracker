@@ -25,7 +25,7 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
       : id = map[idFieldName].toString(),
         ownerId = map[ownerUserFieldName].toString(),
         timeCreated = DateTime.parse(map[timeCreatedFieldName]),
-        name = '',
+        name = map[rowName],
         super(workouts: WorkoutJsonAdapter.mapFromJson(map[planFieldName]));
 
   static Future<CloudWorkout> createWorkout(

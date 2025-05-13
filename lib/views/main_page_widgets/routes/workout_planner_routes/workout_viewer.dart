@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
@@ -8,10 +10,7 @@ import '../../../../constants/code_constraints.dart';
 class WorkoutViewerRoute extends StatefulWidget {
   final CloudWorkout workout;
 
-  const WorkoutViewerRoute({
-    super.key,
-    required this.workout,
-  });
+  const WorkoutViewerRoute({super.key, required this.workout});
 
   @override
   State<WorkoutViewerRoute> createState() => _WorkoutViewerRouteState();
@@ -24,10 +23,7 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(
-      initialPage: 0,
-      viewportFraction: 0.8,
-    );
+    _pageController = PageController(initialPage: 0);
     _workoutWidgets = _buildWorkoutWidgets();
   }
 
@@ -41,20 +37,20 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
         title: Padding(
           padding: const EdgeInsets.only(top: appBarPadding),
           child: Text(
-            "New Workout",
+            workout.name,
             style: GoogleFonts.oswald(fontSize: appBarTitleSize),
           ),
         ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Align(
-              alignment: Alignment.topRight,
+              alignment: Alignment.topLeft,
               child: Text(
                 "Don't forget to press finish once you finish your workout!",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
@@ -67,7 +63,9 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
             child: PageView.builder(
               controller: _pageController,
               itemBuilder: (context, index) => Column(
-                children: [_workoutWidgets[index]],
+                children: [
+                  _workoutWidgets[index],
+                ],
               ),
             ),
           ),
@@ -79,7 +77,7 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {
       return WorkoutViewerWidget(
-        exercise: MapEntry(index + 1, workout.workouts[index]!),
+        exercise: MapEntry(index + 1, workout.workouts[index + 1]!),
         arrowNavigationCallback: (bool moveToRight) {
           if (moveToRight) {
             _pageController.nextPage(

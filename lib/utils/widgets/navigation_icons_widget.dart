@@ -30,7 +30,7 @@ class NavigationIconsWidget extends StatelessWidget {
           ),
         NavigationType.double => Row(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: () => arrowNavigationCallback(false),

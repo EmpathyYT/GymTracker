@@ -25,10 +25,9 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
   void initState() {
     super.initState();
     _controller.add(
-      FilteredExerciseFormat.fromEntries(List.generate(
-        7,
-        (i) => MapEntry(i + 1, []),
-      )),
+      FilteredExerciseFormat.fromEntries(
+        List.generate(7, (i) => MapEntry(i + 1, [])),
+      ),
     );
     _workoutWidgets ??= _buildWorkoutWidgets();
     _nameController = TextEditingController();
@@ -54,9 +53,9 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           return;
         }
         await context.read<MainPageCubit>().saveWorkout(
-              _controller.valueOrNull ?? {},
-              _nameController.text,
-            );
+          _controller.valueOrNull ?? {},
+          _nameController.text,
+        );
         if (context.mounted) Navigator.pop(context);
       },
       child: Scaffold(
@@ -68,9 +67,11 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
             padding: const EdgeInsets.only(top: appBarPadding),
             child: TextField(
               controller: _nameController,
+              maxLength: 30,
               style: GoogleFonts.oswald(fontSize: appBarTitleSize),
               autofocus: true,
               decoration: const InputDecoration(
+                counterText: "",
                 hintText: "New Workout",
                 border: InputBorder.none,
                 hintStyle: TextStyle(
@@ -97,21 +98,17 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
                 ),
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
                 pageSnapping: true,
                 itemCount: 7,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    _workoutWidgets![index],
-                  ],
-                ),
+                itemBuilder:
+                    (context, index) =>
+                        Column(children: [_workoutWidgets![index]]),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -31,6 +31,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
         .read<MainPageCubit>()
         .currentUser;
     _carouselItems ??= _generateCarouselItems(_workouts);
+    context.read<MainPageCubit>().fetchWorkouts(_workouts);
     super.didChangeDependencies();
   }
 
@@ -55,9 +56,6 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
       },
       builder: (context, state) {
         state as WorkoutPlanner;
-        if (state.workouts == null) {
-          context.read<MainPageCubit>().fetchWorkouts(_workouts);
-        }
 
         if (_workouts != (state.workouts ?? [])) {
           _workouts = state.workouts ?? [];

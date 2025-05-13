@@ -18,90 +18,98 @@ class WorkoutViewerWidget extends StatefulWidget {
 }
 
 class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
-  late final double mainSize;
-
-  @override
-  void initState() {
-    mainSize = MediaQuery.of(context).size.width * 0.8;
-    super.initState();
-  }
+  double? mainSize;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: mainSize,
+    mainSize ??= MediaQuery.of(context).size.width * 0.9;
+
+    return Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Center(
-            child: Text(
-              "Day $day",
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-              ),
+          Text(
+            "Day $day",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w700,
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                final exerciseElement = exercise[index];
-                return Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    border: Border.fromBorderSide(
-                      BorderSide(
-                        width: 1,
-                        color: Colors.white60,
-                      ),
+            child: SizedBox(
+              width: mainSize,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: exercise.length,
+                      itemBuilder: (context, index) {
+                        final exerciseElement = exercise[index];
+                        return Container(
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            border: Border.fromBorderSide(
+                              BorderSide(width: 1, color: Colors.white60),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Flexible(
+                                fit: FlexFit.tight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                  child: Text(
+                                    exerciseElement.name,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const VerticalDivider(
+                                color: Colors.white60,
+                                width: 20,
+                                thickness: 1,
+                              ),
+                              Flexible(
+                                fit: FlexFit.tight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                  child: Text(
+                                    exerciseElement.exerciseWeightToString,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5, bottom: 5),
-                        child: Container(
-                          width: mainSize / 2,
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              left: BorderSide(
-                                color: Colors.white60,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: Text(
-                            exerciseElement.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5, bottom: 5),
-                        child: Container(
-                          width: mainSize / 2,
-                          child: Text(
-                            exerciseElement.exerciseWeightToString,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  Center(
+                    child: FilledButton.tonal(
+                      onPressed: () {},
+                      child: const Text("Finish Workout"),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          NavigationIconsWidget(
-            type: _navigationType,
-            arrowNavigationCallback: (bool moveToRight) =>
-                arrowNavigationCallback(
-              moveToRight,
+                  const SizedBox(height: 10),
+                  NavigationIconsWidget(
+                    type: _navigationType,
+                    arrowNavigationCallback:
+                        (bool moveToRight) => arrowNavigationCallback(moveToRight),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

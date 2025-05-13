@@ -74,6 +74,10 @@ class HomePage extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        if (state is! MainPage) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+
         if (state is AuthStateUnauthenticated) {
           return const LoginView();
         } else if (state is AuthStateNeedsVerification) {
