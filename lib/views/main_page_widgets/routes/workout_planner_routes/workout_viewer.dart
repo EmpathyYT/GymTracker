@@ -61,6 +61,7 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
           const SizedBox(height: 20),
           Expanded(
             child: PageView.builder(
+
               controller: _pageController,
               itemCount: 7,
               itemBuilder: (context, index) => Column(

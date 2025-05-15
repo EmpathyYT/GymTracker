@@ -3,6 +3,7 @@ import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
+import 'package:tuple/tuple.dart';
 
 abstract class DatabaseController {
   Future<void> sendFriendRequest(fromUser, toUser);
@@ -78,6 +79,9 @@ abstract class DatabaseController {
   newAchievementsStream(userId, RealtimeCallback insertCallback);
 
   unsubscribeNewAchievementsStream();
+
+  Future<CloudWorkout> editWorkout(workoutId, Map<String, dynamic> edits);
+  Future<void> deleteWorkout(workoutId);
 
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;

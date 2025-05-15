@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../../../constants/code_constraints.dart';
+import '../../../../cubit/main_page_cubit.dart';
+import '../../../../services/cloud/cloud_workout.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/widgets/workout_builder_widget.dart';
 
-class NewWorkoutRoute extends StatefulWidget {
-  const NewWorkoutRoute({super.key});
+class WorkoutEditorRoute extends StatefulWidget {
+  final CloudWorkout workout;
+
+  const WorkoutEditorRoute({super.key, required this.workout});
 
   @override
-  State<NewWorkoutRoute> createState() => _NewWorkoutRouteState();
+  State<WorkoutEditorRoute> createState() => _WorkoutEditorRouteState();
 }
 
-class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
+class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
   late final TextEditingController _nameController;
   final BehaviorSubject<FilteredExerciseFormat> _controller = BehaviorSubject();
   final PageController _pageController = PageController();
@@ -24,13 +27,9 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
   @override
   void initState() {
     super.initState();
-    _controller.add(
-      FilteredExerciseFormat.fromEntries(
-        List.generate(7, (i) => MapEntry(i + 1, [])),
-      ),
-    );
+    _controller.add(workout.workouts);
     _workoutWidgets ??= _buildWorkoutWidgets();
-    _nameController = TextEditingController();
+    _nameController = TextEditingController()..text = widget.workout.name;
   }
 
   @override
@@ -45,19 +44,18 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop || (result ?? false) as bool) return;
-        if (_controller.value.values.every((e) => e.isEmpty)) {
-          return Navigator.of(context).pop();
-        }
         if (_nameController.text.isEmpty) {
-          return await showErrorDialog(
+          await showErrorDialog(
             context,
             "Please enter a name for your workout.",
           );
+          return;
         }
-        await context.read<MainPageCubit>().saveWorkout(
+        await context.read<MainPageCubit>().editWorkout(
+          workout,
           _controller.valueOrNull ?? {},
-          _nameController.text,
         );
+
         if (context.mounted) Navigator.pop(context);
       },
       child: Scaffold(
@@ -68,7 +66,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           actions: [
             IconButton(
               onPressed: () => Navigator.pop(context, true),
-              icon: const Icon(Icons.delete_forever),
+              icon: const Icon(Icons.cancel),
             ),
           ],
           title: Padding(
@@ -80,7 +78,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
               autofocus: true,
               decoration: const InputDecoration(
                 counterText: "",
-                hintText: "New Workout",
+                hintText: "Workout Name",
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                   fontSize: appBarTitleSize,
@@ -144,4 +142,6 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
       );
     });
   }
+
+  CloudWorkout get workout => widget.workout;
 }

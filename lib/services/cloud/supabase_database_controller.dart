@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -26,26 +24,24 @@ class SupabaseDatabaseController implements DatabaseController {
 
     final user = await fetchUser(_auth.currentUser!.id, true);
 
-    final data = await _supabase.from(squadTableName).insert(
-      {
-        rowName: name,
-        squadDescriptionFieldName: description,
-        ownerUserFieldName: user!.id,
-      },
-    ).select();
+    final data =
+        await _supabase.from(squadTableName).insert({
+          rowName: name,
+          squadDescriptionFieldName: description,
+          ownerUserFieldName: user!.id,
+        }).select();
 
     return CloudSquad.fromSupabaseMap(data[0]);
   }
 
   @override
   Future<CloudUser> createUser(userName, biography, gender) async {
-    final data = await _supabase.from(userTableName).insert(
-      {
-        nameFieldName: userName,
-        bioFieldName: biography,
-        genderFieldName: gender
-      },
-    ).select();
+    final data =
+        await _supabase.from(userTableName).insert({
+          nameFieldName: userName,
+          bioFieldName: biography,
+          genderFieldName: gender,
+        }).select();
     return CloudUser.fromSubabaseMap(data[0]);
   }
 
@@ -99,10 +95,7 @@ class SupabaseDatabaseController implements DatabaseController {
     try {
       await _supabase.rpc(
         "remove_friend",
-        params: {
-          'userid': userId,
-          'friendid': friendId,
-        },
+        params: {'userid': userId, 'friendid': friendId},
       );
     } catch (e) {
       rethrow;
@@ -118,17 +111,19 @@ class SupabaseDatabaseController implements DatabaseController {
         .select(membersFieldName)
         .eq(idFieldName, squadId);
 
-    final serverMembers = (server[0][membersFieldName] as List<dynamic>)
-        .map((e) => e.toString())
-        .toList();
+    final serverMembers =
+        (server[0][membersFieldName] as List<dynamic>)
+            .map((e) => e.toString())
+            .toList();
 
     if (!serverMembers.remove(userId)) throw UserNotInSquadException();
 
-    final data = await _supabase
-        .from(squadTableName)
-        .update({membersFieldName: serverMembers})
-        .eq(idFieldName, squadId)
-        .select();
+    final data =
+        await _supabase
+            .from(squadTableName)
+            .update({membersFieldName: serverMembers})
+            .eq(idFieldName, squadId)
+            .select();
 
     return CloudSquad.fromSupabaseMap(data[0]);
   }
@@ -136,38 +131,40 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<void> sendFriendRequest(fromUser, toUser) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    await _supabase.from(pendingFriendRequestsTableName).insert(
-      {
-        sendingUserFieldName: fromUser,
-        recipientFieldName: toUser,
-      },
-    );
+    await _supabase.from(pendingFriendRequestsTableName).insert({
+      sendingUserFieldName: fromUser,
+      recipientFieldName: toUser,
+    });
   }
 
   @override
   Future<void> sendServerRequest(fromUser, toUser, squadId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    await _supabase.from(pendingServerRequestsTableName).insert(
-      {
-        sendingUserFieldName: fromUser,
-        recipientFieldName: toUser,
-        serverIdFieldName: squadId,
-      },
-    );
+    await _supabase.from(pendingServerRequestsTableName).insert({
+      sendingUserFieldName: fromUser,
+      recipientFieldName: toUser,
+      serverIdFieldName: squadId,
+    });
   }
 
   @override
   Future<List<CloudUser>> fetchUsersForSquadAdding(
-      fromUser, squadId, filter) async {
+    fromUser,
+    squadId,
+    filter,
+  ) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    final data = await _supabase.rpc(
-      "get_users_for_squad_adding",
-      params: {
-        'user_id': fromUser,
-        'serverr_id': squadId,
-        'filter': filter,
-      },
-    ).select();
+    final data =
+        await _supabase
+            .rpc(
+              "get_users_for_squad_adding",
+              params: {
+                'user_id': fromUser,
+                'serverr_id': squadId,
+                'filter': filter,
+              },
+            )
+            .select();
     return data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
   }
 
@@ -182,9 +179,10 @@ class SupabaseDatabaseController implements DatabaseController {
       return CloudSquad.fromSupabaseMap(data[0]);
     }
 
-    final data = await _supabase.rpc("public_fetch_squad", params: {
-      'squadid': squadId,
-    });
+    final data = await _supabase.rpc(
+      "public_fetch_squad",
+      params: {'squadid': squadId},
+    );
     if (data.isEmpty) return null;
     return CloudSquad.fromSupabaseMap(data[0]);
   }
@@ -202,9 +200,10 @@ class SupabaseDatabaseController implements DatabaseController {
       final castedUserId =
           userId.runtimeType == String ? int.parse(userId) : userId;
 
-      final data = await _supabase.rpc("public_fetch_user", params: {
-        'userid': castedUserId,
-      });
+      final data = await _supabase.rpc(
+        "public_fetch_user",
+        params: {'userid': castedUserId},
+      );
       if (data.isEmpty) return null;
       return CloudUser.fromSubabaseMap(data[0]);
     }
@@ -216,13 +215,14 @@ class SupabaseDatabaseController implements DatabaseController {
 
     if (authId != null) {
       return (await _supabase
-              .from(userTableName)
-              .select(authIdFieldName)
-              .eq(authIdFieldName, authId))
-          .isNotEmpty;
+          .from(userTableName)
+          .select(authIdFieldName)
+          .eq(authIdFieldName, authId)).isNotEmpty;
     } else {
-      return (await _supabase
-          .rpc("check_user_name_exists", params: {"username": name}));
+      return (await _supabase.rpc(
+        "check_user_name_exists",
+        params: {"username": name},
+      ));
     }
   }
 
@@ -270,57 +270,59 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  newFriendRequestsStream(userId, RealtimeCallback insertCallback,
-      RealtimeCallback updateCallback) {
-    final RealtimeNotificationsShape insertShape = {
-      0: [],
-    };
+  newFriendRequestsStream(
+    userId,
+    RealtimeCallback insertCallback,
+    RealtimeCallback updateCallback,
+  ) {
+    final RealtimeNotificationsShape insertShape = {0: []};
 
-    final RealtimeNotificationsShape updateShape = {
-      1: [],
-    };
+    final RealtimeNotificationsShape updateShape = {1: []};
 
     _supabase
         .channel("friend-requests-channel")
         .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: "public",
-            table: pendingFriendRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: recipientFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              insertShape[0] = [event.newRecord];
-              insertCallback(insertShape);
-            })
+          event: PostgresChangeEvent.insert,
+          schema: "public",
+          table: pendingFriendRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: recipientFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            insertShape[0] = [event.newRecord];
+            insertCallback(insertShape);
+          },
+        )
         .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: "public",
-            table: pendingFriendRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: recipientFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              updateShape[1] = [event.oldRecord, event.newRecord];
-              updateCallback(updateShape);
-            })
+          event: PostgresChangeEvent.update,
+          schema: "public",
+          table: pendingFriendRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: recipientFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            updateShape[1] = [event.oldRecord, event.newRecord];
+            updateCallback(updateShape);
+          },
+        )
         .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: "public",
-            table: pendingFriendRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: sendingUserFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              updateShape[1] = [event.oldRecord, event.newRecord];
-              updateCallback(updateShape);
-            })
+          event: PostgresChangeEvent.update,
+          schema: "public",
+          table: pendingFriendRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: sendingUserFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            updateShape[1] = [event.oldRecord, event.newRecord];
+            updateCallback(updateShape);
+          },
+        )
         .subscribe();
   }
 
@@ -330,57 +332,59 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  newServerRequestsStream(userId, RealtimeCallback insertCallback,
-      RealtimeCallback updateCallback) {
-    final RealtimeNotificationsShape insertShape = {
-      0: [],
-    };
+  newServerRequestsStream(
+    userId,
+    RealtimeCallback insertCallback,
+    RealtimeCallback updateCallback,
+  ) {
+    final RealtimeNotificationsShape insertShape = {0: []};
 
-    final RealtimeNotificationsShape updateShape = {
-      1: [],
-    };
+    final RealtimeNotificationsShape updateShape = {1: []};
 
     _supabase
         .channel("server-requests-channel")
         .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: "public",
-            table: pendingServerRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: recipientFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              insertShape[0] = [event.newRecord];
-              insertCallback(insertShape);
-            })
+          event: PostgresChangeEvent.insert,
+          schema: "public",
+          table: pendingServerRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: recipientFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            insertShape[0] = [event.newRecord];
+            insertCallback(insertShape);
+          },
+        )
         .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: "public",
-            table: pendingServerRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: recipientFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              updateShape[1] = [event.oldRecord, event.newRecord];
-              updateCallback(updateShape);
-            })
+          event: PostgresChangeEvent.update,
+          schema: "public",
+          table: pendingServerRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: recipientFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            updateShape[1] = [event.oldRecord, event.newRecord];
+            updateCallback(updateShape);
+          },
+        )
         .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: "public",
-            table: pendingServerRequestsTableName,
-            filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: sendingUserFieldName,
-              value: userId,
-            ),
-            callback: (event) {
-              updateShape[1] = [event.oldRecord, event.newRecord];
-              updateCallback(updateShape);
-            })
+          event: PostgresChangeEvent.update,
+          schema: "public",
+          table: pendingServerRequestsTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: sendingUserFieldName,
+            value: userId,
+          ),
+          callback: (event) {
+            updateShape[1] = [event.oldRecord, event.newRecord];
+            updateCallback(updateShape);
+          },
+        )
         .subscribe();
   }
 
@@ -391,10 +395,10 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Stream<List<CloudUser>> fetchUsersForSearch(String query) async* {
-    final data = await _supabase.rpc(
-      "fetch_users_for_search",
-      params: {"username": query},
-    ).select();
+    final data =
+        await _supabase
+            .rpc("fetch_users_for_search", params: {"username": query})
+            .select();
     yield data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
   }
 
@@ -425,16 +429,17 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<CloudSquad> editSquad(
-      String id, String name, String description) async {
+    String id,
+    String name,
+    String description,
+  ) async {
     try {
-      final res = await _supabase
-          .from(squadTableName)
-          .update({
-            rowName: name,
-            squadDescriptionFieldName: description,
-          })
-          .eq(idFieldName, id)
-          .select();
+      final res =
+          await _supabase
+              .from(squadTableName)
+              .update({rowName: name, squadDescriptionFieldName: description})
+              .eq(idFieldName, id)
+              .select();
       return CloudSquad.fromSupabaseMap(res[0]);
     } on Exception catch (_) {
       rethrow;
@@ -443,16 +448,17 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<CloudUser> editUser(
-      String id, String username, String biography) async {
+    String id,
+    String username,
+    String biography,
+  ) async {
     try {
-      final res = await _supabase
-          .from(userTableName)
-          .update({
-            nameFieldName: username,
-            bioFieldName: biography,
-          })
-          .eq(idFieldName, id)
-          .select();
+      final res =
+          await _supabase
+              .from(userTableName)
+              .update({nameFieldName: username, bioFieldName: biography})
+              .eq(idFieldName, id)
+              .select();
       return CloudUser.fromSubabaseMap(res[0]);
     } on Exception catch (_) {
       rethrow;
@@ -484,9 +490,7 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   newAchievementsStream(userId, RealtimeCallback insertCallback) {
-    final RealtimeNotificationsShape insertShape = {
-      0: [],
-    };
+    final RealtimeNotificationsShape insertShape = {0: []};
 
     _supabase
         .channel("server-requests-channel")
@@ -516,12 +520,7 @@ class SupabaseDatabaseController implements DatabaseController {
   Future<void> leaveSquad(squadId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
 
-    await _supabase.rpc(
-      "leave_squad",
-      params: {
-        'squad_id': squadId,
-      },
-    );
+    await _supabase.rpc("leave_squad", params: {'squad_id': squadId});
   }
 
   @override
@@ -530,11 +529,12 @@ class SupabaseDatabaseController implements DatabaseController {
     Map<String, dynamic> workout,
     String name,
   ) async {
-    final resWorkout = await _supabase.from(workoutTableName).insert({
-      planFieldName: workout,
-      ownerUserFieldName: userId,
-      rowName: name,
-    }).select();
+    final resWorkout =
+        await _supabase.from(workoutTableName).insert({
+          planFieldName: workout,
+          ownerUserFieldName: userId,
+          rowName: name,
+        }).select();
     return CloudWorkout.fromSupabaseMap(resWorkout[0]);
   }
 
@@ -545,5 +545,30 @@ class SupabaseDatabaseController implements DatabaseController {
         .select()
         .eq(ownerUserFieldName, userId);
     return resWorkouts.map((e) => CloudWorkout.fromSupabaseMap(e)).toList();
+  }
+
+  @override
+  Future<CloudWorkout> editWorkout(
+    workoutId,
+    Map<String, dynamic> edits,
+  ) async {
+    final resWorkout =
+        await _supabase
+            .from(workoutTableName)
+            .update({planFieldName: edits})
+            .eq(idFieldName, workoutId)
+            .select();
+
+    return CloudWorkout.fromSupabaseMap(resWorkout[0]);
+  }
+
+  @override
+  Future<void> deleteWorkout(workoutId) async {
+    await _supabase
+        .from(workoutTableName)
+        .delete()
+        .eq(idFieldName, workoutId)
+        .select();
+
   }
 }

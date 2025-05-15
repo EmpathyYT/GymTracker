@@ -9,6 +9,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../helpers/exercise_type.dart';
+import '../../services/cloud/cloud_workout.dart';
 
 typedef FilteredExerciseFormat = Map<int, List<ExerciseType>>;
 
@@ -30,8 +31,9 @@ class ExerciseBuilderWidget extends StatefulWidget {
 
 class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     with SingleTickerProviderStateMixin {
-  final ValueNotifier<List<ExerciseType>> _exerciseListNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<ExerciseType>> _exerciseListNotifier = ValueNotifier(
+    [],
+  );
   final ValueNotifier<bool> _isRangeNotifier = ValueNotifier(false);
   final TextEditingController _exerciseNameController = TextEditingController();
   final TextEditingController _exerciseRepsController = TextEditingController();
@@ -43,7 +45,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
   late final AnimationController _snackBarController;
   late final Animation<double> _snackBarAnimation;
   late final StreamSubscription<FilteredExerciseFormat>
-      _exerciseStreamSubscription;
+  _exerciseStreamSubscription;
 
   @override
   void initState() {
@@ -65,16 +67,17 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
       duration: const Duration(milliseconds: 500),
     );
 
-    _snackBarAnimation =
-        CurvedAnimation(parent: _snackBarController, curve: Curves.easeInOut)
-          ..addStatusListener((status) async {
-            if (status == AnimationStatus.completed) {
-              await Future.delayed(
-                const Duration(milliseconds: 2500),
-                () => _snackBarController.reverse(),
-              );
-            }
-          });
+    _snackBarAnimation = CurvedAnimation(
+      parent: _snackBarController,
+      curve: Curves.easeInOut,
+    )..addStatusListener((status) async {
+      if (status == AnimationStatus.completed) {
+        await Future.delayed(
+          const Duration(milliseconds: 2500),
+          () => _snackBarController.reverse(),
+        );
+      }
+    });
     super.initState();
   }
 
@@ -95,19 +98,14 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
           Text(
             "Day $day",
             textAlign: TextAlign.center,
-            style: GoogleFonts.oswald(
-              fontSize: 30,
-            ),
+            style: GoogleFonts.oswald(fontSize: 30),
           ),
           const SizedBox(height: 10),
           Container(
             width: MediaQuery.of(context).size.width * 0.6,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white60,
-                width: 0.9,
-              ),
+              border: Border.all(color: Colors.white60, width: 0.9),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -138,12 +136,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                       ),
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      "X",
-                      style: GoogleFonts.oswald(
-                        fontSize: 15,
-                      ),
-                    ),
+                    Text("X", style: GoogleFonts.oswald(fontSize: 15)),
                     const SizedBox(width: 4),
                     SizedBox(
                       width: 30,
@@ -167,12 +160,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                       ),
                     ),
                     const SizedBox(width: 2),
-                    Text(
-                      "X",
-                      style: GoogleFonts.oswald(
-                        fontSize: 15,
-                      ),
-                    ),
+                    Text("X", style: GoogleFonts.oswald(fontSize: 15)),
                     const SizedBox(width: 4),
                     SizedBox(
                       width: 30,
@@ -204,34 +192,22 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                   },
                 ),
                 const SizedBox(height: 10),
-                StatefulBuilder(builder: (context, setState) {
-                  return TextButton(
-                    onPressed: () => setState(
-                        () => _isRangeNotifier.value = !_isRangeNotifier.value),
-                    child: Text(
-                      !_isRangeNotifier.value ? "Static" : "Range",
-                      style: GoogleFonts.oswald(
-                        fontSize: 18,
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    return TextButton(
+                      onPressed:
+                          () => setState(
+                            () =>
+                                _isRangeNotifier.value =
+                                    !_isRangeNotifier.value,
+                          ),
+                      child: Text(
+                        !_isRangeNotifier.value ? "Static" : "Range",
+                        style: GoogleFonts.oswald(fontSize: 18),
                       ),
-                    ),
-                  );
-                  // return SegmentedButton<bool>(
-                  //   segments: const [
-                  //     ButtonSegment<bool>(
-                  //       value: true,
-                  //       label: Text("Range"),
-                  //     ),
-                  //     ButtonSegment<bool>(
-                  //       value: false,
-                  //       label: Text("Static"),
-                  //     )
-                  //   ],
-                  //   selected: {_isRangeNotifier.value},
-                  //   onSelectionChanged: (Set<bool> val) {
-                  //     setState(() => _isRangeNotifier.value = val.first);
-                  //   },
-                  // );
-                }),
+                    );
+                  },
+                ),
                 const SizedBox(height: 7),
               ],
             ),
@@ -239,10 +215,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
           const SizedBox(height: 10),
           GestureDetector(
             onTap: () => _addExerciseButtonOnClick(),
-            child: const Icon(
-              Icons.arrow_downward,
-              size: 35,
-            ),
+            child: const Icon(Icons.arrow_downward, size: 35),
           ),
           const SizedBox(height: 20),
           Flexible(
@@ -250,10 +223,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
             child: Container(
               width: MediaQuery.of(context).size.width * 0.75,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white60,
-                  width: 0.9,
-                ),
+                border: Border.all(color: Colors.white60, width: 0.9),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: ValueListenableBuilder(
@@ -273,10 +243,8 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
             flex: 1,
             child: NavigationIconsWidget(
               type: _navigationType,
-              arrowNavigationCallback: (bool moveToRight) =>
-                  arrowNavigationCallback(
-                moveToRight,
-              ),
+              arrowNavigationCallback:
+                  (bool moveToRight) => arrowNavigationCallback(moveToRight),
             ),
           ),
         ],
@@ -289,10 +257,11 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     final noWeight =
         exercise.weightRange.item1 == 0 && exercise.weightRange.item2 == 0;
 
-    final exerciseName = noWeight
-        ? exercise.name
-        : "${exercise.name} "
-            "(${exercise.exerciseWeightToString})";
+    final exerciseName =
+        noWeight
+            ? exercise.name
+            : "${exercise.name} "
+                "(${exercise.exerciseWeightToString})";
 
     onTap() async {
       final data = await showNoteInputDialog(
@@ -302,21 +271,16 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
 
       if (data != null) {
         exercise.notes = data;
-        _streamEventCallback(
-          _exerciseController.valueOrNull ?? {},
-        );
+        _streamEventCallback(_exerciseController.valueOrNull ?? {});
       }
     }
-
+    
     final initWidget = ListTile(
       dense: true,
       contentPadding: const EdgeInsets.fromLTRB(15, 2, 0, 0),
       title: Text(
         exerciseName,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         "${exercise.sets} x ${exercise.reps}",
@@ -326,6 +290,10 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
           fontWeight: FontWeight.w600,
         ),
       ),
+      trailing: IconButton(
+        onPressed: () => _removeFromStream(day, exercise),
+        icon: const Icon(Icons.remove_circle),
+      ),
     );
     if (index != 0 && index != value.length - 1) {
       return copyListTileForTap(initWidget, onTap);
@@ -333,88 +301,87 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     final isTop = index == 0;
 
     return InkWell(
-        customBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(isTop ? 20 : 0),
-            topRight: Radius.circular(isTop ? 20 : 0),
-            bottomLeft: Radius.circular(!isTop ? 20 : 0),
-            bottomRight: Radius.circular(!isTop ? 20 : 0),
-          ),
+      customBorder: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(isTop ? 20 : 0),
+          topRight: Radius.circular(isTop ? 20 : 0),
+          bottomLeft: Radius.circular(!isTop ? 20 : 0),
+          bottomRight: Radius.circular(!isTop ? 20 : 0),
         ),
-        onTap: () => onTap(),
-        child: initWidget);
+      ),
+      onTap: () => onTap(),
+      child: initWidget,
+    );
   }
 
   Widget _rangeOrSingle(bool val) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: val
-          ? [
-              SizedBox(
-                width: 50,
-                child: TextField(
-                  controller: _exerciseLWeightController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    counterText: "",
-                    border: InputBorder.none,
-                    hintText: "Low",
-                    hintStyle: GoogleFonts.montserrat(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+      children:
+          val
+              ? [
+                SizedBox(
+                  width: 50,
+                  child: TextField(
+                    controller: _exerciseLWeightController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      counterText: "",
+                      border: InputBorder.none,
+                      hintText: "Low",
+                      hintStyle: GoogleFonts.montserrat(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    maxLength: 4,
                   ),
-                  maxLength: 4,
                 ),
-              ),
-              SizedBox(
-                width: 10,
-                child: Text(
-                  "-",
-                  style: GoogleFonts.oswald(fontSize: 30),
+                SizedBox(
+                  width: 10,
+                  child: Text("-", style: GoogleFonts.oswald(fontSize: 30)),
                 ),
-              ),
-              SizedBox(
-                width: 50,
-                child: TextField(
-                  controller: _exerciseHWeightController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    counterText: "",
-                    border: InputBorder.none,
-                    hintText: "High",
-                    hintStyle: GoogleFonts.montserrat(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                SizedBox(
+                  width: 50,
+                  child: TextField(
+                    controller: _exerciseHWeightController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      counterText: "",
+                      border: InputBorder.none,
+                      hintText: "High",
+                      hintStyle: GoogleFonts.montserrat(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    maxLength: 4,
                   ),
-                  maxLength: 4,
                 ),
-              ),
-            ]
-          : [
-              SizedBox(
-                width: 100,
-                child: TextField(
-                  textAlign: TextAlign.center,
-                  controller: _exerciseLWeightController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    counterText: "",
-                    border: InputBorder.none,
-                    hintText: "Weight",
-                    hintStyle: GoogleFonts.montserrat(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+              ]
+              : [
+                SizedBox(
+                  width: 100,
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    controller: _exerciseLWeightController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      counterText: "",
+                      border: InputBorder.none,
+                      hintText: "Weight",
+                      hintStyle: GoogleFonts.montserrat(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    maxLength: 4,
                   ),
-                  maxLength: 4,
                 ),
-              ),
-            ],
+              ],
     );
   }
 
@@ -445,13 +412,17 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
   }
 
   void _addToStream(int day, ExerciseType exercise) {
-    _exerciseController.add({
-      ..._exerciseController.valueOrNull ?? {},
-    }..update(
-        day,
-        (e) => e..add(exercise),
-        ifAbsent: () => [exercise],
-      ));
+    _exerciseController.add(
+      {..._exerciseController.valueOrNull ?? {}}
+        ..update(day, (e) => e..add(exercise), ifAbsent: () => [exercise]),
+    );
+  }
+
+  void _removeFromStream(int day, ExerciseType exercise) {
+    _exerciseController.add(
+      {..._exerciseController.valueOrNull ?? {}}
+        ..update(day, (e) => e..remove(exercise), ifAbsent: () => []),
+    );
   }
 
   bool _inputValidation() {
@@ -461,10 +432,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     final lWeight = _exerciseLWeightController.text.trim();
     final hWeight = _exerciseHWeightController.text.trim();
 
-    final color = darkenColor(
-      Theme.of(context).scaffoldBackgroundColor,
-      0.2,
-    );
+    final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
     if (_validateNameInput(exerciseName) != null) {
       _showSnackBar(_validateNameInput(exerciseName)!, color);
       return false;
@@ -499,10 +467,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
           opacity: _snackBarController,
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
         duration: const Duration(seconds: 3),
@@ -518,9 +483,10 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
   void _addExerciseButtonOnClick() {
     if (!_inputValidation()) return;
 
-    final lWeight = _exerciseLWeightController.text.trim().isEmpty
-        ? "0"
-        : _exerciseLWeightController.text.trim();
+    final lWeight =
+        _exerciseLWeightController.text.trim().isEmpty
+            ? "0"
+            : _exerciseLWeightController.text.trim();
 
     final hWeight =
         _isRangeNotifier.value ? _exerciseHWeightController.text.trim() : "0";
@@ -531,10 +497,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
         name: _exerciseNameController.text.trim(),
         sets: int.parse(_exerciseSetsController.text.trim()),
         reps: int.parse(_exerciseRepsController.text.trim()),
-        weightRange: Tuple2(
-          int.parse(lWeight),
-          int.parse(hWeight),
-        ),
+        weightRange: Tuple2(int.parse(lWeight), int.parse(hWeight)),
       ),
     );
   }

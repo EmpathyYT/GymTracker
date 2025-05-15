@@ -22,20 +22,31 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
   });
 
   CloudWorkout.fromSupabaseMap(Map<String, dynamic> map)
-      : id = map[idFieldName].toString(),
-        ownerId = map[ownerUserFieldName].toString(),
-        timeCreated = DateTime.parse(map[timeCreatedFieldName]),
-        name = map[rowName],
-        super(workouts: WorkoutJsonAdapter.mapFromJson(map[planFieldName]));
+    : id = map[idFieldName].toString(),
+      ownerId = map[ownerUserFieldName].toString(),
+      timeCreated = DateTime.parse(map[timeCreatedFieldName]),
+      name = map[rowName],
+      super(workouts: WorkoutJsonAdapter.mapFromJson(map[planFieldName]));
 
   static Future<CloudWorkout> createWorkout(
-      userId, FilteredExerciseFormat workouts, String name,) async {
+    userId,
+    FilteredExerciseFormat workouts,
+    String name,
+  ) async {
     final json = WorkoutJsonAdapter(workouts: workouts).toJson();
     return await dbController.createWorkout(userId, json, name);
   }
 
   static Future<List<CloudWorkout>> fetchWorkouts(userId) async {
     return await dbController.fetchWorkouts(userId);
+  }
+
+  Future<CloudWorkout> editWorkout(FilteredExerciseFormat workouts) async {
+    return await dbController.editWorkout(id, toJson());
+  }
+
+  Future<void> deleteWorkout() async {
+    await dbController.deleteWorkout(id);
   }
 
   @override

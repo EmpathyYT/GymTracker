@@ -5,6 +5,7 @@ import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
+import 'package:tuple/tuple.dart';
 
 class DatabaseServiceProvider implements DatabaseController {
   final DatabaseController _provider;
@@ -149,4 +150,13 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   Future<List<CloudWorkout>> fetchWorkouts(userId) =>
       _provider.fetchWorkouts(userId);
+
+  @override
+  Future<CloudWorkout> editWorkout(workoutId, Map<String, dynamic> edits) =>
+      _provider.editWorkout(workoutId, edits);
+
+  @override
+  Future<void> deleteWorkout(workoutId) =>
+      _provider.deleteWorkout(workoutId);
+
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-
+import 'package:gymtracker/helpers/rounded_list_builder.dart';
 import 'navigation_icons_widget.dart';
 
 class WorkoutViewerWidget extends StatefulWidget {
@@ -73,17 +73,13 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                 children: [
                   const SizedBox(height: 10),
                   Expanded(
-                    child: ListView.builder(
+                    child: roundedListBuilder(
+                      borderRadius: 10,
                       itemCount: exercise.length,
                       itemBuilder: (context, index) {
                         final exerciseElement = exercise[index];
-                        return Container(
+                        return SizedBox(
                           height: 40,
-                          decoration: const BoxDecoration(
-                            border: Border.fromBorderSide(
-                              BorderSide(width: 1, color: Colors.white60),
-                            ),
-                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [

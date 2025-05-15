@@ -39,9 +39,11 @@ final class ProfileViewer extends MainPageState {
 
 final class WorkoutPlanner extends MainPageState {
   final List<CloudWorkout>? workouts;
+  final List<String>? successText;
 
   const WorkoutPlanner({
     this.workouts,
+    this.successText,
     super.exception,
     super.isLoading = false,
     super.loadingText = "",
@@ -56,6 +58,7 @@ final class WorkoutPlanner extends MainPageState {
       exception: exception,
       isLoading: isLoading,
       loadingText: loadingText,
+      successText: successText,
       success: success,
       notifications: notifications,
     );
