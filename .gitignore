@@ -1,5 +1,3 @@
-# Miscellaneous
-secrets/
 # Gradle files
 .gradle/
 build/
@@ -26,12 +24,11 @@ Thumbs.db
 *.apk
 *.aab
 *.cxx/
-
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
 #.vscode/
-
+/lib/helpers/*.g.dart
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
