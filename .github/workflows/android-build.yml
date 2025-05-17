@@ -23,6 +23,8 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --release
+        env:
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
