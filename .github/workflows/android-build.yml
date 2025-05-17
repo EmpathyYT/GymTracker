@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
     steps:
       - name: Checkout code
@@ -22,9 +24,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
-        env:
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: flutter build apk --release --dart-define=SUPABASE_KEY=$SUPABASE_KEY
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
