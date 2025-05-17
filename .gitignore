@@ -1,21 +1,31 @@
 # Miscellaneous
 secrets/
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
-/lib/helpers/*.g.dart
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# Gradle files
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android Studio files
 .idea/
+*.iml
+
+# Signatures
+*.jks
+*.keystore
+
+# Local configuration files
+local.properties
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+*.apk
+*.aab
+*.cxx/
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
