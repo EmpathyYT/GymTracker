@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
@@ -49,7 +48,6 @@ class SupabaseAuthProvider implements AuthProvider {
 
   @override
   Future<void> initialize() async {
-    await dotenv.load(fileName: "lib/secrets/.env");
     await Supabase.initialize(
         url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
         anonKey: const String.fromEnvironment('SUPABASE_KEY'),
