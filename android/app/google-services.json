@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "769814325314",
+    "project_id": "niggarat-of-gym",
+    "storage_bucket": "niggarat-of-gym.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769814325314:android:764d12291db0b1519f65db",
+        "android_client_info": {
+          "package_name": "com.example.strength_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRCgcQ5MSswkxqOhPiZC6bfwYE-mMzgaQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769814325314:android:492b125f5b21d3709f65db",
+        "android_client_info": {
+          "package_name": "com.gym.tracker.gymtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRCgcQ5MSswkxqOhPiZC6bfwYE-mMzgaQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769814325314:android:c8d7dff7a53007959f65db",
+        "android_client_info": {
+          "package_name": "com.strength.tracker.strengthtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRCgcQ5MSswkxqOhPiZC6bfwYE-mMzgaQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
