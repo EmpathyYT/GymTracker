@@ -18,7 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this._provider, this._databaseController)
       : super(const AuthStateUninitialized(isLoading: true)) {
     on<AuthEventSendEmailVerification>((event, emit) async {
-      await _provider.sendEmailVerification();
+      await _provider.sendEmailVerification(email: event.user.email!);
       emit(state);
     });
 
@@ -63,7 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthEventListenForVerification>((event, emit) async {
-      final verificationStream = _provider.listenForVerification(event.user);
+      final verificationStream = _provider.listenForVerification();
       await for (final verified in verificationStream) {
         if (verified) {
           emit(const AuthStateSettingUpProfile(

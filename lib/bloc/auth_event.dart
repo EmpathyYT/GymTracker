@@ -11,7 +11,8 @@ class AuthEventInitialize extends AuthEvent {
 }
 
 class AuthEventSendEmailVerification extends AuthEvent {
-  const AuthEventSendEmailVerification();
+  final AuthUser user;
+  const AuthEventSendEmailVerification({required this.user});
 }
 
 class AuthEventReloadUser extends AuthEvent {

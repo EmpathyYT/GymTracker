@@ -5,7 +5,7 @@ import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
-    show AuthChangeEvent, AuthException, OtpType, Supabase;
+    show AuthException, OtpType, Supabase;
 
 class SupabaseAuthProvider implements AuthProvider {
   @override
@@ -14,8 +14,10 @@ class SupabaseAuthProvider implements AuthProvider {
     required String password,
   }) async {
     try {
-      final response = await Supabase.instance.client.auth
-          .signUp(email: email, password: password);
+      final response = await Supabase.instance.client.auth.signUp(
+        email: email,
+        password: password,
+      );
       return AuthUser.fromSupabaseUser(response.user!);
     } on AuthException catch (e) {
       switch (e.code) {
@@ -49,18 +51,22 @@ class SupabaseAuthProvider implements AuthProvider {
   @override
   Future<void> initialize() async {
     await Supabase.initialize(
-        url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
-        anonKey: const String.fromEnvironment('SUPABASE_KEY'),
+      url: "https://abqjtcwdfpfzkxdcudjt.supabase.co",
+      anonKey: const String.fromEnvironment('SUPABASE_KEY'),
     );
     Supabase.instance.client.auth.startAutoRefresh();
   }
 
   @override
-  Future<AuthUser> logIn(
-      {required String email, required String password}) async {
+  Future<AuthUser> logIn({
+    required String email,
+    required String password,
+  }) async {
     try {
-      final response = await Supabase.instance.client.auth
-          .signInWithPassword(email: email, password: password);
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
       return AuthUser.fromSupabaseUser(response.user!);
     } on AuthException catch (e) {
       switch (e.code) {
@@ -89,23 +95,22 @@ class SupabaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Future<void> sendEmailVerification() async {
-    if (Supabase.instance.client.auth.currentUser == null) {
-      throw UserNotLoggedInException();
-    } else {
-      try {
-        await Supabase.instance.client.auth.resend(type: OtpType.signup);
-      } on AuthException catch (e) {
-        switch (e.code) {
-          case 'email_not_found':
-            throw UserNotFoundAuthException();
+  Future<void> sendEmailVerification({required String email}) async {
+    try {
+      await Supabase.instance.client.auth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+    } on AuthException catch (e) {
+      switch (e.code) {
+        case 'email_not_found':
+          throw UserNotFoundAuthException();
 
-          case 'user_not_found':
-            throw UserNotFoundAuthException();
+        case 'user_not_found':
+          throw UserNotFoundAuthException();
 
-          default:
-            throw GenericAuthException();
-        }
+        default:
+          throw GenericAuthException();
       }
     }
   }
@@ -148,7 +153,7 @@ class SupabaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Stream<bool> listenForVerification(AuthUser? user) async* {
+  Stream<bool> listenForVerification() async* {
     final appLinks = AppLinks().uriLinkStream;
 
     await for (final link in appLinks) {

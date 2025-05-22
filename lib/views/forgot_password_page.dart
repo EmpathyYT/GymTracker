@@ -57,7 +57,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("REplace",
+                    Text("Forgot Password?",
                         style: GoogleFonts.oswald(
                           fontSize: 20,
                         )),
