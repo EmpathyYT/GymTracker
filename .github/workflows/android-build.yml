@@ -35,11 +35,12 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --dart-define=SUPABASE_KEY=$SUPABASE_KEY
         env:
+          KEYSTORE_FILE_PATH: ./android/app/key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: flutter build apk --release --dart-define=SUPABASE_KEY=$SUPABASE_KEY
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
