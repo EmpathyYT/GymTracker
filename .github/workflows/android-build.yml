@@ -39,6 +39,7 @@ jobs:
           KEYSTORE_FILE_PATH: ./android/app/my-release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: flutter build apk --release --dart-define=SUPABASE_KEY=$SUPABASE_KEY
 
