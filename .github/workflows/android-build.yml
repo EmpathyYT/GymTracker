@@ -5,16 +5,26 @@ on:
     tags:
       - 'v*.*.*'
       - '*.*.*'
-      - 'v*.*.*-*' #
+      - 'v*.*.*-*'
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Restore keystore file
+        run: |
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > ./android/app/my-release-key.jks
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -26,15 +36,17 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --release --dart-define=SUPABASE_KEY=$SUPABASE_KEY
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # Upload as artifact in Actions (optional)
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # Create or update GitHub release based on tag pushed
       - name: Get tag commit message
         id: get_commit_msg
         run: |
