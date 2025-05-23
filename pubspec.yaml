@@ -47,6 +47,7 @@ dependencies:
   json_annotation: ^4.9.0
   collection: ^1.19.1
   flutter_launcher_icons: ^0.14.3
+  rename_app: ^1.6.3
 
 
 dev_dependencies:
