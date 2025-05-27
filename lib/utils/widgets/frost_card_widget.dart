@@ -8,14 +8,12 @@ import 'package:tuple/tuple.dart';
 class FrostCardWidget extends StatefulWidget {
   final Widget widget;
   final double blurSigma;
-  final Key frostKey;
   final int level;
 
   const FrostCardWidget({
     super.key,
     required this.widget,
     required this.blurSigma,
-    required this.frostKey,
     required this.level,
   });
 
@@ -41,67 +39,70 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Center(
-      child: Container(
-        height: 500,
-        width: 300,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Stack(
-          children: [
-            // Blurred gradient background
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  margin: EdgeInsets.all(8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: FractionallySizedBox(
+        widthFactor: 1,
+        heightFactor: 0.8,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Stack(
+            children: [
+              // Blurred gradient background
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          ..._cachedGradient,
-                        ],
+                    margin: const EdgeInsets.all(8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [
+                            ..._cachedGradient,
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  margin: EdgeInsets.all(8),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: widget.blurSigma,
-                      sigmaY: widget.blurSigma,
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: widget.blurSigma,
+                        sigmaY: widget.blurSigma,
+                      ),
+                      child: Container(color: Colors.transparent),
                     ),
-                    child: Container(color: Colors.transparent),
                   ),
                 ),
               ),
-            ),
 
-            Container(
-              decoration: BoxDecoration(
-                color: _frostColor!.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: _frostColor!.withOpacity(0.15),
-                    blurRadius: 10,
-                    spreadRadius: 0.5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+              Container(
+                decoration: BoxDecoration(
+                  color: _frostColor!.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _frostColor!.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      spreadRadius: 0.5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: widgetToFrost,
               ),
-              child: widgetToFrost,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -125,16 +126,16 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
       }
 
       return switch (channel) {
-        0 => color.withGreen(applyFactor(color.green)),
-        1 => color.withBlue(applyFactor(color.blue)),
-        2 || _ => color.withRed(applyFactor(color.red)),
+        0 => color.withGreen(applyFactor((color.g * 255).round())),
+        1 => color.withBlue(applyFactor((color.b * 255).round())),
+        2 || _ => color.withRed(applyFactor((color.r * 255).round())),
       };
     }
 
     return Tuple3(
-      colorTweak(colors[0]).withOpacity(0.1),
-      colorTweak(colors[1]).withOpacity(0.1),
-      colorTweak(colors[2]).withOpacity(0.1),
+      colorTweak(colors[0]).withValues(alpha: 0.1),
+      colorTweak(colors[1]).withValues(alpha: 0.1),
+      colorTweak(colors[2]).withValues(alpha: 0.1),
     );
   }
 

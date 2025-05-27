@@ -27,7 +27,7 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
   @override
   void initState() {
     super.initState();
-    _controller.add(workout.workouts);
+    _controller.add(workout.deepCopyWorkouts);
     _workoutWidgets ??= _buildWorkoutWidgets();
     _nameController = TextEditingController()..text = widget.workout.name;
   }
@@ -35,6 +35,8 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
   @override
   void dispose() {
     _controller.close();
+    _pageController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -43,7 +45,8 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop || (result ?? false) as bool) return;
+        if (didPop) return;
+        if ((result ?? false) as bool) Navigator.pop(context);
         if (_nameController.text.isEmpty) {
           await showErrorDialog(
             context,
@@ -54,6 +57,7 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
         await context.read<MainPageCubit>().editWorkout(
           workout,
           _controller.valueOrNull ?? {},
+          _nameController.text,
         );
 
         if (context.mounted) Navigator.pop(context);

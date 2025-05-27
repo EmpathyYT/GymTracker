@@ -8,7 +8,7 @@ part 'workout_json_adapter.g.dart';
 @JsonSerializable()
 class WorkoutJsonAdapter {
   @JsonKey(name: 'workouts', fromJson: mapFromJson, toJson: _mapToJson)
-  final FilteredExerciseFormat workouts;
+  FilteredExerciseFormat workouts;
 
   WorkoutJsonAdapter({required this.workouts});
 

@@ -493,7 +493,7 @@ class MainPageCubit extends Cubit<MainPageState> {
       );
       emit(
         WorkoutPlanner(
-          workouts: (workouts ?? [])..add(data),
+          workouts: (workouts)..add(data),
           success: false,
           notifications: state.notifications,
         ),
@@ -512,15 +512,10 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> editWorkout(
     CloudWorkout workout,
     FilteredExerciseFormat exercise,
+    String name,
   ) async {
-    final oldWorkout = (state as WorkoutPlanner).workouts?.firstWhere(
-      (element) => element.id == workout.id,
-    );
-
-    if (!const DeepCollectionEquality().equals(
-      exercise,
-      oldWorkout?.workouts,
-    )) {
+    if (!const DeepCollectionEquality().equals(exercise, workout.workouts) ||
+        workout.name != name) {
       emit(
         WorkoutPlanner(
           isLoading: true,
@@ -531,7 +526,7 @@ class MainPageCubit extends Cubit<MainPageState> {
       );
 
       try {
-        final data = await workout.editWorkout(exercise);
+        final data = await workout.editWorkout(name, exercise);
         final workouts =
             (state as WorkoutPlanner).workouts?.where((e) {
                 return e.id != workout.id;

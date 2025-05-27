@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/workout_json_adapter.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 
@@ -41,20 +42,27 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
     return await dbController.fetchWorkouts(userId);
   }
 
-  Future<CloudWorkout> editWorkout(FilteredExerciseFormat workouts) async {
-    return await dbController.editWorkout(id, toJson());
+  Future<CloudWorkout> editWorkout(name, FilteredExerciseFormat workouts) async {
+    final workoutsToJson = WorkoutJsonAdapter(workouts: workouts).toJson();
+    final res = await dbController.editWorkout(id, name, workoutsToJson);
+    this.workouts = workouts;
+    return res;
   }
 
   Future<void> deleteWorkout() async {
     await dbController.deleteWorkout(id);
   }
 
-  @override
-  String toString() {
-    return 'CloudWorkout{id: $id, ownerId: $ownerId, '
-        'timeCreated: $timeCreated, workouts: $workouts}';
+  FilteredExerciseFormat get deepCopyWorkouts {
+    return workouts.map((k, v) => MapEntry(k, List<ExerciseType>.from(v)));
   }
 
   @override
-  List<Object?> get props => [id];
+  String toString() {
+    return 'CloudWorkout{id: $id, ownerId: $ownerId, '
+        'timeCreated: $timeCreated, workouts: $workouts, name: $name}';
+  }
+
+  @override
+  List<Object?> get props => [id, name];
 }

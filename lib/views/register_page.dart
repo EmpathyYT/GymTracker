@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,90 +43,100 @@ class _RegisterPageState extends State<RegisterPage> {
         if (state is AuthStateRegistering) {
           if (state.exception is WeakPasswordAuthException) {
             await showErrorDialog(
-                context, "Weak password, try a stronger password.");
+              context,
+              "Weak password, try a stronger password.",
+            );
           } else if (state.exception is EmailAlreadyInUseAuthException) {
-            await showErrorDialog(context,
-                "Email already in use. Use a different email or try again.");
+            await showErrorDialog(
+              context,
+              "Email already in use. Use a different email or try again.",
+            );
           } else if (state.exception is InvalidEmailAuthException) {
             await showErrorDialog(context, "Invalid Email. Please try again.");
           } else if (state.exception is EmptyCredentialsAuthException) {
             await showErrorDialog(
-                context, "Email and Password cannot be empty.");
+              context,
+              "Email and Password cannot be empty.",
+            );
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(
-                context, "An error occurred. Please try again.");
+              context,
+              "An error occurred. Please try again.",
+            );
           }
         }
       },
       child: Scaffold(
         body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: DefaultTextStyle(
-                        style: GoogleFonts.oswald(
-                          fontSize: 27,
-                        ),
-                        child: const Text("Show them what you're made of"),
-                      ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: DefaultTextStyle(
+                      style: GoogleFonts.oswald(fontSize: 27),
+                      child: const Text("Show them what you're made of"),
                     ),
-                    const SizedBox(width: 10),
-                    // Add some space between the texts
-                  ],
-                ),
-                TextField(
-                  autocorrect: false,
-                  controller: _email,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                TextField(
-                  autocorrect: false,
-                  obscureText: true,
-                  controller: _password,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                ),
-                const SizedBox(
-                  width: 10,
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  // Center the Row content
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        context.read<AuthBloc>().add(AuthEventRegister(
-                            _email.text, _password.text));
-                      },
-                      child: const Text('Register',
-                          style: TextStyle(fontSize: 20)),
-                    ),
-                  ],
-                ),
-              ],
-            )),
-        bottomNavigationBar: BottomAppBar(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 170,
-              child: TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(const AuthEventSignOut());
-                },
-                child: const Text('Have an account? Sign in.',
-                    style: TextStyle(fontSize: 15)),
+                  ),
+                  const SizedBox(width: 10),
+                  // Add some space between the texts
+                ],
               ),
-            ),
-          ],
-        )),
+              TextField(
+                autocorrect: false,
+                controller: _email,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                autocorrect: false,
+                obscureText: true,
+                controller: _password,
+                decoration: const InputDecoration(labelText: 'Password'),
+              ),
+              const SizedBox(width: 10, height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                // Center the Row content
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(
+                        AuthEventRegister(_email.text, _password.text),
+                      );
+                    },
+                    child: const Text(
+                      'Register',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 170,
+                child: TextButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const AuthEventSignOut());
+                  },
+                  child: const Text(
+                    'Have an account? Sign in.',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

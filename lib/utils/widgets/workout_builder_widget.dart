@@ -558,6 +558,8 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
     return null;
   }
 
+
+
   String? _validateRangesInput(String low, String high) {
     if (int.parse(low) > int.parse(high)) {
       return "Please enter a valid range.";

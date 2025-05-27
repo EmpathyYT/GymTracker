@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/helpers/rounded_list_builder.dart';
+import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
+
 import 'navigation_icons_widget.dart';
 
 class WorkoutViewerWidget extends StatefulWidget {
@@ -78,8 +79,10 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                       itemCount: exercise.length,
                       itemBuilder: (context, index) {
                         final exerciseElement = exercise[index];
+                        final exerciseWeightToString =
+                            exerciseElement.exerciseWeightToString;
                         return SizedBox(
-                          height: 40,
+                          height: 50,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -113,7 +116,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                     bottom: 5,
                                   ),
                                   child: Text(
-                                    exerciseElement.exerciseWeightToString,
+                                    exerciseWeightToString,
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 17,
@@ -152,7 +155,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
 
   Widget? _centerWidgetIfListEmpty() {
     if (exercise.isEmpty) {
-      return const BigAbsoluteCenteredText(text: "No exercises for today.");
+      return const BigAbsoluteCenteredText(text: "No exercises for this day.");
     }
     return null;
   }

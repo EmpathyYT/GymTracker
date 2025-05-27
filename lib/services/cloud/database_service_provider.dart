@@ -5,7 +5,6 @@ import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
-import 'package:tuple/tuple.dart';
 
 class DatabaseServiceProvider implements DatabaseController {
   final DatabaseController _provider;
@@ -84,8 +83,11 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.newFriendRequestsStream(userId, insertCallback, updateCallback);
 
   @override
-  newServerRequestsStream(userId, RealtimeCallback insertCallback,
-          RealtimeCallback updateCallback) =>
+  newServerRequestsStream(
+    userId,
+    RealtimeCallback insertCallback,
+    RealtimeCallback updateCallback,
+  ) =>
       _provider.newServerRequestsStream(userId, insertCallback, updateCallback);
 
   @override
@@ -144,19 +146,22 @@ class DatabaseServiceProvider implements DatabaseController {
 
   @override
   Future<CloudWorkout> createWorkout(
-          userId, Map<String, dynamic> workout, String name) =>
-      _provider.createWorkout(userId, workout, name);
+    userId,
+    Map<String, dynamic> workout,
+    String name,
+  ) => _provider.createWorkout(userId, workout, name);
 
   @override
   Future<List<CloudWorkout>> fetchWorkouts(userId) =>
       _provider.fetchWorkouts(userId);
 
   @override
-  Future<CloudWorkout> editWorkout(workoutId, Map<String, dynamic> edits) =>
-      _provider.editWorkout(workoutId, edits);
+  Future<CloudWorkout> editWorkout(
+    workoutId,
+    String name,
+    Map<String, dynamic> edits,
+  ) => _provider.editWorkout(workoutId, name, edits);
 
   @override
-  Future<void> deleteWorkout(workoutId) =>
-      _provider.deleteWorkout(workoutId);
-
+  Future<void> deleteWorkout(workoutId) => _provider.deleteWorkout(workoutId);
 }

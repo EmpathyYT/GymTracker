@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:app_links/app_links.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
@@ -21,7 +22,7 @@ class SupabaseAuthProvider implements AuthProvider {
       return AuthUser.fromSupabaseUser(response.user!);
     } on AuthException catch (e) {
       switch (e.code) {
-        case 'email_exists':
+        case 'email_exists' || 'user_already_exists':
           throw EmailAlreadyInUseAuthException();
 
         case 'weak_password':

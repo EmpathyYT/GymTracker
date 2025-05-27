@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,15 +18,15 @@ import 'package:gymtracker/views/profile_setup_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 
 import 'helpers/loading/loading_dialog.dart';
-import 'views/main_page_widgets/routes/notifications.dart';
 import 'views/register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await GoogleFonts.pendingFonts(
-    [GoogleFonts.oswaldTextTheme(), GoogleFonts.montserratTextTheme()],
-  );
+  await GoogleFonts.pendingFonts([
+    GoogleFonts.oswaldTextTheme(),
+    GoogleFonts.montserratTextTheme(),
+  ]);
 
   runApp(const MyApp());
 }
@@ -42,14 +40,15 @@ class MyApp extends StatelessWidget {
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'PrOrEr',
       theme: theme.dark(),
       home: BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(
-          AuthService.supabase(),
-          DatabaseServiceProvider.supabase(AuthService.supabase()),
-        ),
-        child: const HomePage(),
+        create:
+            (context) => AuthBloc(
+              AuthService.supabase(),
+              DatabaseServiceProvider.supabase(AuthService.supabase()),
+            ),
+        child: HomePage(),
       ),
       routes: {
         warriorAdderRoute: (context) => const AddWarriorWidget(),
@@ -60,7 +59,9 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  AuthState? oldSate;
+
+  HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +75,12 @@ class HomePage extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is! MainPage) {
+        if (oldSate is AuthStateAuthenticated &&
+            state is AuthStateUnauthenticated) {
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
 
+        oldSate = state;
         if (state is AuthStateUnauthenticated) {
           return const LoginView();
         } else if (state is AuthStateNeedsVerification) {

@@ -550,12 +550,13 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<CloudWorkout> editWorkout(
     workoutId,
+    name,
     Map<String, dynamic> edits,
   ) async {
     final resWorkout =
         await _supabase
             .from(workoutTableName)
-            .update({planFieldName: edits})
+            .update({planFieldName: edits, rowName: name})
             .eq(idFieldName, workoutId)
             .select();
 
@@ -569,6 +570,5 @@ class SupabaseDatabaseController implements DatabaseController {
         .delete()
         .eq(idFieldName, workoutId)
         .select();
-
   }
 }

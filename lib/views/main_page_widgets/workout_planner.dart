@@ -55,14 +55,15 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
       },
       builder: (context, state) {
         state as WorkoutPlanner;
-        // log(_workouts.toString());
-        // log(state.workouts.toString());
         if (state.workouts != null &&
-            !const ListEquality().equals(_workouts, state.workouts)) {
+            (!const DeepCollectionEquality().equals(
+                  _workouts,
+                  state.workouts,
+                ) ||
+                state.workouts != _workouts)) {
           _workouts = List.from(state.workouts ?? []);
-          _carouselItems = _generateCarouselItems(_workouts);
         }
-
+        _carouselItems = _generateCarouselItems(_workouts);
         return Center(child: _buildPage());
       },
     );
@@ -71,7 +72,6 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
   List<Widget> _generateCarouselItems(List<CloudWorkout> workouts) {
     final newWorkoutWidget = FrostCardWidget(
       level: _user!.level,
-      frostKey: const PageStorageKey("new"),
       blurSigma: 10,
       widget: Column(
         mainAxisSize: MainAxisSize.max,
@@ -113,7 +113,6 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     return List<FrostCardWidget>.generate(workouts.length, (i) {
       return FrostCardWidget(
         level: _user!.level,
-        frostKey: const PageStorageKey("new"),
         blurSigma: 10,
         widget: Column(
           mainAxisSize: MainAxisSize.max,
@@ -163,11 +162,11 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
             return _carouselItems![index];
           },
         )
-        : _carouselItems!.first;
+        : FractionallySizedBox(widthFactor: 0.85, child: _carouselItems!.first);
   }
 
   void _newWorkoutButton() async {
-    await Navigator.of(context).push(
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (_) => BlocProvider.value(
@@ -178,8 +177,8 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     );
   }
 
-  void _openWorkoutButton(CloudWorkout workout) async {
-    await Navigator.of(context).push(
+  void _openWorkoutButton(CloudWorkout workout) {
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (_) => BlocProvider.value(
@@ -190,8 +189,8 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     );
   }
 
-  void _editWorkoutButton(CloudWorkout workout) async {
-    await Navigator.of(context).push(
+  void _editWorkoutButton(CloudWorkout workout) {
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (_) => BlocProvider.value(
