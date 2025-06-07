@@ -58,7 +58,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         ),
       );
       final squad = await CloudSquad.createSquad(name, description);
-      emit(SquadSelector(squad: squad, notifications: state.notifications));
+      emit(SquadSelector(newSquad: squad, notifications: state.notifications));
     } catch (e) {
       emit(
         SquadSelector(
@@ -236,9 +236,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     listeningToNotifications = true;
     CloudKinRequest.friendRequestListener(
       _currentUser.id,
-      (RealtimeNotificationsShape event) {
+      (List event) {
         final RequestsSortingType currNotifications = state.notifications!;
-        final newNotification = CloudKinRequest.fromMap(event[0]!.first);
+        final newNotification = CloudKinRequest.fromMap(event[0]);
 
         emit(
           state.copyWith(
@@ -250,12 +250,12 @@ class MainPageCubit extends Cubit<MainPageState> {
           ),
         );
       },
-      (RealtimeNotificationsShape event) {
-        final (oldSrq, newSrq) = (
-          CloudKinRequest.fromMap(event[0]!.first),
-          CloudKinRequest.fromMap(event[1]!.first),
+      (List event) {
+        final (oldKrq, newKrq) = (
+          CloudKinRequest.fromMap(event[0]),
+          CloudKinRequest.fromMap(event[1]),
         );
-        if (newSrq.accepted != false) {
+        if (newKrq.accepted != false) {
           log("event.toString()");
         }
       },
@@ -263,9 +263,9 @@ class MainPageCubit extends Cubit<MainPageState> {
 
     CloudSquadRequest.serverRequestListener(
       _currentUser.id,
-      (RealtimeNotificationsShape event) {
+      (List event) {
         final RequestsSortingType currNotifications = state.notifications!;
-        final newNotification = CloudSquadRequest.fromMap(event[0]!.first);
+        final newNotification = CloudSquadRequest.fromMap(event[0]);
         emit(
           state.copyWith(
             notifications:
@@ -276,10 +276,10 @@ class MainPageCubit extends Cubit<MainPageState> {
           ),
         );
       },
-      (RealtimeNotificationsShape event) {
+      (List event) {
         final (oldSrq, newSrq) = (
-          CloudSquadRequest.fromMap(event[0]!.first),
-          CloudSquadRequest.fromMap(event[1]!.first),
+          CloudSquadRequest.fromMap(event[0]),
+          CloudSquadRequest.fromMap(event[1]),
         );
         if (newSrq.accepted != false) {
           log("event.toString()");
@@ -288,10 +288,10 @@ class MainPageCubit extends Cubit<MainPageState> {
     );
 
     CloudAchievement.achievementListener(_currentUser.id, (
-      RealtimeNotificationsShape event,
+        List event,
     ) {
       final RequestsSortingType currNotifications = state.notifications!;
-      final newNotification = CloudAchievement.fromMap(event[0]!.first);
+      final newNotification = CloudAchievement.fromMap(event[0]);
       emit(
         state.copyWith(
           notifications:
@@ -428,12 +428,11 @@ class MainPageCubit extends Cubit<MainPageState> {
       ),
     );
     try {
-      await squad.removeUserFromSquad(memberId);
+      final newSquad = await squad.removeUserFromSquad(memberId);
       emit(SquadSelector(success: true, notifications: state.notifications));
-
       emit(SquadSelector(success: false, notifications: state.notifications));
 
-      return await CloudSquad.fetchSquad(squad.id, true);
+      return newSquad;
     } catch (e) {
       emit(
         SquadSelector(

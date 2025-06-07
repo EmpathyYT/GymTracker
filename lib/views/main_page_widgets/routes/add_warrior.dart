@@ -148,10 +148,11 @@ class _AddWarriorWidgetState extends State<AddWarriorWidget> {
                         trailing: IconButton(
                           icon: const Icon(Icons.person_add),
                           onPressed: () async {
+                            _resetSearch();
                             await context
                                 .read<MainPageCubit>()
                                 .addUserReq(userToAddId: user.id);
-                            _resetSearch();
+
                           },
                         ),
                         onTap: () async {

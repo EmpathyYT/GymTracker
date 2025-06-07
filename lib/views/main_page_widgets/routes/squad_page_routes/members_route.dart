@@ -6,11 +6,11 @@ import 'package:gymtracker/utils/widgets/squad_member_tile_widget.dart';
 
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../services/cloud/cloud_user.dart';
+import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
 import '../../../../utils/widgets/absolute_centered_widget.dart';
 import '../../../../utils/widgets/double_widget_flipper.dart';
 import '../../../../utils/widgets/error_list_tile.dart';
-import '../../../../utils/widgets/loading_list_tile.dart';
 
 class MembersSquadRoute extends StatefulWidget {
   final CloudSquad squad;
@@ -28,14 +28,21 @@ class MembersSquadRoute extends StatefulWidget {
 
 class _MembersSquadRouteState extends State<MembersSquadRoute> {
   List<String>? squadMembers;
+  static final Map<String, CloudUser> _userCache = {};
   final GlobalKey _columnKey = GlobalKey();
   CloudUser? user;
 
   @override
-  void didChangeDependencies() {
-    user ??= context.read<MainPageCubit>().currentUser;
-    squadMembers ??= widget.squad.members;
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    user = context.read<MainPageCubit>().currentUser;
+    squadMembers = widget.squad.members;
+  }
+
+  @override
+  void didUpdateWidget(covariant MembersSquadRoute oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    squadMembers = widget.squad.members;
   }
 
   @override
@@ -50,20 +57,23 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
                 "Member Removed",
                 "This Member has been removed from the squad.",
               );
+            } else if (state.exception != null) {
+              await showErrorDialog(context, "Error Removing Member");
             }
           }
         }
       },
       child: DoubleWidgetFlipper(
-        buildOne: ({child, children}) => AbsoluteCenteredWidget(
-          widgetKey: _columnKey,
-          child: Column(
-            key: _columnKey,
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: children!,
-          ),
-        ),
+        buildOne:
+            ({child, children}) => AbsoluteCenteredWidget(
+              widgetKey: _columnKey,
+              child: Column(
+                key: _columnKey,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: children!,
+              ),
+            ),
         buildTwo: ({child, children}) => Column(children: children!),
         isOneChild: false,
         isTwoChild: false,
@@ -73,9 +83,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
           const SizedBox(height: 16),
           Text(
             "You stand in solitude… for now.",
-            style: GoogleFonts.oswald(
-              fontSize: 30,
-            ),
+            style: GoogleFonts.oswald(fontSize: 30),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
@@ -92,12 +100,14 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
         childrenIfTwo: [
           Align(
             alignment: Alignment.topLeft,
-            child: Text(_buildSubtitleText(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                )),
+            child: Text(
+              _buildSubtitleText(),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const Padding(padding: EdgeInsets.only(bottom: 10, top: 10)),
           Expanded(
@@ -105,10 +115,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
               padding: const EdgeInsets.only(bottom: 70),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white60,
-                    width: 0.9,
-                  ),
+                  border: Border.all(color: Colors.white60, width: 0.9),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -119,16 +126,23 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 5),
                         child: FutureBuilder(
-                          future:
-                              CloudUser.fetchUser(squadMembers![index], false),
+                          initialData: _userCache[squadMembers![index]],
+                          future: CloudUser.fetchUser(
+                            squadMembers![index],
+                            false,
+                          ),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState !=
+                            if (snapshot.connectionState ==
                                 ConnectionState.done) {
-                              return const LoadingListTile();
+                              _userCache[squadMembers![index]] = snapshot.data!;
                             }
 
-                            if (snapshot.hasError || snapshot.data == null) {
+                            if (snapshot.hasError) {
                               return const ErrorListTile();
+                            }
+
+                            if (snapshot.data == null) {
+                              return const SizedBox.shrink();
                             }
 
                             final user = snapshot.data!;
@@ -151,10 +165,7 @@ class _MembersSquadRouteState extends State<MembersSquadRoute> {
                                       .leaveSquad(widget.squad);
 
                                   if (context.mounted) {
-                                    Navigator.pop(
-                                      context,
-                                      true,
-                                    );
+                                    Navigator.pop(context, true);
                                   }
                                 }
                               },

@@ -10,7 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../auth/auth_provider.dart';
 
-typedef RealtimeCallback = void Function(RealtimeNotificationsShape event);
+typedef RealtimeCallback = void Function(List event);
 
 class SupabaseDatabaseController implements DatabaseController {
   late final SupabaseClient _supabase;
@@ -106,24 +106,10 @@ class SupabaseDatabaseController implements DatabaseController {
   Future<CloudSquad> removeUserFromSquad(userId, squadId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
 
-    final server = await _supabase
-        .from(squadTableName)
-        .select(membersFieldName)
-        .eq(idFieldName, squadId);
-
-    final serverMembers =
-        (server[0][membersFieldName] as List<dynamic>)
-            .map((e) => e.toString())
-            .toList();
-
-    if (!serverMembers.remove(userId)) throw UserNotInSquadException();
-
-    final data =
-        await _supabase
-            .from(squadTableName)
-            .update({membersFieldName: serverMembers})
-            .eq(idFieldName, squadId)
-            .select();
+    final data = await _supabase.rpc(
+      "remove_squad_member",
+      params: {'user_id': userId, 'squad_id': squadId},
+    ).select();
 
     return CloudSquad.fromSupabaseMap(data[0]);
   }
@@ -275,10 +261,6 @@ class SupabaseDatabaseController implements DatabaseController {
     RealtimeCallback insertCallback,
     RealtimeCallback updateCallback,
   ) {
-    final RealtimeNotificationsShape insertShape = {0: []};
-
-    final RealtimeNotificationsShape updateShape = {1: []};
-
     _supabase
         .channel("friend-requests-channel")
         .onPostgresChanges(
@@ -291,8 +273,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            insertShape[0] = [event.newRecord];
-            insertCallback(insertShape);
+            insertCallback([event.newRecord]);
           },
         )
         .onPostgresChanges(
@@ -305,8 +286,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            updateShape[1] = [event.oldRecord, event.newRecord];
-            updateCallback(updateShape);
+            updateCallback([event.oldRecord, event.newRecord]);
           },
         )
         .onPostgresChanges(
@@ -319,8 +299,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            updateShape[1] = [event.oldRecord, event.newRecord];
-            updateCallback(updateShape);
+            updateCallback([event.oldRecord, event.newRecord]);
           },
         )
         .subscribe();
@@ -337,10 +316,6 @@ class SupabaseDatabaseController implements DatabaseController {
     RealtimeCallback insertCallback,
     RealtimeCallback updateCallback,
   ) {
-    final RealtimeNotificationsShape insertShape = {0: []};
-
-    final RealtimeNotificationsShape updateShape = {1: []};
-
     _supabase
         .channel("server-requests-channel")
         .onPostgresChanges(
@@ -353,8 +328,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            insertShape[0] = [event.newRecord];
-            insertCallback(insertShape);
+            insertCallback([event.newRecord]);
           },
         )
         .onPostgresChanges(
@@ -367,8 +341,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            updateShape[1] = [event.oldRecord, event.newRecord];
-            updateCallback(updateShape);
+            updateCallback([event.oldRecord, event.newRecord]);
           },
         )
         .onPostgresChanges(
@@ -381,8 +354,7 @@ class SupabaseDatabaseController implements DatabaseController {
             value: userId,
           ),
           callback: (event) {
-            updateShape[1] = [event.oldRecord, event.newRecord];
-            updateCallback(updateShape);
+            updateCallback([event.oldRecord, event.newRecord]);
           },
         )
         .subscribe();
@@ -490,22 +462,19 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   newAchievementsStream(userId, RealtimeCallback insertCallback) {
-    final RealtimeNotificationsShape insertShape = {0: []};
-
     _supabase
-        .channel("server-requests-channel")
+        .channel("achievements-channel")
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: "public",
-          table: pendingServerRequestsTableName,
+          table: achievementsTableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: recipientFieldName,
             value: userId,
           ),
           callback: (event) {
-            insertShape[0] = [event.newRecord];
-            insertCallback(insertShape);
+            insertCallback([event.newRecord]);
           },
         )
         .subscribe();
@@ -513,7 +482,7 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   unsubscribeNewAchievementsStream() {
-    _supabase.channel("server-requests-channel").unsubscribe();
+    _supabase.channel("achievements-channel").unsubscribe();
   }
 
   @override

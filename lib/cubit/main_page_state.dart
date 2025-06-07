@@ -66,14 +66,14 @@ final class WorkoutPlanner extends MainPageState {
 }
 
 final class SquadSelector extends MainPageState {
-  final CloudSquad? squad;
+  final CloudSquad? newSquad;
 
   const SquadSelector({super.exception,
     super.isLoading = false,
     super.loadingText = "",
     super.success = false,
     super.notifications,
-    this.squad});
+    this.newSquad});
 
   @override
   SquadSelector copyWith({RequestsSortingType? notifications}) {

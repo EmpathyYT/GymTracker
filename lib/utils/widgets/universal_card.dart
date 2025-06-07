@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-
-
-class UniversalCard extends StatelessWidget {
+class UniversalCard extends StatefulWidget {
   final bool flipToTwo;
   final VoidCallback iconCallBack;
   final String title1;
@@ -17,16 +15,25 @@ class UniversalCard extends StatelessWidget {
   });
 
   @override
+  State<UniversalCard> createState() => _UniversalCardState();
+}
+
+class _UniversalCardState extends State<UniversalCard> {
+  @override
+  void didUpdateWidget(covariant UniversalCard oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(10),
       elevation: 100,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(
-          color: Colors.grey,
-          width: 1,
-        ),
+        side: const BorderSide(color: Colors.grey, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -51,7 +58,7 @@ class UniversalCard extends StatelessWidget {
                         fontSize: 20,
                         color: Colors.blueAccent[200],
                       ),
-                    )
+                    ),
                   ];
                 } else {
                   return [
@@ -64,13 +71,11 @@ class UniversalCard extends StatelessWidget {
                     ),
                   ];
                 }
-              }()
+              }(),
             ],
           ),
           trailing: IconButton(
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-            ),
+            icon: const Icon(Icons.arrow_forward_ios),
             iconSize: 23,
             color: Colors.white,
             splashColor: Colors.transparent,
@@ -83,4 +88,9 @@ class UniversalCard extends StatelessWidget {
       ),
     );
   }
+
+  get title1 => widget.title1;
+  get title2 => widget.title2;
+  get iconCallBack => widget.iconCallBack;
+  get flipToTwo => widget.flipToTwo;
 }

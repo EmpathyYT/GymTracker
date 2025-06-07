@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class _MainPageState extends State<MainPage> {
     "Kinship Board": Icon(Icons.handshake, size: 30),
     "Plan Workout": Icon(Icons.fitness_center, size: 30),
     "Profile Viewer": Icon(Icons.account_circle, size: 30),
-    "Settings": Icon(Icons.settings, size: 30)
+    "Settings": Icon(Icons.settings, size: 30),
   };
 
   @override
@@ -77,9 +78,7 @@ class _MainPageState extends State<MainPage> {
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done &&
                   (state.notifications == null)) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const Center(child: CircularProgressIndicator());
               }
               return Scaffold(
                 resizeToAvoidBottomInset: false,
@@ -90,9 +89,7 @@ class _MainPageState extends State<MainPage> {
                     padding: const EdgeInsets.only(top: appBarPadding),
                     child: Text(
                       _title,
-                      style: GoogleFonts.oswald(
-                        fontSize: appBarTitleSize,
-                      ),
+                      style: GoogleFonts.oswald(fontSize: appBarTitleSize),
                     ),
                   ),
                   actions: [
@@ -100,16 +97,21 @@ class _MainPageState extends State<MainPage> {
                       state: state,
                       onPressed: () => setState(() {}),
                     ),
-                    FriendAdderButton(state: state),
+                    FriendAdderButton(
+                      state: state,
+                    ),
                     SquadCreatorButton(state: state),
                     NotificationsButton(
-                        notifications: state.notifications ?? {}),
+                      notifications: state.notifications ?? {},
+                    ),
                     IconButton(
-                        icon: const Icon(Icons.logout),
-                        iconSize: 30,
-                        onPressed: () => context
-                            .read<AuthBloc>()
-                            .add(const AuthEventSignOut())),
+                      icon: const Icon(Icons.logout),
+                      iconSize: 30,
+                      onPressed:
+                          () => context.read<AuthBloc>().add(
+                            const AuthEventSignOut(),
+                          ),
+                    ),
                   ],
                 ),
                 body: _mainWidgetPicker(state),
@@ -136,9 +138,9 @@ class _MainPageState extends State<MainPage> {
                     destinations: _destinationArrayBuilder(destinations),
                     onDestinationSelected: (int index) {
                       context.read<MainPageCubit>().changePage(
-                            index,
-                            notifications: state.notifications,
-                          );
+                        index,
+                        notifications: state.notifications,
+                      );
                     },
                     animationDuration: const Duration(milliseconds: 200),
                     labelBehavior:
@@ -157,19 +159,19 @@ class _MainPageState extends State<MainPage> {
     return switch (state) {
       SquadSelector() => const SquadSelectorWidget(),
       KinViewer() => const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: FriendsViewerWidget(),
-        ),
+        padding: EdgeInsets.all(16.0),
+        child: FriendsViewerWidget(),
+      ),
       ProfileViewer() => const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: ProfileViewerWidget(),
-        ),
+        padding: EdgeInsets.all(16.0),
+        child: ProfileViewerWidget(),
+      ),
       Settings() => const Text("Settings"),
       WorkoutPlanner() => const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: WorkoutPlannerWidget(),
-        ),
-      _ => const Text("Error")
+        padding: EdgeInsets.all(16.0),
+        child: WorkoutPlannerWidget(),
+      ),
+      _ => const Text("Error"),
     };
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +41,9 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    currentUser = context.read<MainPageCubit>().currentUser;
+    currentUser = context
+        .read<MainPageCubit>()
+        .currentUser;
   }
 
   @override
@@ -71,7 +74,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
                         size: 30,
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(squad);
                       },
                     ),
                     Positioned(
@@ -204,7 +207,10 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
         ),
       1 => MembersSquadRoute(
           squad: squad,
-          onChanged: (squad) => setState(() => this.squad = squad),
+          onChanged: (squad) => setState(() {
+            this.squad = squad;
+            body = _bodyWidgetPicker(_selectedIndex);
+          }),
         ),
       2 => EditSquadRoute(
           squad: squad,

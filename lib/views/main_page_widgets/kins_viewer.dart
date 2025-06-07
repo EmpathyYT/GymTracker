@@ -12,14 +12,13 @@ import '../../utils/widgets/loading_list_tile.dart';
 
 class FriendsViewerWidget extends StatefulWidget {
   const FriendsViewerWidget({super.key});
-
   @override
   State<FriendsViewerWidget> createState() => _FriendsViewerWidgetState();
 }
 
 class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
   List<String>? userFriends;
-
+  static final Map<String, CloudUser> _kinCache = {};
   @override
   void didChangeDependencies() {
     userFriends = context.read<MainPageCubit>().currentUser.friends;
@@ -84,15 +83,20 @@ class _FriendsViewerWidgetState extends State<FriendsViewerWidget> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 5),
                       child: FutureBuilder(
+                        initialData: _kinCache[userFriends![index]],
                         future: CloudUser.fetchUser(userFriends![index], false),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState !=
+                          if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            return const LoadingListTile();
+                            _kinCache[userFriends![index]] = snapshot.data!;
                           }
 
-                          if (snapshot.hasError || snapshot.data == null) {
+                          if (snapshot.hasError) {
                             return const ErrorListTile();
+                          }
+
+                          if (snapshot.data == null) {
+                            return const SizedBox.shrink();
                           }
 
                           final user = snapshot.data!;
