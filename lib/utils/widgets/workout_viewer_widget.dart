@@ -119,7 +119,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                     exerciseWeightToString,
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
-                                      fontSize: 17,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),

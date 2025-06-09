@@ -335,7 +335,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    maxLength: 4,
+                    maxLength: 7,
                   ),
                 ),
                 SizedBox(
@@ -357,7 +357,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    maxLength: 4,
+                    maxLength: 7,
                   ),
                 ),
               ]
@@ -378,7 +378,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    maxLength: 4,
+                    maxLength: 7,
                   ),
                 ),
               ],
@@ -497,7 +497,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
         name: _exerciseNameController.text.trim(),
         sets: int.parse(_exerciseSetsController.text.trim()),
         reps: int.parse(_exerciseRepsController.text.trim()),
-        weightRange: Tuple2(int.parse(lWeight), int.parse(hWeight)),
+        weightRange: Tuple2(double.parse(lWeight), double.parse(hWeight)),
       ),
     );
   }
@@ -505,7 +505,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
   String? _validateNameInput(String? value) {
     if (value == null || value.isEmpty) {
       return "Please enter the exercise name in the name field.";
-    } else if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+    } else if (!RegExp(r'^[a-zA-Z !@#$%^&*()1-9\-,.<>=+_]+$').hasMatch(value)) {
       return "Please enter a valid exercise name.";
     }
     return null;
@@ -546,12 +546,16 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
   String? _validateWeightInput(String? value) {
     if (value == null || value.isEmpty) {
       return null;
-    } else if (int.tryParse(value) == null) {
+    } else if (double.tryParse(value) == null) {
       return "Please enter a valid number in the weight field(s).";
     } else {
-      if (int.parse(value) < 1) {
+      if (value.split('.')[1].length > 2) {
+        return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
+      } else if (value.split('.').length > 2) {
+        return "Please enter a valid number in the weight field(s).";
+      } else if (double.parse(value) < 1) {
         return "Please enter a positive number greater than 0 in the weight field(s).";
-      } else if (int.parse(value) > 2000) {
+      } else if (double.parse(value) > 2000) {
         return "Calm down hulk.";
       }
     }
@@ -561,7 +565,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget>
 
 
   String? _validateRangesInput(String low, String high) {
-    if (int.parse(low) > int.parse(high)) {
+    if (double.parse(low) > double.parse(high)) {
       return "Please enter a valid range.";
     }
     return null;

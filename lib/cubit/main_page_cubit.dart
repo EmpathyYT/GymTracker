@@ -452,6 +452,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         WorkoutPlanner(workouts: workouts, notifications: state.notifications),
       );
     } catch (e) {
+      e as TypeError;
       emit(
         WorkoutPlanner(
           exception: e as Exception,

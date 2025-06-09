@@ -6,7 +6,7 @@ class ExerciseType {
   final String name;
   final int reps;
   final int sets;
-  final Tuple2<int, int> weightRange;
+  final Tuple2<double, double> weightRange;
   String notes;
   final bool isKg;
 
@@ -23,9 +23,9 @@ class ExerciseType {
     : name = map['name'] as String,
       reps = map['reps'] as int,
       sets = map['sets'] as int,
-      weightRange = Tuple2<int, int>(
-        map['weightRange'][0] as int,
-        map['weightRange'][1] as int? ?? 0,
+      weightRange = Tuple2<double, double>(
+        double.parse(map['weightRange'][0].toString()),
+        double.tryParse(map['weightRange'][1].toString()) ?? 0,
       ),
       notes = map['notes'] as String? ?? '',
       isKg = true; //todo when settings are added

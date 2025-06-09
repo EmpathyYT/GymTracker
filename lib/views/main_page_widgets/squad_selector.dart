@@ -62,7 +62,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
               title2:
               (_squadNotifications!.length == 1)
                   ? "A Squad Calls upon you"
-                  : "Multiple Squads Calling upon you",
+                  : "Squads Are Calling upon you",
             ),
             const Padding(padding: EdgeInsets.all(2.0)),
             Container(
