@@ -94,7 +94,9 @@ class HomePage extends StatelessWidget {
         } else if (state is AuthStateSettingUpProfile) {
           return const ProfileSetupView();
         } else {
-          return const Scaffold(body: CircularProgressIndicator());
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
       },
     );
