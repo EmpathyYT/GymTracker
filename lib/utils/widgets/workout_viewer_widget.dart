@@ -82,7 +82,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                         final exerciseWeightToString =
                             exerciseElement.exerciseWeightToString;
                         return SizedBox(
-                          height: 50,
+                          height: 60,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [

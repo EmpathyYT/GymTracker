@@ -48,14 +48,14 @@ class _UniversalCardState extends State<UniversalCard> {
                     Text(
                       title2,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w100,
                       ),
                     ),
                     Text(
                       "  ●",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.blueAccent[200],
                       ),
                     ),

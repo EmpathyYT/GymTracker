@@ -1,50 +1,178 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/helpers/exercise_type.dart';
+import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
+import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 
-Future<String?> showNoteInputDialog({
-  required BuildContext context,
-  String? initialValue,
-}) {
-  return showDialog<String>(
-    context: context,
-    builder: (context) {
-      final TextEditingController exerciseNoteController =
-          TextEditingController();
-      exerciseNoteController.text = initialValue ?? "";
-      return AlertDialog(
-        title: const Text("Enter The Exercise Note"),
-        content: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: TextField(
-            controller: exerciseNoteController,
-            decoration: InputDecoration(
-              counterText: "",
-              border: InputBorder.none,
-              hintText: "Enter Note",
-              hintStyle: GoogleFonts.montserrat(
-                color: Colors.grey,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+import '../../views/main_page_widgets/profile_viewer.dart';
+
+class NoteInputDialog extends StatefulWidget {
+  final ExerciseType initialExercise;
+
+  const NoteInputDialog({super.key, required this.initialExercise});
+
+  @override
+  State<NoteInputDialog> createState() => _NoteInputDialogState();
+}
+
+class _NoteInputDialogState extends State<NoteInputDialog>
+    with TickerProviderStateMixin {
+  late final TextEditingController exerciseNameController;
+  late final TextEditingController exerciseSetsController;
+  late final TextEditingController exerciseRepsController;
+  late final TextEditingController exerciseLWeightController;
+  late final TextEditingController exerciseHWeightController;
+  late final ValueNotifier<bool> isRangeNotifier;
+  late final TextEditingController exerciseNoteController;
+
+  @override
+  void initState() {
+    exerciseNameController =
+        TextEditingController()..text = initialExercise.name;
+    exerciseSetsController =
+        TextEditingController()..text = initialExercise.sets.toString();
+    exerciseRepsController =
+        TextEditingController()..text = initialExercise.reps.toString();
+    exerciseLWeightController =
+        TextEditingController()
+          ..text = initialExercise.weightRange.item1.toString();
+    exerciseHWeightController =
+        TextEditingController()
+          ..text = initialExercise.weightRange.item2.toString();
+    isRangeNotifier = ValueNotifier(
+      initialExercise.weightRange.item1 != initialExercise.weightRange.item2 &&
+          initialExercise.weightRange.item2 != 0,
+    );
+    exerciseNoteController =
+        TextEditingController()..text = initialExercise.notes;
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    exerciseNameController.dispose();
+    exerciseSetsController.dispose();
+    exerciseRepsController.dispose();
+    exerciseLWeightController.dispose();
+    exerciseHWeightController.dispose();
+    isRangeNotifier.dispose();
+    exerciseNoteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Edit Exercise"),
+      content: Column(
+        children: [
+          ExerciseBuilderWidget(
+            exerciseNameController: exerciseNameController,
+            exerciseSetsController: exerciseSetsController,
+            exerciseRepsController: exerciseRepsController,
+            exerciseLWeightController: exerciseLWeightController,
+            exerciseHWeightController: exerciseHWeightController,
+            isRangeNotifier: isRangeNotifier,
+          ),
+          const SizedBox(height: 10),
+          const Text("Edit Exercise Note", style: TextStyle(fontSize: 25)),
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: TextField(
+              controller: exerciseNoteController,
+              decoration: InputDecoration(
+                counterText: "",
+                border: InputBorder.none,
+                hintText: "Enter Note",
+                hintStyle: GoogleFonts.montserrat(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
+              minLines: 1,
+              maxLines: 4,
+              maxLength: 100,
             ),
-            autofocus: true,
-            minLines: 1,
-            maxLines: 4,
-            maxLength: 100,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () =>
-                Navigator.of(context).pop(exerciseNoteController.text),
-            child: const Text("OK"),
           ),
         ],
-      );
-    },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () {
+            final (res, errorMessage) = workoutInputValidator(
+              isRangeNotifier,
+              exerciseNameController.text.trim(),
+              exerciseSetsController.text.trim(),
+              exerciseRepsController.text.trim(),
+              exerciseLWeightController.text.trim(),
+              exerciseHWeightController.text.trim(),
+            );
+
+            if (res == false) {
+              final color = darkenColor(
+                Theme.of(context).scaffoldBackgroundColor,
+                0.2,
+              );
+              showErrorSnackBar(context, this, errorMessage!, color);
+              return;
+            }
+
+            final lWeight =
+                exerciseLWeightController.text.trim().isEmpty
+                    ? "0"
+                    : exerciseLWeightController.text.trim();
+
+            final hWeight =
+                isRangeNotifier.value
+                    ? exerciseHWeightController.text.trim()
+                    : "0";
+
+            initialExercise.json = {
+              'name': exerciseNameController.text.trim(),
+              'reps': int.parse(exerciseRepsController.text.trim()),
+              'sets': int.parse(exerciseSetsController.text.trim()),
+              'weightRange': [lWeight, hWeight],
+              'notes': exerciseNoteController.text.trim(),
+            };
+            Navigator.of(context).pop();
+          },
+          child: const Text("OK"),
+        ),
+      ],
+      scrollable: true,
+    );
+  }
+
+
+  ExerciseType get initialExercise => widget.initialExercise;
+}
+
+/// This dialog directly alters the workout information using the
+/// shallow copy of the exercise, removing the need for a return.
+Future<void> showWorkoutEditDialog(
+  BuildContext context,
+  ExerciseType exercise,
+) async {
+  await showDialog<ExerciseType?>(
+    context: context,
+    builder:
+        (_) => ScaffoldMessenger(
+          child: Builder(
+            builder: (context) {
+              return Scaffold(
+                backgroundColor: Colors.transparent,
+                body: NoteInputDialog(initialExercise: exercise),
+              );
+            },
+          ),
+        ),
   );
 }

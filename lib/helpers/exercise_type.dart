@@ -3,12 +3,12 @@ import 'package:tuple/tuple.dart';
 import '../constants/code_constraints.dart';
 
 class ExerciseType {
-  final String name;
-  final int reps;
-  final int sets;
-  final Tuple2<double, double> weightRange;
+  String name;
+  int reps;
+  int sets;
+  Tuple2<double, double> weightRange;
   String notes;
-  final bool isKg;
+  bool isKg;
 
   ExerciseType({
     required this.name,
@@ -51,6 +51,18 @@ class ExerciseType {
       initialWeight += " - ${weightRange.item2} kg";
     }
     return initialWeight;
+  }
+  //todo add an edit method to update the exercise type
+
+  set json(Map<String, dynamic> map) {
+    name = map['name'] as String;
+    reps = map['reps'] as int;
+    sets = map['sets'] as int;
+    weightRange = Tuple2<double, double>(
+      double.tryParse(map['weightRange'][0].toString()) ?? 0,
+      double.tryParse(map['weightRange'][1].toString()) ?? 0,
+    );
+    notes = map['notes'] as String? ?? '';
   }
 
   @override

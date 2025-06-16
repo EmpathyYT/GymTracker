@@ -125,7 +125,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
 
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {
-      return ExerciseBuilderWidget(
+      return WorkoutBuilderWidget(
         day: index + 1,
         behaviorController: _controller,
         arrowNavigationCallback: (bool moveToRight) {
