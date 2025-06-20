@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/dialogs/note_input_dialog.dart';
+import 'package:gymtracker/utils/dialogs/exercise_edit_dialog.dart';
 import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
 import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
 import 'package:rxdart/rxdart.dart';

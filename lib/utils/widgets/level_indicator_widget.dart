@@ -52,10 +52,15 @@ class LevelIndicatorPainter extends CustomPainter {
           ..close();
 
     canvas.drawPath(path, paint);
+    final linePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..blendMode = BlendMode.src;
 
     final underLineStart = Offset(size.width - slant, size.height);
     final underLineEnd = Offset(size.width - slant + lineLength, size.height);
-    canvas.drawLine(underLineStart, underLineEnd, paint);
+    canvas.drawLine(underLineStart, underLineEnd, linePaint);
   }
 
   @override
