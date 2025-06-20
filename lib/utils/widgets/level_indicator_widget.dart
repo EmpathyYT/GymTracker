@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tuple/tuple.dart';
 
 class LevelIndicatorClipper extends CustomClipper<Path> {
   final double slant;
@@ -36,17 +37,19 @@ class LevelIndicatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+    final paint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
 
-    final path = Path()
-      ..moveTo(slant, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width - slant, size.height)
-      ..lineTo(0, size.height)
-      ..close();
+    final path =
+        Path()
+          ..moveTo(slant, 0)
+          ..lineTo(size.width, 0)
+          ..lineTo(size.width - slant, size.height)
+          ..lineTo(0, size.height)
+          ..close();
 
     canvas.drawPath(path, paint);
 
@@ -64,6 +67,7 @@ class LevelIndicatorWidget extends StatefulWidget {
   final int slant;
   final String userName;
   final Color color;
+  final ValueNotifier<bool> isLoadedNotifier;
 
   const LevelIndicatorWidget({
     super.key,
@@ -71,6 +75,7 @@ class LevelIndicatorWidget extends StatefulWidget {
     required this.level,
     required this.slant,
     required this.userName,
+    required this.isLoadedNotifier,
   });
 
   @override
@@ -78,6 +83,8 @@ class LevelIndicatorWidget extends StatefulWidget {
 }
 
 class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
+  static Map<String, Tuple2<int, int>> nameSizeCache = {};
+
   final GlobalKey _textKey = GlobalKey();
   final GlobalKey _clipKey = GlobalKey();
   int _shapeWidth = 0;
@@ -85,30 +92,50 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final textBox = _textKey.currentContext?.findRenderObject() as RenderBox?;
-      final clipBox = _clipKey.currentContext?.findRenderObject() as RenderBox?;
-      if (textBox != null && clipBox != null) {
-        final textWidth = textBox.size.width;
-        final clipWidth = clipBox.size.width;
-        setState(() {
-          _lineLength = textWidth.toInt();
-          _shapeWidth = clipWidth.toInt();
-        });
-      }
-    });
+    final cachedSize = getNameSize(widget.userName);
+    if (cachedSize != null) {
+      _lineLength = cachedSize.item1;
+      _shapeWidth = cachedSize.item2;
+      isLoadedNotifier.value = true;
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final textBox =
+            _textKey.currentContext?.findRenderObject() as RenderBox?;
+        final clipBox =
+            _clipKey.currentContext?.findRenderObject() as RenderBox?;
+        if (textBox != null && clipBox != null) {
+          final textWidth = textBox.size.width.toInt();
+          final clipWidth = clipBox.size.width.toInt();
+          saveNameSize(widget.userName, textWidth, clipWidth);
+          setState(() {
+            _lineLength = textWidth;
+            _shapeWidth = clipWidth;
+          });
+          isLoadedNotifier.value = true;
+        }
+      });
+    }
+
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant LevelIndicatorWidget oldWidget) {
     if (oldWidget.userName != widget.userName) {
+      isLoadedNotifier.value = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final textBox =
             _textKey.currentContext?.findRenderObject() as RenderBox?;
-        if (textBox != null) {
+        final clipBox =
+            _clipKey.currentContext?.findRenderObject() as RenderBox?;
+
+        if (textBox != null && clipBox != null) {
           final textWidth = textBox.size.width;
+          final clipWidth = clipBox.size.width;
           _lineLength = textWidth.toInt();
+          _shapeWidth = clipWidth.toInt();
+          isLoadedNotifier.value = true;
+          saveNameSize(widget.userName, _lineLength, _shapeWidth);
         }
       });
     }
@@ -128,10 +155,7 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
           child: Text(
             key: _textKey,
             widget.userName,
-            style: GoogleFonts.oswald(
-              fontSize: 25,
-              color: Colors.white,
-            ),
+            style: GoogleFonts.oswald(fontSize: 25, color: Colors.white),
           ),
         ),
         CustomPaint(
@@ -147,14 +171,22 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
               padding: const EdgeInsets.fromLTRB(15, 3, 15, 3),
               child: Text(
                 widget.level.toString(),
-                style: GoogleFonts.oswald(
-                  fontSize: 18,
-                ),
+                style: GoogleFonts.oswald(fontSize: 18),
               ),
             ),
           ),
         ),
       ],
     );
+    }
+
+  void saveNameSize(String name, int textSize, int shapeWidth) {
+    nameSizeCache[name] = Tuple2(textSize, shapeWidth);
   }
+
+  Tuple2<int, int>? getNameSize(String name) {
+    return nameSizeCache[name];
+  }
+
+  ValueNotifier<bool> get isLoadedNotifier => widget.isLoadedNotifier;
 }

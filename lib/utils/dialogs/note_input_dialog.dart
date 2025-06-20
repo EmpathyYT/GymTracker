@@ -35,10 +35,16 @@ class _NoteInputDialogState extends State<NoteInputDialog>
         TextEditingController()..text = initialExercise.reps.toString();
     exerciseLWeightController =
         TextEditingController()
-          ..text = initialExercise.weightRange.item1.toString();
+          ..text =
+              initialExercise.weightRange.item1.toString() == "0.0"
+                  ? ""
+                  : initialExercise.weightRange.item1.toString();
     exerciseHWeightController =
         TextEditingController()
-          ..text = initialExercise.weightRange.item2.toString();
+          ..text =
+              initialExercise.weightRange.item2.toString() == "0.0"
+                  ? ""
+                  : initialExercise.weightRange.item2.toString();
     isRangeNotifier = ValueNotifier(
       initialExercise.weightRange.item1 != initialExercise.weightRange.item2 &&
           initialExercise.weightRange.item2 != 0,
@@ -65,21 +71,36 @@ class _NoteInputDialogState extends State<NoteInputDialog>
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Edit Exercise"),
-      content: Column(
-        children: [
-          ExerciseBuilderWidget(
-            exerciseNameController: exerciseNameController,
-            exerciseSetsController: exerciseSetsController,
-            exerciseRepsController: exerciseRepsController,
-            exerciseLWeightController: exerciseLWeightController,
-            exerciseHWeightController: exerciseHWeightController,
-            isRangeNotifier: isRangeNotifier,
-          ),
-          const SizedBox(height: 10),
-          const Text("Edit Exercise Note", style: TextStyle(fontSize: 25)),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: TextField(
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6,
+        child: Column(
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white60, width: 0.9),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ExerciseBuilderWidget(
+                  exerciseNameController: exerciseNameController,
+                  exerciseSetsController: exerciseSetsController,
+                  exerciseRepsController: exerciseRepsController,
+                  exerciseLWeightController: exerciseLWeightController,
+                  exerciseHWeightController: exerciseHWeightController,
+                  isRangeNotifier: isRangeNotifier,
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Edit Exercise Note",
+                style: GoogleFonts.oswald(fontSize: 23),
+              ),
+            ),
+            TextField(
               controller: exerciseNoteController,
               decoration: InputDecoration(
                 counterText: "",
@@ -95,8 +116,8 @@ class _NoteInputDialogState extends State<NoteInputDialog>
               maxLines: 4,
               maxLength: 100,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -150,7 +171,6 @@ class _NoteInputDialogState extends State<NoteInputDialog>
       scrollable: true,
     );
   }
-
 
   ExerciseType get initialExercise => widget.initialExercise;
 }

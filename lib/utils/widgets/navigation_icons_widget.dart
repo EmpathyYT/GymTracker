@@ -12,6 +12,7 @@ class NavigationIconsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Center(
       child: switch (type) {
         NavigationType.left => GestureDetector(

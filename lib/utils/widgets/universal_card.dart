@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class UniversalCard extends StatefulWidget {
@@ -19,11 +20,7 @@ class UniversalCard extends StatefulWidget {
 }
 
 class _UniversalCardState extends State<UniversalCard> {
-  @override
-  void didUpdateWidget(covariant UniversalCard oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-  }
+  final sizeGroup = AutoSizeGroup();
 
 
   @override
@@ -45,15 +42,17 @@ class _UniversalCardState extends State<UniversalCard> {
               ...() {
                 if (flipToTwo) {
                   return [
-                    Text(
+                    AutoSizeText(
                       title2,
+                      group: sizeGroup,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w100,
                       ),
                     ),
-                    Text(
+                    AutoSizeText(
                       "  ●",
+                      group: sizeGroup,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.blueAccent[200],
@@ -62,7 +61,7 @@ class _UniversalCardState extends State<UniversalCard> {
                   ];
                 } else {
                   return [
-                    Text(
+                    AutoSizeText(
                       title1,
                       style: const TextStyle(
                         fontSize: 22,

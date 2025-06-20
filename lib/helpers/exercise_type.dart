@@ -1,8 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:tuple/tuple.dart';
 
 import '../constants/code_constraints.dart';
 
-class ExerciseType {
+class ExerciseType with EquatableMixin{
   String name;
   int reps;
   int sets;
@@ -69,4 +70,13 @@ class ExerciseType {
   String toString() {
     return toMap().toString();
   }
+
+  @override
+  List<Object?> get props => [
+    name,
+    reps,
+    sets,
+    weightRange,
+    notes,
+  ];
 }

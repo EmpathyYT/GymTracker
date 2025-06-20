@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/widgets/level_indicator_widget.dart';
+import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
 
 import '../../constants/code_constraints.dart';
 
@@ -23,6 +22,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   Color? _borderColor;
   bool isAnimated = false;
   bool isGlowing = false;
+  static ValueNotifier<bool> isLoadedNotifier = ValueNotifier<bool>(false);
   late AnimationController _maxLevelController;
   late AnimationController _glowLevelController;
   late Animation<Color?> _maxLevelAnimation;
@@ -46,11 +46,10 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     super.didChangeDependencies();
   }
 
-
   @override
   void didUpdateWidget(covariant ProfileViewerWidget oldWidget) {
     _handleLevelUpdates();
-    super.didUpdateWidget(oldWidget);
+    super.didUpdateWidget(widget);
   }
 
   @override
@@ -58,102 +57,111 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     const verticalOffset = 17;
     const slant = 15;
 
-    return Column(
-      children: [
-        Flexible(
-          flex: 3,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            child: Row(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: const CircleAvatar(
-                    radius: 45,
-                    backgroundColor: Colors.blueGrey,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(height: verticalOffset.toDouble()),
-                      _buildAnimationIfActive(
-                        (color) => LevelIndicatorWidget(
-                          color: color,
-                          userName: _userName!,
-                          level: _userLevel!,
-                          slant: slant,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        softWrap: true,
-                        _biography!,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 7,
-          child: Center(
-            child: _buildAnimationIfActive(
-              (color) => Container(
-                decoration: BoxDecoration(
-                  color: darkenColor(
-                    Theme.of(context).scaffoldBackgroundColor,
-                    0.2,
-                  ),
-                  border: Border.all(
-                    color: color,
-                    style: BorderStyle.solid,
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    left: 15,
-                    right: 15,
-                    bottom: 10,
-                  ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: isLoadedNotifier,
+      builder: (BuildContext context, bool value, Widget? child) {
+        return LoadingWidgetFlipper(
+          isLoaded: value,
+          child: Column(
+            children: [
+              Flexible(
+                flex: 3,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildStatRow("Workouts Complete:", "0"),
-                        ],
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: const CircleAvatar(
+                          radius: 45,
+                          backgroundColor: Colors.blueGrey,
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          _buildStatRow("Example Statistic:", "12"),
-                        ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(height: verticalOffset.toDouble()),
+                            _buildAnimationIfActive(
+                              (color) => LevelIndicatorWidget(
+                                isLoadedNotifier: isLoadedNotifier,
+                                color: color,
+                                userName: _userName!,
+                                level: _userLevel!,
+                                slant: slant,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              softWrap: true,
+                              _biography!,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
+              Expanded(
+                flex: 7,
+                child: Center(
+                  child: _buildAnimationIfActive(
+                    (color) => Container(
+                      decoration: BoxDecoration(
+                        color: darkenColor(
+                          Theme.of(context).scaffoldBackgroundColor,
+                          0.2,
+                        ),
+                        border: Border.all(
+                          color: color,
+                          style: BorderStyle.solid,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 10,
+                          left: 15,
+                          right: 15,
+                          bottom: 10,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildStatRow("Workouts Complete:", "0"),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildStatRow("Example Statistic:", "12"),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        )
-      ],
+        );
+      },
     );
   }
 
@@ -164,10 +172,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
         children: [
           Text(
             firstString,
-            style: GoogleFonts.oswald(
-              fontSize: 17,
-              color: Colors.white,
-            ),
+            style: GoogleFonts.oswald(fontSize: 17, color: Colors.white),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 4, top: 4),
@@ -245,10 +250,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
           weight: 1,
         ),
       TweenSequenceItem(
-        tween: ColorTween(
-          begin: borderColors.last.item1,
-          end: maxLevelColor,
-        ),
+        tween: ColorTween(begin: borderColors.last.item1, end: maxLevelColor),
         weight: 3,
       ),
     ]).animate(_maxLevelController);
@@ -291,13 +293,12 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   }
 }
 
-
 Color darkenColor(Color color, double factor) {
   assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');
   return Color.fromRGBO(
-    (color.red * (1 - factor)).toInt(),
-    (color.green * (1 - factor)).toInt(),
-    (color.blue * (1 - factor)).toInt(),
-    color.opacity,
+    (color.r * 255.0 * (1 - factor)).toInt(),
+    (color.g * 255.0 * (1 - factor)).toInt(),
+    (color.b * 255.0 * (1 - factor)).toInt(),
+    color.a,
   );
 }

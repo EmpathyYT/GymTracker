@@ -1,8 +1,10 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/rounded_list_builder.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 
+import '../dialogs/exercise_note_dialog.dart';
 import 'navigation_icons_widget.dart';
 
 class WorkoutViewerWidget extends StatefulWidget {
@@ -57,7 +59,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
         ),
       );
     }
-
+    final groupSize = AutoSizeGroup();
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,51 +83,71 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                         final exerciseElement = exercise[index];
                         final exerciseWeightToString =
                             exerciseElement.exerciseWeightToString;
-                        return SizedBox(
-                          height: 60,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Flexible(
-                                fit: FlexFit.tight,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 5,
-                                    bottom: 5,
-                                  ),
-                                  child: Text(
-                                    exerciseElement.name,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w700,
+                        return GestureDetector(
+                          onTap: () {
+                            showExerciseNoteDialog(
+                              context,
+                              exerciseElement.notes,
+                            );
+                          },
+                          child: SizedBox(
+                            height: 60,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 5,
+                                      bottom: 5,
+                                    ),
+                                    child: AutoSizeText.rich(
+                                      TextSpan(
+                                        text: exerciseElement.name,
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                " (${exerciseElement.sets} "
+                                                "x ${exerciseElement.reps})",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      group: groupSize,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const VerticalDivider(
-                                color: Colors.white60,
-                                width: 20,
-                                thickness: 1,
-                              ),
-                              Flexible(
-                                fit: FlexFit.tight,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 5,
-                                    bottom: 5,
-                                  ),
-                                  child: Text(
-                                    exerciseWeightToString,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
+                                const VerticalDivider(
+                                  color: Colors.white60,
+                                  width: 20,
+                                  thickness: 1,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 5,
+                                      bottom: 5,
+                                    ),
+                                    child: AutoSizeText(
+                                      exerciseWeightToString,
+                                      group: groupSize,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },

@@ -141,6 +141,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   child: TextField(
                     controller: exerciseLWeightController,
                     keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       counterText: "",
                       border: InputBorder.none,
@@ -163,6 +164,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   child: TextField(
                     controller: exerciseHWeightController,
                     keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       counterText: "",
                       border: InputBorder.none,

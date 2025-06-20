@@ -516,6 +516,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   ) async {
     if (!const DeepCollectionEquality().equals(exercise, workout.workouts) ||
         workout.name != name) {
+
       emit(
         WorkoutPlanner(
           isLoading: true,
