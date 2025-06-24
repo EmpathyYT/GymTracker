@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/utils/dialogs/confirmation_dialog.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
@@ -49,7 +48,14 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
               state.successText![1],
             );
           } else if (state.exception != null) {
-            await showErrorDialog(context, "Please try again later.");
+            if (state.exception is AlreadyFinishedWorkoutException) {
+              await showErrorDialog(
+                context,
+                "You already finished a workout today.",
+              );
+            } else {
+              await showErrorDialog(context, "Please try again later.");
+            }
           }
         }
       },

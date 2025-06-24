@@ -118,3 +118,6 @@ class UsernameAlreadyUsedException implements Exception {
 class UserAlreadyInSquadException implements Exception {
   final String message = 'User already in squad';
 }
+class AlreadyFinishedWorkoutException implements Exception {
+  final String message = 'Already finished workout';
+}

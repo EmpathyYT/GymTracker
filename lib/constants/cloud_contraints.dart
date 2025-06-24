@@ -9,6 +9,7 @@ const premiumSquadLimit = 15;
 const standardSquadLimit = 7;
 const squadLimitFieldName = 'squad_limit';
 const genderFieldName = "gender";
+const totalCompletedWorkoutsFieldName = 'total_completed_workouts';
 //^ The User Constraints
 
 
@@ -39,6 +40,10 @@ const workoutTableName = 'WorkoutPlans';
 const planFieldName = 'plan';
 //^ The Workout Constraints
 
+
+const completedWorkoutName = "CompletedWorkouts";
+const workoutIdFieldName = 'workout_id';
+//^ The Completed Workout Constraints
 
 const rowName = 'name';
 const timeCreatedFieldName = 'created_at';

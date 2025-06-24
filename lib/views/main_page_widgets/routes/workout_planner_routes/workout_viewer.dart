@@ -1,7 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/utils/widgets/workout_viewer_widget.dart';
 
@@ -61,14 +61,11 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
           const SizedBox(height: 20),
           Expanded(
             child: PageView.builder(
-
               controller: _pageController,
               itemCount: 7,
-              itemBuilder: (context, index) => Column(
-                children: [
-                  _workoutWidgets[index],
-                ],
-              ),
+              itemBuilder:
+                  (context, index) =>
+                      Column(children: [_workoutWidgets[index]]),
             ),
           ),
         ],
@@ -91,6 +88,12 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeIn,
             );
+          }
+        },
+        finishExerciseCallback: (BuildContext context) async {
+          await context.read<MainPageCubit>().finishWorkout(workout);
+          if (context.mounted) {
+            Navigator.of(context).pop();
           }
         },
       );

@@ -51,6 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       final user = _provider.currentUser!;
       final cloudUser = await CloudUser.createUser(name, bio, gender);
+      await cloudUser.setStatistics();
       emit(AuthStateAuthenticated(
         cloudUser: cloudUser,
         user: user,
@@ -195,6 +196,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false, exception: null);
         } else {
           final cUser = await CloudUser.fetchUser(currentAuthUser?.id, true);
+          cUser!.setStatistics();
           return AuthStateAuthenticated(
             cloudUser: cUser,
             user: user,

@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
 
 import '../../constants/cloud_contraints.dart';
 import 'database_controller.dart';
 
-@immutable
 class CloudUser with EquatableMixin {
   static late final DatabaseController dbController;
 
@@ -17,8 +17,8 @@ class CloudUser with EquatableMixin {
   final String bio;
   final String? authId;
   final int level;
-
-  const CloudUser(
+  int completedWorkoutsCount = 0;
+  CloudUser(
       {required this.id,
       required this.name,
       required this.bio,
@@ -29,7 +29,7 @@ class CloudUser with EquatableMixin {
       this.friends,
       this.authId});
 
-  CloudUser.fromSubabaseMap(Map<String, dynamic> data)
+  CloudUser.fromSupabaseMap(Map<String, dynamic> data)
       : id = (data[idFieldName] as int).toString(),
         name = data[nameFieldName],
         friends = (data[friendsFieldName] as List<dynamic>?)
@@ -45,6 +45,7 @@ class CloudUser with EquatableMixin {
         bio = data[bioFieldName] ?? "",
         level = data[levelFieldName],
         authId = data[authIdFieldName] ?? "";
+
 
   @override
   String toString() {
@@ -78,6 +79,15 @@ class CloudUser with EquatableMixin {
 
   Future<CloudUser> editUser(String name, String bio) {
     return dbController.editUser(id, name, bio);
+  }
+
+  Future<int> getCompletedWorkoutsCount() {
+    return dbController.getWorkoutFinishedCount(id);
+  }
+
+  Future<void> setStatistics() async {
+    completedWorkoutsCount = await getCompletedWorkoutsCount();
+    return;
   }
 
   static Future<List<CloudUser>> fetchUsersForSquadAdding(

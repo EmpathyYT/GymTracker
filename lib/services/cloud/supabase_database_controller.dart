@@ -42,7 +42,7 @@ class SupabaseDatabaseController implements DatabaseController {
           bioFieldName: biography,
           genderFieldName: gender,
         }).select();
-    return CloudUser.fromSubabaseMap(data[0]);
+    return CloudUser.fromSupabaseMap(data[0]);
   }
 
   @override
@@ -151,7 +151,7 @@ class SupabaseDatabaseController implements DatabaseController {
               },
             )
             .select();
-    return data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
+    return data.map((e) => CloudUser.fromSupabaseMap(e)).toList();
   }
 
   @override
@@ -181,7 +181,7 @@ class SupabaseDatabaseController implements DatabaseController {
           .select("*")
           .eq(authIdFieldName, userId);
       if (data.isEmpty) return null;
-      return CloudUser.fromSubabaseMap(data[0]);
+      return CloudUser.fromSupabaseMap(data[0]);
     } else {
       final castedUserId =
           userId.runtimeType == String ? int.parse(userId) : userId;
@@ -191,7 +191,7 @@ class SupabaseDatabaseController implements DatabaseController {
         params: {'userid': castedUserId},
       );
       if (data.isEmpty) return null;
-      return CloudUser.fromSubabaseMap(data[0]);
+      return CloudUser.fromSupabaseMap(data[0]);
     }
   }
 
@@ -371,7 +371,7 @@ class SupabaseDatabaseController implements DatabaseController {
         await _supabase
             .rpc("fetch_users_for_search", params: {"username": query})
             .select();
-    yield data.map((e) => CloudUser.fromSubabaseMap(e)).toList();
+    yield data.map((e) => CloudUser.fromSupabaseMap(e)).toList();
   }
 
   @override
@@ -431,7 +431,7 @@ class SupabaseDatabaseController implements DatabaseController {
               .update({nameFieldName: username, bioFieldName: biography})
               .eq(idFieldName, id)
               .select();
-      return CloudUser.fromSubabaseMap(res[0]);
+      return CloudUser.fromSupabaseMap(res[0]);
     } on Exception catch (_) {
       rethrow;
     }
@@ -540,4 +540,24 @@ class SupabaseDatabaseController implements DatabaseController {
         .eq(idFieldName, workoutId)
         .select();
   }
+
+  @override
+  Future<void> finishWorkout(workoutId) async {
+    try {
+      await _supabase
+          .from(completedWorkoutName)
+          .insert({workoutIdFieldName: workoutId});
+    } on PostgrestException catch (e) {
+      throw AlreadyFinishedWorkoutException();
+    }
+  }
+
+  @override
+  Future<int> getWorkoutFinishedCount(userId) async {
+   return await _supabase.rpc(
+     "count_completed_workouts",
+      params: {'user_id': userId},
+   );
+  }
+
 }

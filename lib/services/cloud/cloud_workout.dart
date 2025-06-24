@@ -58,6 +58,12 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
     await dbController.deleteWorkout(id);
   }
 
+
+  Future<void> finishWorkout() async {
+    await dbController.finishWorkout(id);
+  }
+
+
   FilteredExerciseFormat get deepCopyWorkouts {
     return workouts.map(
       (k, v) => MapEntry(

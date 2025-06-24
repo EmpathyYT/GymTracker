@@ -287,9 +287,7 @@ class MainPageCubit extends Cubit<MainPageState> {
       },
     );
 
-    CloudAchievement.achievementListener(_currentUser.id, (
-        List event,
-    ) {
+    CloudAchievement.achievementListener(_currentUser.id, (List event) {
       final RequestsSortingType currNotifications = state.notifications!;
       final newNotification = CloudAchievement.fromMap(event[0]);
       emit(
@@ -516,7 +514,6 @@ class MainPageCubit extends Cubit<MainPageState> {
   ) async {
     if (!const DeepCollectionEquality().equals(exercise, workout.workouts) ||
         workout.name != name) {
-
       emit(
         WorkoutPlanner(
           isLoading: true,
@@ -592,6 +589,35 @@ class MainPageCubit extends Cubit<MainPageState> {
       emit(
         WorkoutPlanner(
           workouts: workouts,
+          exception: e as Exception,
+          notifications: state.notifications,
+        ),
+      );
+    }
+  }
+
+  Future<void> finishWorkout(CloudWorkout workout) async {
+    try {
+      await workout.finishWorkout();
+      emit(
+        WorkoutPlanner(
+          successText: ["Workout Finished", "Your workout has been finished."],
+          workouts: (state as WorkoutPlanner).workouts,
+          success: true,
+          notifications: state.notifications,
+        ),
+      );
+      emit(
+        WorkoutPlanner(
+          workouts: (state as WorkoutPlanner).workouts,
+          success: false,
+          notifications: state.notifications,
+        ),
+      );
+    } catch (e) {
+      emit(
+        WorkoutPlanner(
+          workouts: (state as WorkoutPlanner).workouts,
           exception: e as Exception,
           notifications: state.notifications,
         ),

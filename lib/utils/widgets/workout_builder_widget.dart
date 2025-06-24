@@ -156,7 +156,12 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
                 "(${exercise.exerciseWeightToString})";
 
     onTap() async {
-      await showWorkoutEditDialog(context, exercise);
+      await showWorkoutEditDialog(context, exercise).then(
+          (_) {
+            if (!mounted) return;
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+      );
     }
 
     final initWidget = ListTile(
@@ -416,10 +421,8 @@ String? _validateWeightInput(String? value) {
   } else if (double.tryParse(value) == null) {
     return "Please enter a valid number in the weight field(s).";
   } else {
-    if (value.split('.')[1].length > 2) {
+    if (value.contains('.') && value.split('.')[1].length > 2) {
       return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
-    } else if (value.split('.').length > 2) {
-      return "Please enter a valid number in the weight field(s).";
     } else if (double.parse(value) < 1) {
       return "Please enter a positive number greater than 0 in the weight field(s).";
     } else if (double.parse(value) > 2000) {

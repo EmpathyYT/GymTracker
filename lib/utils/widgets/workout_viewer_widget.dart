@@ -9,12 +9,14 @@ import 'navigation_icons_widget.dart';
 
 class WorkoutViewerWidget extends StatefulWidget {
   final MapEntry<int, List<ExerciseType>> exercise;
+  final Future<void> Function(BuildContext context) finishExerciseCallback;
   final Function(bool moveToRight) arrowNavigationCallback;
 
   const WorkoutViewerWidget({
     super.key,
     required this.exercise,
     required this.arrowNavigationCallback,
+    required this.finishExerciseCallback,
   });
 
   @override
@@ -155,7 +157,8 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                   ),
                   Center(
                     child: FilledButton.tonal(
-                      onPressed: () {},
+                      onPressed:
+                          () async => await finishExerciseCallback(context),
                       child: const Text("Finish Workout"),
                     ),
                   ),
@@ -196,6 +199,9 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
       return NavigationType.double;
     }
   }
+
+  Future<void> Function(BuildContext context) get finishExerciseCallback =>
+      widget.finishExerciseCallback;
 
   int get day => widget.exercise.key;
 }

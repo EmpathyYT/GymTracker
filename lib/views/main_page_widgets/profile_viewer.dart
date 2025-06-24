@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,10 +19,12 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     with TickerProviderStateMixin {
   String? _userName;
   String? _biography;
+  int? _completedWorkoutsCount;
   int? _userLevel;
   Color? _borderColor;
   bool isAnimated = false;
   bool isGlowing = false;
+  AutoSizeGroup group = AutoSizeGroup();
   static ValueNotifier<bool> isLoadedNotifier = ValueNotifier<bool>(false);
   late AnimationController _maxLevelController;
   late AnimationController _glowLevelController;
@@ -40,6 +43,8 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     _userName = context.read<MainPageCubit>().currentUser.name;
     _biography = context.read<MainPageCubit>().currentUser.bio;
     _userLevel = context.read<MainPageCubit>().currentUser.level;
+    _completedWorkoutsCount =
+        context.read<MainPageCubit>().currentUser.completedWorkoutsCount;
     if (_borderColor == null) {
       _setupColors();
     }
@@ -110,6 +115,23 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                   ),
                 ),
               ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 7.5),
+                    child: Text(
+                      "Statistics & Badges",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               Expanded(
                 flex: 7,
                 child: Center(
@@ -136,22 +158,11 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                           right: 15,
                           bottom: 10,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildStatRow("Workouts Complete:", "0"),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _buildStatRow("Example Statistic:", "12"),
-                              ],
-                            ),
-                          ],
+                        child: PageView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return _buildStatWidget(index);
+                          },
                         ),
                       ),
                     ),
@@ -165,28 +176,12 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     );
   }
 
-  Padding _buildStatRow(String firstString, String secondString) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        children: [
-          Text(
-            firstString,
-            style: GoogleFonts.oswald(fontSize: 17, color: Colors.white),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4, top: 4),
-            child: Text(
-              secondString,
-              style: GoogleFonts.montserrat(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Colors.white60,
-              ),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildStatWidget(int index) {
+    final data = statistics[index]!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: data.children,
     );
   }
 
@@ -291,6 +286,104 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
       );
     }
   }
+
+  Map<int, Column> get statistics => {
+    0: Column(
+      children: [
+        const Icon(Icons.leaderboard, color: Colors.white, size: 60),
+        const SizedBox(height: 5),
+        AutoSizeText.rich(
+          group: group,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          TextSpan(
+            text: "Current Level: ",
+            style: GoogleFonts.montserrat(fontSize: 28, color: Colors.white70),
+            children: <TextSpan>[
+              TextSpan(
+                text: "$_userLevel",
+                style: GoogleFonts.montserrat(
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: "\nPoints left for the next level: ",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.white60,
+                ),
+              ),
+              TextSpan(
+                text: "0",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+    1: Column(
+      children: [
+        const Icon(Icons.leaderboard, color: Colors.white, size: 60),
+        const SizedBox(height: 5),
+        AutoSizeText.rich(
+          group: group,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          TextSpan(
+            text: "Completed Workouts: ",
+            style: GoogleFonts.montserrat(fontSize: 28, color: Colors.white70),
+            children: <TextSpan>[
+              TextSpan(
+                text: "$_completedWorkoutsCount",
+                style: GoogleFonts.montserrat(
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: "\nAverage workouts per month: ",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.white60,
+                ),
+              ),
+              TextSpan(
+                text: "0",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+    2: Column(
+      children: [
+        const Icon(
+          Icons.star_purple500_outlined,
+          color: Colors.white,
+          size: 60,
+        ),
+        const SizedBox(height: 5),
+        Text(
+          textAlign: TextAlign.center,
+          "This area is going to be used for badges",
+          style: GoogleFonts.montserrat(fontSize: 28, color: Colors.white),
+        ),
+      ],
+    ),
+  };
 }
 
 Color darkenColor(Color color, double factor) {
