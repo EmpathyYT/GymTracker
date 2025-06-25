@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:equatable/equatable.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/workout_json_adapter.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../constants/cloud_contraints.dart';
 import '../../utils/widgets/workout_builder_widget.dart';
@@ -33,7 +32,7 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
 
   static Future<CloudWorkout> createWorkout(
     userId,
-    FilteredExerciseFormat workouts,
+    Map<int, List<ExerciseType>> workouts,
     String name,
   ) async {
     final json = WorkoutJsonAdapter(workouts: workouts).toJson();
@@ -46,7 +45,7 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
 
   Future<CloudWorkout> editWorkout(
     name,
-    FilteredExerciseFormat workouts,
+      Map<int, List<ExerciseType>> workouts,
   ) async {
     final workoutsToJson = WorkoutJsonAdapter(workouts: workouts).toJson();
     final res = await dbController.editWorkout(id, name, workoutsToJson);
@@ -58,13 +57,11 @@ class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
     await dbController.deleteWorkout(id);
   }
 
-
   Future<void> finishWorkout() async {
     await dbController.finishWorkout(id);
   }
 
-
-  FilteredExerciseFormat get deepCopyWorkouts {
+  Map<int, List<ExerciseType>> get deepCopyWorkouts {
     return workouts.map(
       (k, v) => MapEntry(
         k,

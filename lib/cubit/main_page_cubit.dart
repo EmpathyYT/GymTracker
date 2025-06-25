@@ -5,9 +5,9 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/services/cloud/cloud_squads.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
-import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
@@ -314,7 +314,9 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   Future<void> reloadUser() async {
-    _currentUser = (await CloudUser.fetchUser(currentUser.authId, true))!;
+    _currentUser =
+        (await CloudUser.fetchUser(currentUser.authId, true))!
+          ..setStatistics();
   }
 
   void _addMissingNotifications(
@@ -460,7 +462,10 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-  Future<void> saveWorkout(FilteredExerciseFormat exercise, String name) async {
+  Future<void> saveWorkout(
+    Map<int, List<ExerciseType>> exercise,
+    String name,
+  ) async {
     if (exercise.values.every((element) => element.isEmpty)) return;
     final workouts = List<CloudWorkout>.from(
       (state as WorkoutPlanner).workouts ?? [],
@@ -509,7 +514,7 @@ class MainPageCubit extends Cubit<MainPageState> {
 
   Future<void> editWorkout(
     CloudWorkout workout,
-    FilteredExerciseFormat exercise,
+    Map<int, List<ExerciseType>> exercise,
     String name,
   ) async {
     if (!const DeepCollectionEquality().equals(exercise, workout.workouts) ||
@@ -599,6 +604,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> finishWorkout(CloudWorkout workout) async {
     try {
       await workout.finishWorkout();
+      _currentUser.completedWorkoutsCount++;
       emit(
         WorkoutPlanner(
           successText: ["Workout Finished", "Your workout has been finished."],

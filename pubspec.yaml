@@ -49,6 +49,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.3
   rename_app: ^1.6.3
   auto_size_text: ^3.0.0
+  uuid: ^4.5.1
 
 
 dev_dependencies:

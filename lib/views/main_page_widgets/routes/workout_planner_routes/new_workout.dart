@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/widgets/workout_builder_widget.dart';
@@ -18,6 +19,7 @@ class NewWorkoutRoute extends StatefulWidget {
 class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
   late final TextEditingController _nameController;
   final BehaviorSubject<FilteredExerciseFormat> _controller = BehaviorSubject();
+  final Uuid uuid = const Uuid();
   final PageController _pageController = PageController();
   List<Widget>? _workoutWidgets;
 
@@ -26,7 +28,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
     super.initState();
     _controller.add(
       FilteredExerciseFormat.fromEntries(
-        List.generate(7, (i) => MapEntry(i + 1, [])),
+        List.generate(7, (i) => MapEntry(i + 1, {})),
       ),
     );
     _workoutWidgets ??= _buildWorkoutWidgets();
@@ -55,7 +57,12 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           );
         }
         await context.read<MainPageCubit>().saveWorkout(
-          _controller.valueOrNull ?? {},
+          (_controller.valueOrNull ?? {}).map(
+            (k, v) => MapEntry(
+              k,
+              List.from(v.values),
+            ),
+          ),
           _nameController.text,
         );
         if (context.mounted) Navigator.pop(context);
@@ -126,6 +133,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {
       return WorkoutBuilderWidget(
+        uuid: uuid,
         day: index + 1,
         behaviorController: _controller,
         arrowNavigationCallback: (bool moveToRight) {

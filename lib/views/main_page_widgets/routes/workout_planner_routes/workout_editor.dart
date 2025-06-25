@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../constants/code_constraints.dart';
 import '../../../../cubit/main_page_cubit.dart';
@@ -21,13 +22,20 @@ class WorkoutEditorRoute extends StatefulWidget {
 class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
   late final TextEditingController _nameController;
   final BehaviorSubject<FilteredExerciseFormat> _controller = BehaviorSubject();
+  final Uuid uuid = const Uuid();
   final PageController _pageController = PageController();
   List<Widget>? _workoutWidgets;
 
   @override
   void initState() {
     super.initState();
-    _controller.add(workout.deepCopyWorkouts);
+    final initialWorkout = workout.deepCopyWorkouts;
+    _controller.add(
+      initialWorkout.map(
+        (k, v) =>
+            MapEntry(k, {}..addEntries(v.map((e) => MapEntry(uuid.v4(), e)))),
+      ),
+    );
     _workoutWidgets ??= _buildWorkoutWidgets();
     _nameController = TextEditingController()..text = widget.workout.name;
   }
@@ -56,7 +64,9 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
         }
         await context.read<MainPageCubit>().editWorkout(
           workout,
-          _controller.valueOrNull ?? {},
+          (_controller.valueOrNull ?? {}).map(
+            (k, v) => MapEntry(k, List.from(v.values)),
+          ),
           _nameController.text,
         );
 
@@ -128,6 +138,7 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
   List<Widget> _buildWorkoutWidgets() {
     return List.generate(7, (index) {
       return WorkoutBuilderWidget(
+        uuid: uuid,
         day: index + 1,
         behaviorController: _controller,
         arrowNavigationCallback: (bool moveToRight) {

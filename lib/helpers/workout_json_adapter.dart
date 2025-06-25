@@ -8,7 +8,7 @@ part 'workout_json_adapter.g.dart';
 @JsonSerializable()
 class WorkoutJsonAdapter {
   @JsonKey(name: 'workouts', fromJson: mapFromJson, toJson: _mapToJson)
-  FilteredExerciseFormat workouts;
+  Map<int, List<ExerciseType>> workouts;
 
   WorkoutJsonAdapter({required this.workouts});
 
@@ -19,8 +19,8 @@ class WorkoutJsonAdapter {
 
 
   //Adapters
-  static FilteredExerciseFormat mapFromJson(Map<String, dynamic> json) {
-    final FilteredExerciseFormat workouts = {};
+  static Map<int, List<ExerciseType>> mapFromJson(Map<String, dynamic> json) {
+    final Map<int, List<ExerciseType>> workouts = {};
     json['workouts'].forEach((key, value) {
       workouts[int.parse(key)] = (value as List)
           .map((e) => ExerciseType.fromMap(e as Map<String, dynamic>))
@@ -30,7 +30,7 @@ class WorkoutJsonAdapter {
   }
 
   static Map<String, dynamic> _mapToJson(
-      FilteredExerciseFormat workouts) {
+      Map<int, List<ExerciseType>> workouts) {
     final Map<String, dynamic> json = {};
     workouts.forEach((key, value) {
       json[key.toString()] = value.map((e) => e.toMap()).toList();
