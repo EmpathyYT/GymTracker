@@ -28,7 +28,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
     super.initState();
     _controller.add(
       FilteredExerciseFormat.fromEntries(
-        List.generate(7, (i) => MapEntry(i + 1, {})),
+        List.generate(7, (i) => MapEntry(i + 1, [])),
       ),
     );
     _workoutWidgets ??= _buildWorkoutWidgets();
@@ -60,7 +60,7 @@ class _NewWorkoutRouteState extends State<NewWorkoutRoute> {
           (_controller.valueOrNull ?? {}).map(
             (k, v) => MapEntry(
               k,
-              List.from(v.values),
+              v.map((e) => e.item2).toList(),
             ),
           ),
           _nameController.text,

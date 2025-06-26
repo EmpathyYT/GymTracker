@@ -12,7 +12,7 @@ import 'package:uuid/uuid.dart';
 import '../../helpers/exercise_type.dart';
 import '../../views/main_page_widgets/profile_viewer.dart';
 
-typedef FilteredExerciseFormat = Map<int, Map<String, ExerciseType>>;
+typedef FilteredExerciseFormat = Map<int, List<Tuple2<String, ExerciseType>>>;
 
 class WorkoutBuilderWidget extends StatefulWidget {
   final int day;
@@ -34,7 +34,7 @@ class WorkoutBuilderWidget extends StatefulWidget {
 
 class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     with SingleTickerProviderStateMixin {
-  final ValueNotifier<List<MapEntry<String, ExerciseType>>>
+  final ValueNotifier<List<Tuple2<String, ExerciseType>>>
   _exerciseListNotifier = ValueNotifier([]);
   final ValueNotifier<bool> _isRangeNotifier = ValueNotifier(false);
   final TextEditingController _exerciseNameController = TextEditingController();
@@ -46,13 +46,10 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
       TextEditingController();
   late final StreamSubscription<FilteredExerciseFormat>
   _exerciseStreamSubscription;
+  int? draggingIndex;
 
   @override
   void initState() {
-    _exerciseListNotifier.value = _initExercises() ?? [];
-    _exerciseStreamSubscription = _exerciseController.listen(
-      (event) => _streamEventCallback(event),
-    );
     _exerciseListNotifier.addListener(() {
       if (_exerciseListNotifier.value.isNotEmpty) {
         _exerciseNameController.clear();
@@ -62,7 +59,10 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
         _exerciseHWeightController.clear();
       }
     });
-
+    _exerciseListNotifier.value = _initExercises() ?? [];
+    _exerciseStreamSubscription = _exerciseController.listen(
+      (event) => _streamEventCallback(event),
+    );
     super.initState();
   }
 
@@ -123,6 +123,16 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
                 valueListenable: _exerciseListNotifier,
                 builder: (context, value, child) {
                   return ReorderableListView.builder(
+                    proxyDecorator: (child, index, animation) {
+                      return Material(
+                        elevation: 8,
+                        color: Colors.transparent,
+                        child: ScaleTransition(
+                          scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
+                          child: child,
+                        ),
+                      );
+                    },
                     itemCount: value.length,
                     onReorder: (oldIndex, newIndex) {
                       if (newIndex > oldIndex) {
@@ -130,8 +140,13 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
                       }
                       final item = value.removeAt(oldIndex);
                       value.insert(newIndex, item);
-                      _exerciseListNotifier.value = value;
-                      _addToStream(day, item.value);
+                      _removeFromStream(day, item.item1);
+                      _addToStream(
+                        day,
+                        item.item2,
+                        uid: item.item1,
+                        index: newIndex,
+                      );
                     },
                     itemBuilder: (context, index) {
                       return buildListTile(index, value);
@@ -154,9 +169,9 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     );
   }
 
-  Widget buildListTile(int index, List<MapEntry<String, ExerciseType>> value) {
-    final ExerciseType exercise = value[index].value;
-    final String uuid = value[index].key;
+  Widget buildListTile(int index, List<Tuple2<String, ExerciseType>> value) {
+    final ExerciseType exercise = value[index].item2;
+    final String uuid = value[index].item1;
     final noWeight =
         exercise.weightRange.item1 == 0 && exercise.weightRange.item2 == 0;
 
@@ -174,7 +189,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     }
 
     final initWidget = ListTile(
-      key: ValueKey(uuid),
       dense: true,
       contentPadding: const EdgeInsets.fromLTRB(15, 2, 0, 0),
       title: Text(
@@ -189,17 +203,28 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
           fontWeight: FontWeight.w600,
         ),
       ),
-      trailing: IconButton(
-        onPressed: () => _removeFromStream(day, uuid),
-        icon: const Icon(Icons.remove_circle),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () => _removeFromStream(day, uuid),
+            icon: const Icon(Icons.remove_circle),
+          ),
+          ReorderableDragStartListener(
+            key: ValueKey(draggingIndex == index),
+            index: index,
+            child: const Icon(Icons.drag_handle),
+          ),
+        ],
       ),
     );
     if (index != 0 && index != value.length - 1) {
-      return copyListTileForTap(initWidget, onTap);
+      return copyListTileForTap(initWidget, onTap, uuid, index);
     }
     final isTop = index == 0;
 
     return InkWell(
+      key: ValueKey("$uuid ${index == draggingIndex}"),
       customBorder: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(isTop ? 20 : 0),
@@ -213,8 +238,14 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     );
   }
 
-  ListTile copyListTileForTap(ListTile tile, Function onTap) {
+  ListTile copyListTileForTap(
+    ListTile tile,
+    Function onTap,
+    String uuid,
+    int index,
+  ) {
     return ListTile(
+      key: ValueKey("$uuid ${index == draggingIndex}"),
       title: tile.title,
       dense: tile.dense,
       contentPadding: tile.contentPadding,
@@ -226,34 +257,40 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
   }
 
   void _streamEventCallback(FilteredExerciseFormat event) {
-    final exercises = event[day] ?? {};
-    _exerciseListNotifier.value = exercises.entries.toList();
+    final exercises = event[day] ?? [];
+    _exerciseListNotifier.value = [...exercises];
   }
 
-  List<MapEntry<String, ExerciseType>>? _initExercises() {
+  List<Tuple2<String, ExerciseType>>? _initExercises() {
     try {
       final exercises = _exerciseController.valueOrNull;
-      final dayExercises = exercises?[day] ?? {};
-      return dayExercises.entries.toList();
+      final dayExercises = exercises?[day] ?? [];
+      return dayExercises;
     } catch (_) {
       return null;
     }
   }
 
-  void _addToStream(int day, ExerciseType exercise) {
+  void _addToStream(int day, ExerciseType exercise, {int? index, String? uid}) {
     _exerciseController.add(
-      {..._exerciseController.valueOrNull ?? {}}..update(
-        day,
-        (e) => e..addAll({uuid.v4(): exercise}),
-        ifAbsent: () => {uuid.v4(): exercise},
-      ),
+      {..._exerciseController.valueOrNull ?? {}}..update(day, (e) {
+        if (index != null && uid != null) {
+          e.insert(index, Tuple2(uid, exercise));
+        } else {
+          e.add(Tuple2(uuid.v4(), exercise));
+        }
+        return e;
+      }, ifAbsent: () => [Tuple2(uuid.v4(), exercise)]),
     );
   }
 
   void _removeFromStream(int day, String uuid) {
     _exerciseController.add(
-      {..._exerciseController.valueOrNull ?? {}}
-        ..update(day, (e) => e..remove(uuid), ifAbsent: () => {}),
+      {..._exerciseController.valueOrNull ?? {}}..update(
+        day,
+        (e) => e..removeWhere((e) => e.item1 == uuid),
+        ifAbsent: () => [],
+      ),
     );
   }
 
@@ -311,7 +348,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
       widget.behaviorController;
 
   Uuid get uuid => widget.uuid;
-
 }
 
 void showErrorSnackBar(

@@ -111,7 +111,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                                 " (${exerciseElement.sets} "
                                                 "x ${exerciseElement.reps})",
                                             style: const TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 17,
                                               color: Colors.white70,
                                             ),
                                           ),
@@ -120,7 +120,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                       group: groupSize,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -142,7 +142,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                       group: groupSize,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),

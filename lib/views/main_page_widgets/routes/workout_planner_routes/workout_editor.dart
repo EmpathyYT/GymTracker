@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../constants/code_constraints.dart';
@@ -32,8 +33,7 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
     final initialWorkout = workout.deepCopyWorkouts;
     _controller.add(
       initialWorkout.map(
-        (k, v) =>
-            MapEntry(k, {}..addEntries(v.map((e) => MapEntry(uuid.v4(), e)))),
+        (k, v) => MapEntry(k, [...v.map((e) => Tuple2(uuid.v4(), e))]),
       ),
     );
     _workoutWidgets ??= _buildWorkoutWidgets();
@@ -65,7 +65,7 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
         await context.read<MainPageCubit>().editWorkout(
           workout,
           (_controller.valueOrNull ?? {}).map(
-            (k, v) => MapEntry(k, List.from(v.values)),
+            (k, v) => MapEntry(k, List.from(v.map((e) => e.item2))),
           ),
           _nameController.text,
         );

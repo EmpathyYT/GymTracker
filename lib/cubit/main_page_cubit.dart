@@ -20,6 +20,7 @@ typedef RequestsSortingType = Map<String, Map<String, List<CloudNotification>>>;
 class MainPageCubit extends Cubit<MainPageState> {
   CloudUser _currentUser;
   bool listeningToNotifications = false;
+  static final Map<String, dynamic> cache = {};
 
   MainPageCubit(this._currentUser) : super(const SquadSelector());
 

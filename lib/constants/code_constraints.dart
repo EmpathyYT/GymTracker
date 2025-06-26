@@ -11,6 +11,8 @@ const appBarTitleSize = 35.0;
 const appBarPadding = 7.0;
 const glowLevel = 10;
 const noWeightRestrictionMessage = 'No Weight Range';
+const workoutCacheField = "workouts";
+
 
 const Color maxLevelColor = Color(0xff8e0cf3);
 final List<Tuple2<Color, bool>> borderColors = [

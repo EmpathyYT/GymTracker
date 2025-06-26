@@ -22,15 +22,27 @@ ListView roundedListBuilder({
         );
       } else if (index != 0 && index != itemCount - 1) {
         return DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white60, width: 1),
+          decoration: const BoxDecoration(
+            border: Border(
+              left: BorderSide(color: Colors.white60, width: 1),
+              right: BorderSide(color: Colors.white60, width: 1),
+              bottom: BorderSide(color: Colors.white60, width: 1),
+            ),
           ),
           child: item,
         );
       } else {
         return DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.white60, width: 1),
+            border: Border(
+              top:
+                  isTop
+                      ? const BorderSide(color: Colors.white60, width: 1)
+                      : BorderSide.none,
+              left: const BorderSide(color: Colors.white60, width: 1),
+              right: const BorderSide(color: Colors.white60, width: 1),
+              bottom: const BorderSide(color: Colors.white60, width: 1),
+            ),
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(isBottom ? borderRadius : 0),
               bottomRight: Radius.circular(isBottom ? borderRadius : 0),

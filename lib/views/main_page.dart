@@ -21,6 +21,7 @@ import '../services/cloud/cloud_user.dart';
 import '../utils/widgets/notifications_button.dart';
 import 'main_page_widgets/workout_planner.dart';
 
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 

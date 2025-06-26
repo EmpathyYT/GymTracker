@@ -1,9 +1,10 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
 
 import '../exceptions/cloud_exceptions.dart';
@@ -16,7 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthProvider _provider;
 
   AuthBloc(this._provider, this._databaseController)
-      : super(const AuthStateUninitialized(isLoading: true)) {
+    : super(const AuthStateUninitialized(isLoading: true)) {
     on<AuthEventSendEmailVerification>((event, emit) async {
       await _provider.sendEmailVerification(email: event.user.email!);
       emit(state);
@@ -34,8 +35,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(newState);
         }
       } catch (e) {
-        emit(AuthStateUnauthenticated(
-            exception: e as Exception, isLoading: false));
+        emit(
+          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+        );
       }
     });
 
@@ -45,21 +47,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final gender = event.gender;
 
       try {
-      emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
-      if (!await checkValidUsername(name)) {
-        throw InvalidUserNameFormatException();
-      }
-      final user = _provider.currentUser!;
-      final cloudUser = await CloudUser.createUser(name, bio, gender);
-      await cloudUser.setStatistics();
-      emit(AuthStateAuthenticated(
-        cloudUser: cloudUser,
-        user: user,
-        isLoading: false,
-      ));
+        emit(const AuthStateSettingUpProfile(isLoading: true, exception: null));
+        if (!await checkValidUsername(name)) {
+          throw InvalidUserNameFormatException();
+        }
+        final user = _provider.currentUser!;
+        final cloudUser = await CloudUser.createUser(name, bio, gender);
+        await cloudUser.setStatistics();
+        emit(
+          AuthStateAuthenticated(
+            cloudUser: cloudUser,
+            user: user,
+            isLoading: false,
+          ),
+        );
       } catch (e) {
-        emit(AuthStateSettingUpProfile(
-            exception: e as Exception, isLoading: false));
+        emit(
+          AuthStateSettingUpProfile(
+            exception: e as Exception,
+            isLoading: false,
+          ),
+        );
       }
     });
 
@@ -67,8 +75,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final verificationStream = _provider.listenForVerification();
       await for (final verified in verificationStream) {
         if (verified) {
-          emit(const AuthStateSettingUpProfile(
-              isLoading: false, exception: null));
+          emit(
+            const AuthStateSettingUpProfile(isLoading: false, exception: null),
+          );
           break;
         }
       }
@@ -80,8 +89,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       try {
         emit(const AuthStateRegistering(exception: null, isLoading: true));
-        final user =
-            await _provider.createUser(email: email, password: password);
+        final user = await _provider.createUser(
+          email: email,
+          password: password,
+        );
         emit(AuthStateNeedsVerification(isLoading: false, user: user));
       } catch (e) {
         emit(AuthStateRegistering(exception: e as Exception, isLoading: false));
@@ -112,22 +123,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthEventSignIn>((event, emit) async {
-      emit(const AuthStateUnauthenticated(
+      emit(
+        const AuthStateUnauthenticated(
           exception: null,
           isLoading: true,
-          loadingText: 'Please wait for Authentication'));
+          loadingText: 'Please wait for Authentication',
+        ),
+      );
 
       try {
-        final user =
-            await _provider.logIn(email: event.email, password: event.password);
-        emit(const AuthStateUnauthenticated(exception: null, isLoading:  true));
+        final user = await _provider.logIn(
+          email: event.email,
+          password: event.password,
+        );
+        emit(const AuthStateUnauthenticated(exception: null, isLoading: true));
         final newState = await _stateSelectorByUser(user);
         emit(newState);
       } on EmailNotConfirmedAuthException {
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
-        emit(AuthStateUnauthenticated(
-            exception: e as Exception, isLoading: false));
+        emit(
+          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+        );
       }
     });
 
@@ -136,26 +153,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _provider.logOut();
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } catch (e) {
-        emit(AuthStateUnauthenticated(
-            exception: e as Exception, isLoading: false));
+        emit(
+          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+        );
       }
     });
 
     on<AuthEventForgotPassword>((event, emit) async {
-      emit(const AuthStateForgotPassword(
-        isLoading: false,
-        exception: null,
-        hasSentEmail: false,
-      ));
+      emit(
+        const AuthStateForgotPassword(
+          isLoading: false,
+          exception: null,
+          hasSentEmail: false,
+        ),
+      );
 
       final email = event.email;
       if (email == null) return;
 
-      emit(const AuthStateForgotPassword(
-        isLoading: true,
-        exception: null,
-        hasSentEmail: false,
-      ));
+      emit(
+        const AuthStateForgotPassword(
+          isLoading: true,
+          exception: null,
+          hasSentEmail: false,
+        ),
+      );
 
       bool didSendEmail;
       Exception? exception;
@@ -169,11 +191,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         exception = e as Exception;
       }
 
-      emit(AuthStateForgotPassword(
-        isLoading: false,
-        exception: exception,
-        hasSentEmail: didSendEmail,
-      ));
+      emit(
+        AuthStateForgotPassword(
+          isLoading: false,
+          exception: exception,
+          hasSentEmail: didSendEmail,
+        ),
+      );
     });
   }
 
@@ -193,9 +217,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } else {
         if (!await CloudUser.userExists(authId: user.id)) {
           return const AuthStateSettingUpProfile(
-              isLoading: false, exception: null);
+            isLoading: false,
+            exception: null,
+          );
         } else {
+          MainPageCubit.cache.clear();
           final cUser = await CloudUser.fetchUser(currentAuthUser?.id, true);
+          final workouts = await CloudWorkout.fetchWorkouts(cUser?.id);
+          if (workouts.isNotEmpty) {
+            MainPageCubit.cache[workoutCacheField] = workouts;
+          }
           cUser!.setStatistics();
           return AuthStateAuthenticated(
             cloudUser: cUser,
