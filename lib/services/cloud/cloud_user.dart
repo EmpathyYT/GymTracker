@@ -1,7 +1,6 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-
-
 import '../../constants/cloud_contraints.dart';
 import 'database_controller.dart';
 
@@ -17,35 +16,40 @@ class CloudUser with EquatableMixin {
   final String bio;
   final String? authId;
   final int level;
-  int completedWorkoutsCount = 0;
-  CloudUser(
-      {required this.id,
-      required this.name,
-      required this.bio,
-      required this.level,
-      required this.timeCreated,
-      this.squadLimit,
-      this.squads,
-      this.friends,
-      this.authId});
+  int? pointsForNextLevel;
+  double? averageWorkoutsPerMonth;
+  int? completedWorkoutsCount;
+
+  CloudUser({
+    required this.id,
+    required this.name,
+    required this.bio,
+    required this.level,
+    required this.timeCreated,
+    this.squadLimit,
+    this.squads,
+    this.friends,
+    this.authId,
+  });
 
   CloudUser.fromSupabaseMap(Map<String, dynamic> data)
-      : id = (data[idFieldName] as int).toString(),
-        name = data[nameFieldName],
-        friends = (data[friendsFieldName] as List<dynamic>?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            [],
-        squads = (data[squadFieldName] as List<dynamic>?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            [],
-        timeCreated = DateTime.tryParse(data[timeCreatedFieldName] as String)!,
-        squadLimit = data[squadLimitFieldName] ?? 0,
-        bio = data[bioFieldName] ?? "",
-        level = data[levelFieldName],
-        authId = data[authIdFieldName] ?? "";
-
+    : id = (data[idFieldName] as int).toString(),
+      name = data[nameFieldName],
+      friends =
+          (data[friendsFieldName] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      squads =
+          (data[squadFieldName] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      timeCreated = DateTime.tryParse(data[timeCreatedFieldName] as String)!,
+      squadLimit = data[squadLimitFieldName] ?? 0,
+      bio = data[bioFieldName] ?? "",
+      level = data[levelFieldName],
+      authId = data[authIdFieldName] ?? "";
 
   @override
   String toString() {
@@ -69,7 +73,10 @@ class CloudUser with EquatableMixin {
   }
 
   static Future<CloudUser> createUser(
-      String userName, String biography, bool gender) {
+    String userName,
+    String biography,
+    bool gender,
+  ) {
     return dbController.createUser(userName, biography, gender);
   }
 
@@ -85,13 +92,24 @@ class CloudUser with EquatableMixin {
     return dbController.getWorkoutFinishedCount(id);
   }
 
+  double _getAverageWorkoutsPerMonth() {
+    final workoutCount = completedWorkoutsCount;
+    final averageWorkouts = (workoutCount ?? 0) / 30;
+    return double.parse(averageWorkouts.toStringAsPrecision(2));
+  }
+
   Future<void> setStatistics() async {
     completedWorkoutsCount = await getCompletedWorkoutsCount();
+    pointsForNextLevel = await dbController.getPointsLeftForNextLevel();
+    averageWorkoutsPerMonth = _getAverageWorkoutsPerMonth();
     return;
   }
 
   static Future<List<CloudUser>> fetchUsersForSquadAdding(
-      fromUser, squadId, filter) {
+    fromUser,
+    squadId,
+    filter,
+  ) {
     return dbController.fetchUsersForSquadAdding(fromUser, squadId, filter);
   }
 }

@@ -93,6 +93,8 @@ class _WorkoutViewerRouteState extends State<WorkoutViewerRoute> {
         finishExerciseCallback: (BuildContext context) async {
           await context.read<MainPageCubit>().finishWorkout(workout);
           if (context.mounted) {
+            final user = context.read<MainPageCubit>().currentUser;
+            user.pointsForNextLevel = user.pointsForNextLevel! + 1;
             Navigator.of(context).pop();
           }
         },

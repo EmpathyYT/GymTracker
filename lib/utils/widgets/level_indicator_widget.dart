@@ -72,7 +72,7 @@ class LevelIndicatorWidget extends StatefulWidget {
   final int slant;
   final String userName;
   final Color color;
-  final ValueNotifier<bool> isLoadedNotifier;
+  final ValueNotifier<bool> didCalculateNotifier;
 
   const LevelIndicatorWidget({
     super.key,
@@ -80,7 +80,7 @@ class LevelIndicatorWidget extends StatefulWidget {
     required this.level,
     required this.slant,
     required this.userName,
-    required this.isLoadedNotifier,
+    required this.didCalculateNotifier,
   });
 
   @override
@@ -193,5 +193,5 @@ class _LevelIndicatorWidgetState extends State<LevelIndicatorWidget> {
     return nameSizeCache[name];
   }
 
-  ValueNotifier<bool> get isLoadedNotifier => widget.isLoadedNotifier;
+  ValueNotifier<bool> get isLoadedNotifier => widget.didCalculateNotifier;
 }

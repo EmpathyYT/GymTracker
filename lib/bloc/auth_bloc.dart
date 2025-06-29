@@ -227,7 +227,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           if (workouts.isNotEmpty) {
             MainPageCubit.cache[workoutCacheField] = workouts;
           }
-          cUser!.setStatistics();
           return AuthStateAuthenticated(
             cloudUser: cUser,
             user: user,

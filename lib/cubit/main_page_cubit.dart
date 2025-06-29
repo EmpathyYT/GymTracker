@@ -605,7 +605,8 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> finishWorkout(CloudWorkout workout) async {
     try {
       await workout.finishWorkout();
-      _currentUser.completedWorkoutsCount++;
+      _currentUser.completedWorkoutsCount =
+          _currentUser.completedWorkoutsCount! + 1;
       emit(
         WorkoutPlanner(
           successText: ["Workout Finished", "Your workout has been finished."],

@@ -169,6 +169,10 @@ class DatabaseServiceProvider implements DatabaseController {
   Future<void> finishWorkout(workoutId) => _provider.finishWorkout(workoutId);
 
   @override
-  Future<int> getWorkoutFinishedCount(userId)
-      => _provider.getWorkoutFinishedCount(userId);
+  Future<int> getPointsLeftForNextLevel() =>
+      _provider.getPointsLeftForNextLevel();
+
+  @override
+  Future<int> getWorkoutFinishedCount(userId) =>
+      _provider.getWorkoutFinishedCount(userId);
 }

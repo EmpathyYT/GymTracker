@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
+import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/utils/widgets/level_indicator_widget.dart';
 import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
 
@@ -20,16 +21,23 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   String? _userName;
   String? _biography;
   int? _completedWorkoutsCount;
+  int? _pointsLeftForNextLevel;
+  double? _averageWorkoutsPerMonth;
   int? _userLevel;
   Color? _borderColor;
   bool isAnimated = false;
   bool isGlowing = false;
   AutoSizeGroup group = AutoSizeGroup();
-  static ValueNotifier<bool> isLoadedNotifier = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> _isLoadedNotifier = ValueNotifier<bool>(
+    false,
+  );
+  static final ValueNotifier<bool> didCalculate = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> didFetch = ValueNotifier<bool>(false);
   late AnimationController _maxLevelController;
   late AnimationController _glowLevelController;
   late Animation<Color?> _maxLevelAnimation;
   late Animation<Color?> _glowLevelAnimation;
+  late final CloudUser user;
 
   @override
   void dispose() {
@@ -39,12 +47,26 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   }
 
   @override
+  void initState() {
+    super.initState();
+    didCalculate.addListener(checkIfAllLoaded);
+    didFetch.addListener(checkIfAllLoaded);
+  }
+
+  @override
   void didChangeDependencies() {
-    _userName = context.read<MainPageCubit>().currentUser.name;
-    _biography = context.read<MainPageCubit>().currentUser.bio;
-    _userLevel = context.read<MainPageCubit>().currentUser.level;
-    _completedWorkoutsCount =
-        context.read<MainPageCubit>().currentUser.completedWorkoutsCount;
+    user = context.read<MainPageCubit>().currentUser;
+
+    if (user.pointsForNextLevel == null) {
+      loadStatistics();
+    }
+    _userName = user.name;
+    _biography = user.bio;
+    _userLevel = user.level;
+    _completedWorkoutsCount = user.completedWorkoutsCount;
+    _pointsLeftForNextLevel = user.pointsForNextLevel;
+    _averageWorkoutsPerMonth = user.averageWorkoutsPerMonth;
+
     if (_borderColor == null) {
       _setupColors();
     }
@@ -63,7 +85,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     const slant = 15;
 
     return ValueListenableBuilder<bool>(
-      valueListenable: isLoadedNotifier,
+      valueListenable: _isLoadedNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
         return LoadingWidgetFlipper(
           isLoaded: value,
@@ -91,7 +113,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                             SizedBox(height: verticalOffset.toDouble()),
                             _buildAnimationIfActive(
                               (color) => LevelIndicatorWidget(
-                                isLoadedNotifier: isLoadedNotifier,
+                                didCalculateNotifier: didCalculate,
                                 color: color,
                                 userName: _userName!,
                                 level: _userLevel!,
@@ -301,7 +323,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
             style: GoogleFonts.montserrat(fontSize: 28, color: Colors.white70),
             children: <TextSpan>[
               TextSpan(
-                text: "$_userLevel",
+                text: _userLevel.toString(),
                 style: GoogleFonts.montserrat(
                   fontSize: 28,
                   color: Colors.white,
@@ -316,7 +338,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                 ),
               ),
               TextSpan(
-                text: "0",
+                text: _pointsLeftForNextLevel.toString(),
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   color: Colors.white70,
@@ -341,7 +363,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
             style: GoogleFonts.montserrat(fontSize: 28, color: Colors.white70),
             children: <TextSpan>[
               TextSpan(
-                text: "$_completedWorkoutsCount",
+                text: _completedWorkoutsCount.toString(),
                 style: GoogleFonts.montserrat(
                   fontSize: 28,
                   color: Colors.white,
@@ -356,7 +378,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                 ),
               ),
               TextSpan(
-                text: "0",
+                text: _averageWorkoutsPerMonth.toString(),
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   color: Colors.white70,
@@ -384,6 +406,23 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
       ],
     ),
   };
+
+  void checkIfAllLoaded() {
+    if (didCalculate.value && didFetch.value) {
+      setState(() {
+        _isLoadedNotifier.value = true;
+        _completedWorkoutsCount = user.completedWorkoutsCount;
+        _pointsLeftForNextLevel = user.pointsForNextLevel;
+        _averageWorkoutsPerMonth = user.averageWorkoutsPerMonth;
+      });
+    }
+  }
+
+  Future<void> loadStatistics() async {
+    user.setStatistics().then((value) {
+      didFetch.value = true;
+    });
+  }
 }
 
 Color darkenColor(Color color, double factor) {

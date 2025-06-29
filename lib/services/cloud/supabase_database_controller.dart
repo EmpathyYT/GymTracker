@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -108,10 +106,13 @@ class SupabaseDatabaseController implements DatabaseController {
   Future<CloudSquad> removeUserFromSquad(userId, squadId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
 
-    final data = await _supabase.rpc(
-      "remove_squad_member",
-      params: {'user_id': userId, 'squad_id': squadId},
-    ).select();
+    final data =
+        await _supabase
+            .rpc(
+              "remove_squad_member",
+              params: {'user_id': userId, 'squad_id': squadId},
+            )
+            .select();
 
     return CloudSquad.fromSupabaseMap(data[0]);
   }
@@ -546,9 +547,9 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<void> finishWorkout(workoutId) async {
     try {
-      await _supabase
-          .from(completedWorkoutName)
-          .insert({workoutIdFieldName: workoutId});
+      await _supabase.from(completedWorkoutName).insert({
+        workoutIdFieldName: workoutId,
+      });
     } on PostgrestException catch (e) {
       throw AlreadyFinishedWorkoutException();
     }
@@ -556,10 +557,18 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<int> getWorkoutFinishedCount(userId) async {
-   return await _supabase.rpc(
-     "count_completed_workouts",
+    return await _supabase.rpc(
+      "count_completed_workouts",
       params: {'user_id': userId},
-   );
+    );
   }
 
+  @override
+  Future<int> getPointsLeftForNextLevel() async {
+    final {"pointsNeeded": points} = (await _supabase.functions.invoke(
+      'get-points-remaining-for-level-up',
+    )).data;
+
+    return points;
+  }
 }

@@ -95,6 +95,8 @@ abstract class DatabaseController {
 
   Future<void> finishWorkout(workoutId);
   Future<int> getWorkoutFinishedCount(userId);
+  Future<int> getPointsLeftForNextLevel();
+
 
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
