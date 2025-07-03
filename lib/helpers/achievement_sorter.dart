@@ -21,8 +21,9 @@ class AchievementSorter {
   _fillServerAchievementIfNeeded() {
     if (achievements.length < 10) {
       achievements.add(
-        CloudAchievement(
-          id: -1,
+        CloudSquadAchievement(
+          squadId: squad!.id,
+          id: "-1",
           createdAt: squad!.timeCreated,
           read: true,
           message: "This marks the time of the squad's creation.",

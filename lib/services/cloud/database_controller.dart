@@ -48,9 +48,10 @@ abstract class DatabaseController {
   Future<List<CloudSquadRequest>> fetchServerRequests(userId);
 
   Stream<List<CloudUser>> fetchUsersForSearch(String query);
-
-  Future<List<CloudAchievement>> fetchAchievements({squadId, userId});
-
+  Future<void> readUserAchievement(String achievementId);
+  Future<void> readSquadAchievement(String achievementId);
+  Future<List<CloudUserAchievement>> fetchUserAchievements(userId);
+  Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId);
   Future<void> leaveSquad(squadId);
 
   Future<void> initialize();
@@ -103,7 +104,8 @@ abstract class DatabaseController {
     CloudUser.dbController = controller;
     CloudKinRequest.dbController = controller;
     CloudSquadRequest.dbController = controller;
-    CloudAchievement.dbController = controller;
+    CloudUserAchievement.dbController = controller;
+    CloudSquadAchievement.dbController = controller;
     CloudWorkout.dbController = controller;
   }
 }

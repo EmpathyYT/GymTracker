@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -183,7 +185,10 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                         child: PageView.builder(
                           itemCount: 3,
                           itemBuilder: (context, index) {
-                            return _buildStatWidget(index);
+                            return SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              child: _buildStatWidget(index),
+                            );
                           },
                         ),
                       ),

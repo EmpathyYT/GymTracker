@@ -126,8 +126,20 @@ class DatabaseServiceProvider implements DatabaseController {
       _provider.editUser(id, username, biography);
 
   @override
-  Future<List<CloudAchievement>> fetchAchievements({squadId, userId}) =>
-      _provider.fetchAchievements(squadId: squadId, userId: userId);
+  Future<List<CloudUserAchievement>> fetchUserAchievements(userId) =>
+      _provider.fetchUserAchievements(userId);
+
+  @override
+  Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId) =>
+      _provider.fetchSquadAchievements(squadId);
+
+  @override
+  Future<void> readUserAchievement(String achievementId) =>
+      _provider.readUserAchievement(achievementId);
+
+  @override
+  Future<void> readSquadAchievement(String achievementId) =>
+      _provider.readSquadAchievement(achievementId);
 
   @override
   newAchievementsStream(userId, RealtimeCallback insertCallback) =>

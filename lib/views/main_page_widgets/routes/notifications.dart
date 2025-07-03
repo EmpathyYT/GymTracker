@@ -35,8 +35,14 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, res) {
+      onPopInvokedWithResult: (didPop, res) async {
         if (didPop) return;
+        for (final achievement in _otherNotifications) {
+          if (!achievement.read) {
+            await achievement.readAchievement();
+          }
+        }
+        if (!context.mounted) return;
         Navigator.of(context).pop<RequestsSortingType>({
           newNotifsKeyName: {
             krqKeyName: [],
@@ -58,9 +64,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
             padding: const EdgeInsets.only(top: appBarPadding),
             child: Text(
               "Frontline Reports",
-              style: GoogleFonts.oswald(
-                fontSize: appBarTitleSize,
-              ),
+              style: GoogleFonts.oswald(fontSize: appBarTitleSize),
             ),
           ),
         ),
@@ -68,20 +72,20 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
           flipToTwo: _otherNotifications.isNotEmpty,
           isOneChild: false,
           isTwoChild: false,
-          buildOne: ({children, child}) =>
-              Stack(alignment: Alignment.center, children: children!),
+          buildOne:
+              ({children, child}) =>
+                  Stack(alignment: Alignment.center, children: children!),
           buildTwo: ({children, child}) => Column(children: children!),
           commonWidgets: [
             Column(
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                ),
+                const Padding(padding: EdgeInsets.only(top: 10, bottom: 10)),
                 UniversalCard(
                   title1: "No New Kinship Calls",
-                  title2: (_requestsNotifications.length) == 1
-                      ? "A Warrior Seeks Kinship"
-                      : "Warriors Seek Kinship",
+                  title2:
+                      (_requestsNotifications.length) == 1
+                          ? "A Warrior Seeks Kinship"
+                          : "Warriors Seek Kinship",
                   flipToTwo: _requestsNotifications.any((e) => !(e.read)),
                   iconCallBack: () async => await _kinRequestButtonCallback(),
                 ),
@@ -93,18 +97,16 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                     left: 5,
                     right: 5,
                   ),
-                  child: const Divider(
-                    thickness: 0.9,
-                    color: Colors.white60,
-                  ),
+                  child: const Divider(thickness: 0.9, color: Colors.white60),
                 ),
               ],
             ),
           ],
           childrenIfOne: const [
             BigCenteredText(
-                text:
-                    "The campfire burns quietly.\nNo reports from the frontlines.")
+              text:
+                  "The campfire burns quietly.\nNo reports from the frontlines.",
+            ),
           ],
           childrenIfTwo: [
             Expanded(
@@ -115,12 +117,10 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                   return ListTile(
                     title: Text(
                       notificationInfo.message,
-                      style: GoogleFonts.oswald(
-                        fontSize: 18,
-                      ),
+                      style: GoogleFonts.oswald(fontSize: 25),
                     ),
                     subtitle: Padding(
-                      padding: const EdgeInsets.only(top:4),
+                      padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         notificationInfo.createdAt.toReadableTzTime(),
                         style: GoogleFonts.montserrat(
@@ -132,7 +132,7 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
                   );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -140,11 +140,14 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
   }
 
   Future<void> _kinRequestButtonCallback() async {
-    await Navigator.of(context)
-        .pushNamed(krqNotificationsRoute, arguments: _requestsNotifications)
-        .then((value) {
+    await Navigator.of(
+      context,
+    ).pushNamed(krqNotificationsRoute, arguments: _requestsNotifications).then((
+      value,
+    ) {
       setState(
-          () => _requestsNotifications = value as List<CloudKinRequest>? ?? []);
+        () => _requestsNotifications = value as List<CloudKinRequest>? ?? [],
+      );
     });
   }
 
@@ -155,17 +158,21 @@ class _NotificationsRouteState extends State<NotificationsRoute> {
     _notifications = widget.notifications;
 
     for (final values in _notifications!.values) {
-      otherNotifs.addAll((values[achievementsKeyName] ?? [])
-          .map((e) => e as CloudAchievement)
-          .toList());
+      otherNotifs.addAll(
+        (values[achievementsKeyName] ?? [])
+            .map((e) => e as CloudAchievement)
+            .toList(),
+      );
 
       requestNotifs.addAll(
-          (values[krqKeyName] ?? []).map((e) => e as CloudKinRequest).toList());
+        (values[krqKeyName] ?? []).map((e) => e as CloudKinRequest).toList(),
+      );
     }
 
-    _otherNotifications = AchievementSorter.sortByDate(
-      achievements: otherNotifs
-    ).achievementsSorted;
+    _otherNotifications =
+        AchievementSorter.sortByDate(
+          achievements: otherNotifs,
+        ).achievementsSorted;
 
     _requestsNotifications = requestNotifs;
   }

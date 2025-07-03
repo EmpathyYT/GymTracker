@@ -98,10 +98,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                               children: [
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 5,
-                                      bottom: 5,
-                                    ),
+                                    padding: const EdgeInsets.all(5),
                                     child: AutoSizeText.rich(
                                       TextSpan(
                                         text: exerciseElement.name,
@@ -133,10 +130,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                 ),
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 5,
-                                      bottom: 5,
-                                    ),
+                                    padding: const EdgeInsets.all(5),
                                     child: AutoSizeText(
                                       exerciseWeightToString,
                                       group: groupSize,

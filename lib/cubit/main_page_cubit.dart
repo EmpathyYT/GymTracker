@@ -143,10 +143,21 @@ class MainPageCubit extends Cubit<MainPageState> {
     emit(SquadSelector(success: false, notifications: state.notifications));
   }
 
-  Future<void> clearKinNotifications(RequestsSortingType notifications) async {
+  Future<void> clearNotifications(RequestsSortingType notifications) async {
     final currentNotifications = notifications;
     final newFrqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
     final krqData = notifications[oldNotifsKeyName]![krqKeyName]!;
+    final newAchievementsData =
+        notifications[oldNotifsKeyName]![achievementsKeyName]!;
+    final oldAchievementsData =
+        state.notifications![newNotifsKeyName]![achievementsKeyName]!;
+
+    _addMissingNotifications(
+      currentNotifications,
+      oldAchievementsData,
+      newAchievementsData,
+      achievementsKeyName,
+    );
 
     _addMissingNotifications(
       currentNotifications,
@@ -187,10 +198,9 @@ class MainPageCubit extends Cubit<MainPageState> {
       _currentUser.id,
     );
 
-    final achievements = await CloudAchievement.fetchUserAchievements(
+    final achievements = await CloudUserAchievement.fetchUserAchievements(
       _currentUser.id,
     );
-
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
         krqKeyName: [],
@@ -288,9 +298,9 @@ class MainPageCubit extends Cubit<MainPageState> {
       },
     );
 
-    CloudAchievement.achievementListener(_currentUser.id, (List event) {
+    CloudUserAchievement.achievementListener(_currentUser.id, (List event) {
       final RequestsSortingType currNotifications = state.notifications!;
-      final newNotification = CloudAchievement.fromMap(event[0]);
+      final newNotification = CloudUserAchievement.fromMap(event[0]);
       emit(
         state.copyWith(
           notifications:
@@ -310,14 +320,13 @@ class MainPageCubit extends Cubit<MainPageState> {
       listeningToNotifications = false;
       CloudKinRequest.unsubscribeFriendRequestListener();
       CloudSquadRequest.unsubscribeServerRequestListener();
-      CloudAchievement.unsubscribeAchievementListener();
+      CloudUserAchievement.unsubscribeAchievementListener();
     };
   }
 
   Future<void> reloadUser() async {
     _currentUser =
-        (await CloudUser.fetchUser(currentUser.authId, true))!
-          ..setStatistics();
+        (await CloudUser.fetchUser(currentUser.authId, true))!..setStatistics();
   }
 
   void _addMissingNotifications(

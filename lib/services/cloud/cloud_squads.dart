@@ -60,7 +60,7 @@ class CloudSquad {
   }
 
   Future<void> getAchievements() async {
-    final achievements = await CloudAchievement.fetchSquadAchievements(id);
+    final achievements = await CloudSquadAchievement.fetchSquadAchievements(id);
     this.achievements.addAll(achievements);
   }
 }

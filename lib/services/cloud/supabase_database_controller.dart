@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -441,26 +443,25 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudAchievement>> fetchAchievements({squadId, userId}) async {
-    if (squadId == null && userId == null) {
-      throw CouldNotFetchAchievementsException();
-    }
+  Future<List<CloudUserAchievement>> fetchUserAchievements(userId) async {
+    final data = await _supabase
+        .from(userAchievementsTableName)
+        .select()
+        .eq(userIdFieldName, userId)
+        .limit(30);
 
-    if (squadId != null) {
-      final data = await _supabase
-          .from(achievementsTableName)
-          .select()
-          .containedBy(achievementSquadsFieldName, [squadId]);
+    return data.map((e) => CloudUserAchievement.fromMap(e)).toList();
+  }
 
-      return data.map((e) => CloudAchievement.fromMap(e)).toList();
-    } else {
-      final data = await _supabase
-          .from(achievementsTableName)
-          .select()
-          .eq(userIdFieldName, userId);
+  @override
+  Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId) async {
+    final data = await _supabase
+        .from(squadAchievementsTableName)
+        .select()
+        .eq(squadIdFieldName, squadId)
+        .limit(30);
 
-      return data.map((e) => CloudAchievement.fromMap(e)).toList();
-    }
+    return data.map((e) => CloudSquadAchievement.fromMap(e)).toList();
   }
 
   @override
@@ -470,7 +471,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: "public",
-          table: achievementsTableName,
+          table: userAchievementsTableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: recipientFieldName,
@@ -550,7 +551,7 @@ class SupabaseDatabaseController implements DatabaseController {
       await _supabase.from(completedWorkoutName).insert({
         workoutIdFieldName: workoutId,
       });
-    } on PostgrestException catch (e) {
+    } on PostgrestException {
       throw AlreadyFinishedWorkoutException();
     }
   }
@@ -565,10 +566,31 @@ class SupabaseDatabaseController implements DatabaseController {
 
   @override
   Future<int> getPointsLeftForNextLevel() async {
-    final {"pointsNeeded": points} = (await _supabase.functions.invoke(
-      'get-points-remaining-for-level-up',
-    )).data;
+    final {"pointsNeeded": points} =
+        (await _supabase.functions.invoke(
+          'get-points-remaining-for-level-up',
+        )).data;
 
     return points;
   }
+
+  @override
+  Future<void> readUserAchievement(achievementId) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    await _supabase
+        .from(userAchievementsTableName)
+        .update({readFieldName: true})
+        .eq(idFieldName, achievementId);
+
+  }
+
+  @override
+  Future<void> readSquadAchievement(achievementId) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    await _supabase
+        .from(squadAchievementsTableName)
+        .update({readFieldName: true})
+        .eq(idFieldName, achievementId);
+  }
+
 }

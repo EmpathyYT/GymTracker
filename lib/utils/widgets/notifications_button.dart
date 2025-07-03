@@ -38,7 +38,7 @@ class NotificationsButton extends StatelessWidget {
         )
             .then((value) async {
           if (!context.mounted) return;
-          await context.read<MainPageCubit>().clearKinNotifications(value);
+          await context.read<MainPageCubit>().clearNotifications(value);
         });
       },
     );

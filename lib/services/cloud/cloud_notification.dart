@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:equatable/equatable.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
 
@@ -14,7 +12,7 @@ List: If update the first element represents the old record,
  */
 
 sealed class CloudNotification with EquatableMixin {
-  final int id;
+  final String id;
   final DateTime createdAt;
   bool read;
 
@@ -28,9 +26,8 @@ sealed class CloudNotification with EquatableMixin {
   List<Object?> get props => [id];
 }
 
-class CloudAchievement extends CloudNotification {
+sealed class CloudAchievement extends CloudNotification {
   String message;
-  static late final DatabaseController dbController;
 
   CloudAchievement({
     required super.id,
@@ -39,24 +36,70 @@ class CloudAchievement extends CloudNotification {
     required this.message,
   });
 
-  void readAchievement() {
-    read = true;
-  } // todo will keep track of reading through cache
+  Future<void> readAchievement();
 
   CloudAchievement.fromMap(Map<String, dynamic> map)
-      : message = map[messageFieldName],
-        super(
-          id: map[idFieldName],
-          createdAt: DateTime.parse(map[timeCreatedFieldName]),
-          read: false,
-        );
+    : message = map[messageFieldName],
+      super(
+        id: map[idFieldName].toString(),
+        createdAt: DateTime.parse(map[timeCreatedFieldName]),
+        read: map[readFieldName] ?? false,
+      );
+}
 
-  static Future<List<CloudAchievement>> fetchUserAchievements(userId) async {
-    return dbController.fetchAchievements(userId: userId);
+class CloudSquadAchievement extends CloudAchievement {
+  final String squadId;
+  static late final DatabaseController dbController;
+
+  CloudSquadAchievement({
+    required super.id,
+    required super.createdAt,
+    required super.read,
+    required super.message,
+    required this.squadId,
+  });
+
+  CloudSquadAchievement.fromMap(super.map)
+    : squadId = map[squadIdFieldName].toString(),
+      super.fromMap();
+
+  static Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId) async {
+    return dbController.fetchSquadAchievements(squadId);
   }
 
-  static Future<List<CloudAchievement>> fetchSquadAchievements(squadId) async {
-    return dbController.fetchAchievements(squadId: squadId);
+  @override
+  List<Object?> get props => [id, squadId];
+
+  @override
+  String toString() {
+    return 'CloudSquadAchievement{squadId: $squadId, id: $id, createdAt: $createdAt, read: $read, message: $message}';
+  }
+
+  @override
+  Future<void> readAchievement() async {
+    read = true;
+    return dbController.readSquadAchievement(id);
+  }
+}
+
+class CloudUserAchievement extends CloudAchievement {
+  final String userId;
+  static late final DatabaseController dbController;
+
+  CloudUserAchievement({
+    required super.id,
+    required super.createdAt,
+    required super.read,
+    required super.message,
+    required this.userId,
+  });
+
+  CloudUserAchievement.fromMap(super.map)
+    : userId = map[userIdFieldName].toString(),
+      super.fromMap();
+
+  static Future<List<CloudUserAchievement>> fetchUserAchievements(userId) async {
+    return dbController.fetchUserAchievements(userId);
   }
 
   static achievementListener(userId, RealtimeCallback insertCallback) =>
@@ -64,12 +107,27 @@ class CloudAchievement extends CloudNotification {
 
   static unsubscribeAchievementListener() =>
       dbController.unsubscribeNewAchievementsStream();
+
+  @override
+  List<Object?> get props => [id, userId];
+
+  @override
+  String toString() {
+    return 'CloudUserAchievements{userId: $userId, id: $id, createdAt: $createdAt, read: $read, message: $message}';
+  }
+
+  @override
+  Future<void> readAchievement() async {
+    read = true;
+    return dbController.readUserAchievement(id);
+  }
 }
+
 
 sealed class CloudRequest extends CloudNotification {
   bool? accepted;
-  final int fromUser;
-  final int toUser;
+  final String fromUser;
+  final String toUser;
 
   CloudRequest({
     required super.id,
@@ -100,14 +158,14 @@ class CloudKinRequest extends CloudRequest {
   });
 
   CloudKinRequest.fromMap(Map<String, dynamic> map)
-      : super(
-          id: map[idFieldName],
-          fromUser: map[sendingUserFieldName],
-          toUser: map[recipientFieldName],
-          read: map[readFieldName],
-          accepted: map[acceptedFieldName],
-          createdAt: DateTime.parse(map[timeCreatedFieldName]),
-        );
+    : super(
+        id: map[idFieldName].toString(),
+        fromUser: map[sendingUserFieldName].toString(),
+        toUser: map[recipientFieldName].toString(),
+        read: map[readFieldName],
+        accepted: map[acceptedFieldName],
+        createdAt: DateTime.parse(map[timeCreatedFieldName]),
+      );
 
   @override
   List<Object?> get props => [id];
@@ -148,14 +206,21 @@ class CloudKinRequest extends CloudRequest {
   }
 
   static Future<List<CloudKinRequest>> fetchSendingFriendRequests(
-      userId) async {
+    userId,
+  ) async {
     return dbController.fetchFriendRequests(userId);
   }
 
-  static friendRequestListener(userId, RealtimeCallback insertCallback,
-      RealtimeCallback updateCallback) {
+  static friendRequestListener(
+    userId,
+    RealtimeCallback insertCallback,
+    RealtimeCallback updateCallback,
+  ) {
     dbController.newFriendRequestsStream(
-        userId, insertCallback, updateCallback);
+      userId,
+      insertCallback,
+      updateCallback,
+    );
   }
 
   static unsubscribeFriendRequestListener() =>
@@ -164,27 +229,28 @@ class CloudKinRequest extends CloudRequest {
 
 class CloudSquadRequest extends CloudRequest {
   static late final DatabaseController dbController;
-  final int serverId;
+  final String serverId;
 
-  CloudSquadRequest(
-      {required super.id,
-      required super.fromUser,
-      required super.toUser,
-      required super.createdAt,
-      required super.read,
-      required super.accepted,
-      required this.serverId});
+  CloudSquadRequest({
+    required super.id,
+    required super.fromUser,
+    required super.toUser,
+    required super.createdAt,
+    required super.read,
+    required super.accepted,
+    required this.serverId,
+  });
 
   CloudSquadRequest.fromMap(Map<String, dynamic> map)
-      : serverId = map[serverIdFieldName],
-        super(
-          id: map[idFieldName],
-          fromUser: map[sendingUserFieldName],
-          toUser: map[recipientFieldName],
-          read: map[readFieldName],
-          accepted: map[acceptedFieldName],
-          createdAt: DateTime.parse(map[timeCreatedFieldName]),
-        );
+    : serverId = map[serverIdFieldName].toString(),
+      super(
+        id: map[idFieldName],
+        fromUser: map[sendingUserFieldName].toString(),
+        toUser: map[recipientFieldName].toString(),
+        read: map[readFieldName],
+        accepted: map[acceptedFieldName],
+        createdAt: DateTime.parse(map[timeCreatedFieldName]),
+      );
 
   @override
   List<Object?> get props => [id];
@@ -217,19 +283,25 @@ class CloudSquadRequest extends CloudRequest {
   }
 
   static Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
-   return dbController.fetchServerRequests(userId);
-
+    return dbController.fetchServerRequests(userId);
   }
 
   static Future<List<CloudSquadRequest>> fetchSendingSquadRequests(
-      userId) async {
+    userId,
+  ) async {
     return dbController.fetchSendingSquadRequests(userId);
   }
 
-  static serverRequestListener(userId, RealtimeCallback insertCallback,
-      RealtimeCallback updateCallback) {
+  static serverRequestListener(
+    userId,
+    RealtimeCallback insertCallback,
+    RealtimeCallback updateCallback,
+  ) {
     dbController.newServerRequestsStream(
-        userId, insertCallback, updateCallback);
+      userId,
+      insertCallback,
+      updateCallback,
+    );
   }
 
   static unsubscribeServerRequestListener() =>

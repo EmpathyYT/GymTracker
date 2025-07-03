@@ -30,10 +30,12 @@ const squadDescriptionFieldName = 'description';
 //^ The Squad Constraints
 
 
-const achievementsTableName = 'Achievements';
+const userAchievementsTableName = 'Achievements';
+const squadAchievementsTableName = 'ServerAchievements';
+const squadIdFieldName = 'squad_id';
+const readByFieldName = 'read_by';
 const messageFieldName = 'achievement';
 const userIdFieldName = 'user_id';
-const achievementSquadsFieldName = 'squads';
 //^ The Achievement Constraints
 
 const workoutTableName = 'WorkoutPlans';
