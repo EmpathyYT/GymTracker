@@ -130,7 +130,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white70,
                               ),
-                            ),
+                            ), //
                           ],
                         ),
                       ),
