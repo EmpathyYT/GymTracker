@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -14,7 +11,6 @@ import '../../cubit/main_page_cubit.dart';
 import '../../services/cloud/cloud_notification.dart';
 import '../../services/cloud/cloud_squads.dart';
 import '../../utils/widgets/error_list_tile.dart';
-import '../../utils/widgets/loading_list_tile.dart';
 import '../../utils/widgets/squad_tile_widget.dart';
 
 class SquadSelectorWidget extends StatefulWidget {
@@ -60,9 +56,9 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
               iconCallBack: () async => await _srqCardIconCallBack(context),
               title1: "No New Squads Calling",
               title2:
-              (_squadNotifications!.length == 1)
-                  ? "A Squad Calls upon you"
-                  : "Squads Are Calling upon you",
+                  (_squadNotifications!.length == 1)
+                      ? "A Squad Calls upon you"
+                      : "Squads Are Calling upon you",
             ),
             const Padding(padding: EdgeInsets.all(2.0)),
             Container(
@@ -77,8 +73,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             DoubleWidgetFlipper(
               buildOne: ({child, children}) => Expanded(child: child!),
               buildTwo:
-                  ({child, children}) =>
-                  Expanded(
+                  ({child, children}) => Expanded(
                     child: ListView.builder(
                       itemCount: _squads!.length,
                       itemBuilder: (context, index) {
@@ -110,7 +105,7 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -135,7 +130,12 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
 
         return SquadTileWidget(
           title: server!.name,
-          hasUnreadNotifications: server.achievements.any((e) => !e.read),
+          hasUnreadNotifications: server.achievements.any(
+            (e) =>
+                !e.readBy.contains(
+                  context.read<MainPageCubit>().currentUser.id,
+                ),
+          ),
           iconCallBack: () {
             _pushSquadRoute(context, server);
           },
@@ -157,6 +157,14 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
         )
         .then((e) async {
           if (e != null && e is CloudSquad) {
+            if (!context.mounted) return;
+            final userId = context.read<MainPageCubit>().currentUser.id;
+            for (final achievement in e.achievements) {
+              if (!achievement.readBy.contains(userId)) {
+                achievement.readBy.add(userId);
+                achievement.readAchievement();
+              }
+            }
             await _forceUpdateSquads();
           }
         });

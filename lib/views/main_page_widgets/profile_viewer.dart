@@ -29,7 +29,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   Color? _borderColor;
   bool isAnimated = false;
   bool isGlowing = false;
-  AutoSizeGroup group = AutoSizeGroup();
   static final ValueNotifier<bool> _isLoadedNotifier = ValueNotifier<bool>(
     false,
   );
@@ -320,7 +319,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
         const Icon(Icons.leaderboard, color: Colors.white, size: 60),
         const SizedBox(height: 5),
         AutoSizeText.rich(
-          group: group,
           maxLines: 2,
           textAlign: TextAlign.center,
           TextSpan(
@@ -360,7 +358,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
         const Icon(Icons.leaderboard, color: Colors.white, size: 60),
         const SizedBox(height: 5),
         AutoSizeText.rich(
-          group: group,
           maxLines: 2,
           textAlign: TextAlign.center,
           TextSpan(
@@ -413,7 +410,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   };
 
   void checkIfAllLoaded() {
-    if (didCalculate.value && didFetch.value) {
+    if (didCalculate.value && didFetch.value && context.mounted) {
       setState(() {
         _isLoadedNotifier.value = true;
         _completedWorkoutsCount = user.completedWorkoutsCount;

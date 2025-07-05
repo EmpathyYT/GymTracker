@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
@@ -16,16 +18,17 @@ class AchievementsRoute extends StatefulWidget {
 }
 
 class _AchievementsRouteState extends State<AchievementsRoute> {
-  final achievements = <CloudAchievement>[];
+  final achievements = <CloudSquadAchievement>[];
+
 
   @override
   void initState() {
     super.initState();
     final newAchievements = AchievementSorter.sortByDate(
-      achievements: achievements,
+      achievements: squadAchievements,
       squad: widget.squad,
     ).achievementsSorted;
-    achievements.addAll(newAchievements);
+    achievements.addAll(newAchievements.map((e) => e as CloudSquadAchievement));
   }
 
   @override
@@ -87,4 +90,7 @@ class _AchievementsRouteState extends State<AchievementsRoute> {
       ],
     );
   }
+
+  List<CloudSquadAchievement> get squadAchievements => widget.squad.achievements;
+
 }

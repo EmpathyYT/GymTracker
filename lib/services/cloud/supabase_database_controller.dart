@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -448,7 +446,8 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(userAchievementsTableName)
         .select()
         .eq(userIdFieldName, userId)
-        .limit(30);
+        .limit(30)
+        .order(timeCreatedFieldName, ascending: false);
 
     return data.map((e) => CloudUserAchievement.fromMap(e)).toList();
   }
@@ -459,7 +458,8 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(squadAchievementsTableName)
         .select()
         .eq(squadIdFieldName, squadId)
-        .limit(30);
+        .limit(30)
+        .order(timeCreatedFieldName, ascending: false);
 
     return data.map((e) => CloudSquadAchievement.fromMap(e)).toList();
   }
@@ -581,16 +581,13 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(userAchievementsTableName)
         .update({readFieldName: true})
         .eq(idFieldName, achievementId);
-
   }
 
   @override
   Future<void> readSquadAchievement(achievementId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    await _supabase
-        .from(squadAchievementsTableName)
-        .update({readFieldName: true})
-        .eq(idFieldName, achievementId);
+    await _supabase.rpc("read_squad_achievement", params: {
+      'achievement_id': achievementId,
+    });
   }
-
 }

@@ -10,6 +10,7 @@ import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/widgets/edit_profile_button.dart';
 import 'package:gymtracker/utils/widgets/friend_adder_button.dart';
+import 'package:gymtracker/utils/widgets/pr_tracker_button.dart';
 import 'package:gymtracker/utils/widgets/squad_creator_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
@@ -102,6 +103,9 @@ class _MainPageState extends State<MainPage> {
                       state: state,
                     ),
                     SquadCreatorButton(state: state),
+                    PrTrackingButton(
+                      state: state,
+                    ),
                     NotificationsButton(
                       notifications: state.notifications ?? {},
                     ),

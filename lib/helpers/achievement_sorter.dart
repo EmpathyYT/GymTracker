@@ -15,7 +15,7 @@ class AchievementSorter {
 
     this
         .achievements
-        .sort((a, b) => a.createdAt.reversedCompareTo(b.createdAt));
+        .sort((a, b) => a.createdAt.compareTo(b.createdAt));
   }
 
   _fillServerAchievementIfNeeded() {
@@ -27,10 +27,17 @@ class AchievementSorter {
           createdAt: squad!.timeCreated,
           read: true,
           message: "This marks the time of the squad's creation.",
+          readBy: squad!.members,
         ),
       );
     }
   }
+
+
+
+
+
+
 
   List<CloudAchievement> get achievementsSorted => achievements;
 }

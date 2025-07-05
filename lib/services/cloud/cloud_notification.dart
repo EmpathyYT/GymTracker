@@ -49,6 +49,7 @@ sealed class CloudAchievement extends CloudNotification {
 
 class CloudSquadAchievement extends CloudAchievement {
   final String squadId;
+  final List<String> readBy;
   static late final DatabaseController dbController;
 
   CloudSquadAchievement({
@@ -57,13 +58,26 @@ class CloudSquadAchievement extends CloudAchievement {
     required super.read,
     required super.message,
     required this.squadId,
+    required this.readBy,
   });
 
-  CloudSquadAchievement.fromMap(super.map)
+  CloudSquadAchievement.fromMap(Map<String, dynamic> map)
     : squadId = map[squadIdFieldName].toString(),
-      super.fromMap();
+      readBy =
+          (map[readByFieldName] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      super(
+        id: map[idFieldName].toString(),
+        createdAt: DateTime.parse(map[timeCreatedFieldName]),
+        read: false,
+        message: map[messageFieldName],
+      );
 
-  static Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId) async {
+  static Future<List<CloudSquadAchievement>> fetchSquadAchievements(
+    squadId,
+  ) async {
     return dbController.fetchSquadAchievements(squadId);
   }
 
@@ -72,7 +86,7 @@ class CloudSquadAchievement extends CloudAchievement {
 
   @override
   String toString() {
-    return 'CloudSquadAchievement{squadId: $squadId, id: $id, createdAt: $createdAt, read: $read, message: $message}';
+    return 'CloudSquadAchievement{squadId: $squadId, id: $id, createdAt: $createdAt, read: $read, message: $message, readBy: $readBy}';
   }
 
   @override
@@ -98,7 +112,9 @@ class CloudUserAchievement extends CloudAchievement {
     : userId = map[userIdFieldName].toString(),
       super.fromMap();
 
-  static Future<List<CloudUserAchievement>> fetchUserAchievements(userId) async {
+  static Future<List<CloudUserAchievement>> fetchUserAchievements(
+    userId,
+  ) async {
     return dbController.fetchUserAchievements(userId);
   }
 
@@ -122,7 +138,6 @@ class CloudUserAchievement extends CloudAchievement {
     return dbController.readUserAchievement(id);
   }
 }
-
 
 sealed class CloudRequest extends CloudNotification {
   bool? accepted;
