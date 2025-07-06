@@ -25,7 +25,7 @@ class NotificationsButton extends StatelessWidget {
               color: Color(0xff0583fa),
             )
           : const Icon(Icons.notifications),
-      iconSize: 30,
+      iconSize: mainSizeIcon,
       onPressed: () async {
         await Navigator.of(context)
             .push(

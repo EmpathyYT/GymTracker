@@ -474,7 +474,7 @@ class SupabaseDatabaseController implements DatabaseController {
           table: userAchievementsTableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: recipientFieldName,
+            column: userIdFieldName,
             value: userId,
           ),
           callback: (event) {

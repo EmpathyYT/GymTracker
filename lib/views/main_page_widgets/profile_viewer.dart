@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,9 +56,14 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   void didChangeDependencies() {
     user = context.read<MainPageCubit>().currentUser;
 
-    if (user.pointsForNextLevel == null) {
-      loadStatistics();
+    loadStatistics();
+    if (user.pointsForNextLevel != null && !didFetch.value) {
+      didFetch.value = true;
+    } else if (user.pointsForNextLevel == null && didFetch.value) {
+      didFetch.value = false;
+      _isLoadedNotifier.value = false;
     }
+
     _userName = user.name;
     _biography = user.bio;
     _userLevel = user.level;

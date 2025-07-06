@@ -148,9 +148,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     final newFrqData = state.notifications![newNotifsKeyName]![krqKeyName]!;
     final krqData = notifications[oldNotifsKeyName]![krqKeyName]!;
     final newAchievementsData =
-        notifications[oldNotifsKeyName]![achievementsKeyName]!;
-    final oldAchievementsData =
         state.notifications![newNotifsKeyName]![achievementsKeyName]!;
+    final oldAchievementsData =
+        notifications[newNotifsKeyName]![achievementsKeyName]!;
 
     _addMissingNotifications(
       currentNotifications,
@@ -614,8 +614,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> finishWorkout(CloudWorkout workout) async {
     try {
       await workout.finishWorkout();
-      _currentUser.completedWorkoutsCount =
-          _currentUser.completedWorkoutsCount! + 1;
+      await reloadUser();
       emit(
         WorkoutPlanner(
           successText: ["Workout Finished", "Your workout has been finished."],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../constants/code_constraints.dart';
 import '../../cubit/main_page_cubit.dart';
 import '../../views/main_page_widgets/routes/squad_creator.dart';
 
@@ -14,7 +15,7 @@ class SquadCreatorButton extends StatelessWidget {
     return (state is SquadSelector)
         ? IconButton(
             icon: const Icon(Icons.group_add),
-            iconSize: 30,
+            iconSize: mainSizeIcon,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(

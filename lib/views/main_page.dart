@@ -103,7 +103,7 @@ class _MainPageState extends State<MainPage> {
                       state: state,
                     ),
                     SquadCreatorButton(state: state),
-                    PrTrackingButton(
+                    PrTrackerButton(
                       state: state,
                     ),
                     NotificationsButton(
@@ -111,7 +111,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.logout),
-                      iconSize: 30,
+                      iconSize: mainSizeIcon,
                       onPressed:
                           () => context.read<AuthBloc>().add(
                             const AuthEventSignOut(),

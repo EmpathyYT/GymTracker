@@ -49,6 +49,7 @@ class _SquadPageRouteState extends State<SquadPageRoute> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         Navigator.of(context).pop(squad);
