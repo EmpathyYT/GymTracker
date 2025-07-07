@@ -46,3 +46,4 @@ app.*.map.json
 # Android Studio will place build artifacts here
 #/lib/helpers/workout_json_adapter.g.dart
 /line_counter/
+/line_counter/runner.bat
