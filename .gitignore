@@ -43,6 +43,6 @@ Thumbs.db
 app.*.symbols
 # Obfuscation related
 app.*.map.json
-./line_counter
 # Android Studio will place build artifacts here
 #/lib/helpers/workout_json_adapter.g.dart
+/line_counter/
