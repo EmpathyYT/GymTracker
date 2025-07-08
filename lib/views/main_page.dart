@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +20,6 @@ import '../helpers/loading/loading_dialog.dart';
 import '../services/cloud/cloud_user.dart';
 import '../utils/widgets/notifications_button.dart';
 import 'main_page_widgets/workout_planner.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -80,7 +78,9 @@ class _MainPageState extends State<MainPage> {
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done &&
                   (state.notifications == null)) {
-                return const Center(child: CircularProgressIndicator());
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
               }
               return Scaffold(
                 resizeToAvoidBottomInset: false,
@@ -95,27 +95,41 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                   actions: [
-                    EditProfileButton(
-                      state: state,
-                      onPressed: () => setState(() {}),
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: EditProfileButton(
+                        state: state,
+                        onPressed: () => setState(() {}),
+                      ),
                     ),
-                    FriendAdderButton(
-                      state: state,
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: FriendAdderButton(state: state),
                     ),
-                    SquadCreatorButton(state: state),
-                    PrTrackerButton(
-                      state: state,
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: SquadCreatorButton(state: state),
                     ),
-                    NotificationsButton(
-                      notifications: state.notifications ?? {},
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: PrTrackerButton(state: state),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.logout),
-                      iconSize: mainSizeIcon,
-                      onPressed:
-                          () => context.read<AuthBloc>().add(
-                            const AuthEventSignOut(),
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: NotificationsButton(
+                        notifications: state.notifications ?? {},
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: appBarPadding),
+                      child: IconButton(
+                        icon: const Icon(Icons.logout),
+                        iconSize: mainSizeIcon,
+                        onPressed:
+                            () => context.read<AuthBloc>().add(
+                              const AuthEventSignOut(),
+                            ),
+                      ),
                     ),
                   ],
                 ),

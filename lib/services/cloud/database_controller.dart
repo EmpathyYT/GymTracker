@@ -1,5 +1,6 @@
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_pr.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/supabase_database_controller.dart';
@@ -97,7 +98,7 @@ abstract class DatabaseController {
   Future<void> finishWorkout(workoutId);
   Future<int> getWorkoutFinishedCount(userId);
   Future<int> getPointsLeftForNextLevel();
-
+  Future<List<CloudPr>> fetchPrs(userId);
 
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
@@ -107,5 +108,6 @@ abstract class DatabaseController {
     CloudUserAchievement.dbController = controller;
     CloudSquadAchievement.dbController = controller;
     CloudWorkout.dbController = controller;
+    CloudPr.dbController = controller;
   }
 }

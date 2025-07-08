@@ -2,7 +2,8 @@ import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_pr.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
@@ -586,8 +587,23 @@ class SupabaseDatabaseController implements DatabaseController {
   @override
   Future<void> readSquadAchievement(achievementId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    await _supabase.rpc("read_squad_achievement", params: {
-      'achievement_id': achievementId,
-    });
+    await _supabase.rpc(
+      "read_squad_achievement",
+      params: {'achievement_id': achievementId},
+    );
+  }
+
+  @override
+  Future<List<CloudPr>> fetchPrs(userId) {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    final data = _supabase
+        .from(prTableName)
+        .select()
+        .eq(userIdFieldName, userId)
+        .order(prDateFieldName, ascending: false);
+
+    return data.then(
+      (value) => value.map((e) => CloudPr.fromSupabaseMap(e)).toList(),
+    );
   }
 }

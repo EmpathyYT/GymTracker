@@ -1,6 +1,7 @@
 import 'package:gymtracker/services/auth/auth_provider.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_pr.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
@@ -187,4 +188,7 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   Future<int> getWorkoutFinishedCount(userId) =>
       _provider.getWorkoutFinishedCount(userId);
+
+  @override
+  Future<List<CloudPr>> fetchPrs(userId) => _provider.fetchPrs(userId);
 }

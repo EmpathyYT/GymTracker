@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/utils/widgets/member_add_button.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/achievements_route.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_routes/edit_squad_route.dart';

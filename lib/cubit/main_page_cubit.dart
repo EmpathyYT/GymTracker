@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
 import '../exceptions/cloud_exceptions.dart';

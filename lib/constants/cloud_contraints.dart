@@ -12,7 +12,6 @@ const genderFieldName = "gender";
 const totalCompletedWorkoutsFieldName = 'total_completed_workouts';
 //^ The User Constraints
 
-
 const pendingFriendRequestsTableName = 'FriendRequests';
 const pendingServerRequestsTableName = 'ServerRequests';
 const sendingUserFieldName = 'from_user';
@@ -22,13 +21,10 @@ const readFieldName = 'read';
 const serverIdFieldName = 'server_id';
 //^ The F/SRQ Constraints
 
-
-
 const squadTableName = 'Servers';
 const membersFieldName = 'members';
 const squadDescriptionFieldName = 'description';
 //^ The Squad Constraints
-
 
 const userAchievementsTableName = 'Achievements';
 const squadAchievementsTableName = 'ServerAchievements';
@@ -42,14 +38,18 @@ const workoutTableName = 'WorkoutPlans';
 const planFieldName = 'plan';
 //^ The Workout Constraints
 
-
 const completedWorkoutName = "CompletedWorkouts";
 const workoutIdFieldName = 'workout_id';
 //^ The Completed Workout Constraints
+
+const prDateFieldName = 'pr_date';
+const prTargetWeightFieldName = 'target_weight';
+const prActualWeightFieldName = 'actual_weight';
+const prTableName = 'PrDates';
 
 const rowName = 'name';
 const timeCreatedFieldName = 'created_at';
 const idFieldName = 'id';
 const ownerUserFieldName = 'owner_id';
+const exerciseNameFieldName = 'exercise';
 //^ The Shared Constraints
-

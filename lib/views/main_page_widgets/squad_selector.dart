@@ -9,7 +9,7 @@ import 'package:gymtracker/views/main_page_widgets/routes/srq_notifications.dart
 
 import '../../cubit/main_page_cubit.dart';
 import '../../services/cloud/cloud_notification.dart';
-import '../../services/cloud/cloud_squads.dart';
+import '../../services/cloud/cloud_squad.dart';
 import '../../utils/widgets/error_list_tile.dart';
 import '../../utils/widgets/squad_tile_widget.dart';
 

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../exceptions/cloud_exceptions.dart';
-import '../../../../services/cloud/cloud_squads.dart';
+import '../../../../services/cloud/cloud_squad.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
 import '../../profile_viewer.dart';

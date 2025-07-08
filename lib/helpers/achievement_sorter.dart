@@ -1,5 +1,5 @@
 import 'package:gymtracker/extensions/date_time_extension.dart';
-import 'package:gymtracker/services/cloud/cloud_squads.dart';
+import 'package:gymtracker/services/cloud/cloud_squad.dart';
 
 import '../services/cloud/cloud_notification.dart';
 

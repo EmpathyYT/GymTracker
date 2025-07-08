@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/absolute_centered_widget.dart';
+import 'package:gymtracker/utils/widgets/scheduled_prs_widget.dart';
 
 import '../../../constants/code_constraints.dart';
+import '../../../utils/widgets/pr_scheduler_widget.dart';
 
 class PrTrackingWidget extends StatefulWidget {
   const PrTrackingWidget({super.key});
@@ -12,55 +13,71 @@ class PrTrackingWidget extends StatefulWidget {
 }
 
 class _PrTrackingWidgetState extends State<PrTrackingWidget> {
-  final GlobalKey widgetKey = GlobalKey();
+  final prNameController = TextEditingController();
+  final prDescriptionController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: appBarHeight,
-        scrolledUnderElevation: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(top: appBarPadding),
-          child: Text(
-            'PR Tracker',
-            style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            toolbarHeight: appBarHeight,
+            scrolledUnderElevation: 0,
+
+            title: Padding(
+              padding: const EdgeInsets.only(top: appBarPadding),
+              child: Text(
+                'PR Tracker',
+                style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+              ),
+            ),
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  child: Text(
+                    "PR Scheduling",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "Scheduled PRs",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "PR History",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: TabBarView(children: _bodyWidgetBuilder()),
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
-              child: AbsoluteCenteredWidget(
-                widgetKey: widgetKey,
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    text: "Coming soon!",
-                    style: GoogleFonts.oswald(
-                      fontSize: 30,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "\n(Like really soon)",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white54,
-                        ),
-                      ),
-                    ],
-                  ),
-                  key: widgetKey,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
+  }
+
+  List<Widget> _bodyWidgetBuilder() {
+    return [
+      PrSchedulerWidget(
+        context: context,
+        prNameController: prNameController,
+        prDescriptionController: prDescriptionController,
+        selectedDate: selectedDate,
+      ),
+      const ScheduledPrsWidget(),
+      Text("data"),
+    ];
   }
 }

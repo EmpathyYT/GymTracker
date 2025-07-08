@@ -1,6 +1,4 @@
 extension DateTimeExtension on DateTime {
-
-
   String toReadableTzTime() {
     if (timeZoneOffset != toLocal().timeZoneOffset) {
       return shiftToLocal().toReadableTzTime();
@@ -17,8 +15,6 @@ extension DateTimeExtension on DateTime {
     }
     res = _addTime(res);
     return res;
-
-
   }
 
   String _addTime(String res) {
@@ -32,5 +28,9 @@ extension DateTimeExtension on DateTime {
 
   int reversedCompareTo(DateTime other) {
     return -compareTo(other);
+  }
+
+  String toDateWithoutTime() {
+    return "${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year";
   }
 }

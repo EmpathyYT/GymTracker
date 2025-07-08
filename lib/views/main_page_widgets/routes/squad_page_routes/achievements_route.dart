@@ -6,7 +6,7 @@ import 'package:gymtracker/extensions/date_time_extension.dart';
 import 'package:gymtracker/helpers/achievement_sorter.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
-import '../../../../services/cloud/cloud_squads.dart';
+import '../../../../services/cloud/cloud_squad.dart';
 
 class AchievementsRoute extends StatefulWidget {
   final CloudSquad squad;
