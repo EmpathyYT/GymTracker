@@ -32,7 +32,7 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
   @override
   void initState() {
     super.initState();
-    _frostColor = frostColorBuilder();
+    _frostColor = frostColorBuilder(level);
     _cachedGradient = _generateRandomBackgroundColor().toList();
   }
 
@@ -139,17 +139,7 @@ class _FrostCardWidgetState extends State<FrostCardWidget>
     );
   }
 
-  Color frostColorBuilder() {
-    return switch (level) {
-      == 2 => borderColors[0].item1,
-      >= 3 && <= 5 => borderColors[1].item1,
-      >= 6 && <= 10 => borderColors[2].item1,
-      >= 11 && <= 20 => borderColors[3].item1,
-      >= 21 && <= 49 => borderColors[4].item1,
-      >= 50 => Colors.deepPurpleAccent,
-      _ => const Color(0xff00599F),
-    };
-  }
+
 
   int get level => widget.level;
   Widget get widgetToFrost => widget.widget;

@@ -4,7 +4,7 @@ import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
 import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 
-import '../../views/main_page_widgets/profile_viewer.dart';
+import '../../constants/code_constraints.dart';
 
 class NoteInputDialog extends StatefulWidget {
   final ExerciseType initialExercise;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-import '../../views/main_page_widgets/profile_viewer.dart';
+import '../../constants/code_constraints.dart';
 import '../dialogs/pr_scheduler_dialog.dart';
 
 class PrSchedulerWidget extends StatelessWidget {
@@ -56,6 +56,11 @@ class PrSchedulerWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 25),
             child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                ),
+              ),
               onPressed: () async {
                 await showPrSchedulerDialog(
                   context,
@@ -68,10 +73,7 @@ class PrSchedulerWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(4.0),
                 child: Text(
                   "Schedule PR",
-                  style: GoogleFonts.oswald(
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
+                  style: GoogleFonts.oswald(fontSize: 25, color: Colors.white),
                 ),
               ),
             ),

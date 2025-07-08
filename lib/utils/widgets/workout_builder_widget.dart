@@ -9,8 +9,8 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../constants/code_constraints.dart';
 import '../../helpers/exercise_type.dart';
-import '../../views/main_page_widgets/profile_viewer.dart';
 
 typedef FilteredExerciseFormat = Map<int, List<Tuple2<String, ExerciseType>>>;
 

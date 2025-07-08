@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../constants/code_constraints.dart';
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../exceptions/cloud_exceptions.dart';
 import '../../../../services/cloud/cloud_squad.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
-import '../../profile_viewer.dart';
 
 class EditSquadRoute extends StatefulWidget {
   final ValueChanged<CloudSquad> onChanged;

@@ -429,13 +429,3 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
     });
   }
 }
-
-Color darkenColor(Color color, double factor) {
-  assert(factor >= 0 && factor <= 1, 'Factor must be between 0 and 1');
-  return Color.fromRGBO(
-    (color.r * 255.0 * (1 - factor)).toInt(),
-    (color.g * 255.0 * (1 - factor)).toInt(),
-    (color.b * 255.0 * (1 - factor)).toInt(),
-    color.a,
-  );
-}
