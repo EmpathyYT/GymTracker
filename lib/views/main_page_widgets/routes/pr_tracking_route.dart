@@ -71,10 +71,8 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget> {
   List<Widget> _bodyWidgetBuilder() {
     return [
       PrSchedulerWidget(
-        context: context,
         prNameController: prNameController,
         prDescriptionController: prDescriptionController,
-        selectedDate: selectedDate,
       ),
       const ScheduledPrsWidget(),
       Text("data"),

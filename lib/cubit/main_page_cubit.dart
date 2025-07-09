@@ -457,6 +457,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   Future<void> fetchWorkouts(List<CloudWorkout> initialWorkouts) async {
     try {
       final workouts = await CloudWorkout.fetchWorkouts(currentUser.id);
+      cache[workoutCacheField] = workouts;
       if (initialWorkouts == workouts) return;
       emit(
         WorkoutPlanner(workouts: workouts, notifications: state.notifications),

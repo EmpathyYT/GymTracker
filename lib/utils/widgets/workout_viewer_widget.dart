@@ -4,6 +4,7 @@ import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/rounded_list_builder.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 
+import '../../constants/code_constraints.dart';
 import '../dialogs/exercise_note_dialog.dart';
 import 'navigation_icons_widget.dart';
 
@@ -150,7 +151,15 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                     ),
                   ),
                   Center(
-                    child: FilledButton.tonal(
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          darkenColor(
+                            Theme.of(context).scaffoldBackgroundColor,
+                            0.2,
+                          ),
+                        ),
+                      ),
                       onPressed:
                           () async => await finishExerciseCallback(context),
                       child: const Text("Finish Workout"),

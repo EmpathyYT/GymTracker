@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../constants/code_constraints.dart';
 import '../dialogs/pr_scheduler_dialog.dart';
 
-class PrSchedulerWidget extends StatelessWidget {
+class PrSchedulerWidget extends StatefulWidget {
+  final TextEditingController prDescriptionController;
+  final TextEditingController prNameController;
+
   const PrSchedulerWidget({
     super.key,
-    required this.context,
     required this.prNameController,
     required this.prDescriptionController,
-    required this.selectedDate,
   });
 
-  final BuildContext context;
-  final TextEditingController prNameController;
-  final TextEditingController prDescriptionController;
-  final DateTime selectedDate;
+  @override
+  State<PrSchedulerWidget> createState() => _PrSchedulerWidgetState();
+}
+
+class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
+    with TickerProviderStateMixin {
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime = TimeOfDay.now();
+  bool _isHandlingSelectionChange = true;
+  DateRangePickerController dateRangePickerController =
+      DateRangePickerController();
+
+  @override
+  void dispose() {
+    dateRangePickerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +42,35 @@ class PrSchedulerWidget extends StatelessWidget {
         Flexible(
           flex: 5,
           child: SfDateRangePicker(
-            onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
-              // Handle date selection changes
+            controller: dateRangePickerController,
+            onSelectionChanged: (
+              DateRangePickerSelectionChangedArgs args,
+            ) async {
+              if (_isHandlingSelectionChange) {
+                final val = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                  initialEntryMode: TimePickerEntryMode.input,
+                  helpText: "Pick The Time for Your PR",
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: MediaQuery(
+                          data: MediaQuery.of(context),
+                          child: child!,
+                        ),
+                      ),
+                    );
+                  },
+                );
+                await timeChangeCallback(args.value, val);
+              }
             },
             selectionMode: DateRangePickerSelectionMode.single,
-            initialSelectedDate: DateTime.now(),
             backgroundColor: darkenColor(
               Theme.of(context).scaffoldBackgroundColor,
               0.2,
@@ -62,11 +101,21 @@ class PrSchedulerWidget extends StatelessWidget {
                 ),
               ),
               onPressed: () async {
+                if (selectedDate == null || selectedTime == null) {
+                  showErrorSnackBar(
+                    context,
+                    this,
+                    "Please select a date and time",
+                    darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                  );
+                  return;
+                }
                 await showPrSchedulerDialog(
                   context,
                   prNameController: prNameController,
                   prDescriptionController: prDescriptionController,
-                  prDate: selectedDate,
+                  prDate: selectedDate!,
+                  prTime: selectedTime!,
                 );
               },
               child: Padding(
@@ -82,4 +131,20 @@ class PrSchedulerWidget extends StatelessWidget {
       ],
     );
   }
+
+  Future<void> timeChangeCallback(DateTime newDate, TimeOfDay? newTime) async {
+    if (newTime == null) {
+      _isHandlingSelectionChange = false;
+      dateRangePickerController.selectedDate = selectedDate;
+      _isHandlingSelectionChange = true;
+    } else {
+      selectedDate = newDate;
+      selectedTime = newTime;
+    }
+  }
+
+  TextEditingController get prNameController => widget.prNameController;
+
+  TextEditingController get prDescriptionController =>
+      widget.prDescriptionController;
 }

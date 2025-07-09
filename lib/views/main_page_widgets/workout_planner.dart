@@ -32,7 +32,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
   @override
   void initState() {
     super.initState();
-    _workouts = MainPageCubit.cache[workoutCacheField];
+    _workouts = MainPageCubit.cache[workoutCacheField] ?? [];
   }
 
   @override

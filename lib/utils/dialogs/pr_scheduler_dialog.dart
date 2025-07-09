@@ -6,12 +6,14 @@ class PrSchedulerDialog extends StatefulWidget {
   final TextEditingController prNameController;
   final TextEditingController prDescriptionController;
   final DateTime prDate;
+  final TimeOfDay prTime;
 
   const PrSchedulerDialog({
     super.key,
     required this.prNameController,
     required this.prDescriptionController,
     required this.prDate,
+    required this.prTime,
   });
 
   @override
@@ -24,71 +26,91 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog> {
     return AlertDialog(
       title: const Text("Enter PR Details"),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.6,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                text: "PR Date: ",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  TextSpan(
-                    text: prDate.toDateWithoutTime(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  text: "Date: ",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Divider(color: Colors.white60),
-            ),
-            TextField(
-              controller: prNameController,
-              decoration: InputDecoration(
-                counterText: "",
-                border: InputBorder.none,
-                hintText: "PR Title",
-                hintStyle: GoogleFonts.montserrat(
-                  color: Colors.grey,
-                  fontSize: 16,
+                  children: [
+                    TextSpan(
+                      text: prDate.toDateWithoutTime(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              autofocus: true,
-              minLines: 1,
-              maxLines: 3,
-              maxLength: 50,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: prDescriptionController,
-              decoration: InputDecoration(
-                counterText: "",
-                border: InputBorder.none,
-                hintText: "PR Target Weight",
-                hintStyle: GoogleFonts.montserrat(
-                  color: Colors.grey,
-                  fontSize: 16,
+              Text.rich(
+                TextSpan(
+                  text: "Time: ",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: prTime.format(context),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              autofocus: true,
-              minLines: 1,
-              maxLines: 1,
-              maxLength: 7,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-                signed: false,
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Divider(color: Colors.white60),
               ),
-            ),
-          ],
+              TextField(
+                controller: prNameController,
+                decoration: InputDecoration(
+                  counterText: "",
+                  border: InputBorder.none,
+                  hintText: "Title",
+                  hintStyle: GoogleFonts.montserrat(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                ),
+                autofocus: true,
+                minLines: 1,
+                maxLines: 3,
+                maxLength: 50,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: prDescriptionController,
+                decoration: InputDecoration(
+                  counterText: "",
+                  border: InputBorder.none,
+                  hintText: "Target Weight",
+                  hintStyle: GoogleFonts.montserrat(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                ),
+                autofocus: true,
+                minLines: 1,
+                maxLines: 1,
+                maxLength: 7,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                  signed: false,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -105,9 +127,27 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog> {
           child: const Text("OK"),
         ),
       ],
-      scrollable: true,
     );
   }
+
+  String? _validateWeightInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return null;
+    } else if (double.tryParse(value) == null) {
+      return "Please enter a valid number in the weight field(s).";
+    } else {
+      if (value.contains('.') && value.split('.')[1].length > 2) {
+        return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
+      } else if (double.parse(value) < 1) {
+        return "Please enter a positive number greater than 0 in the weight field(s).";
+      } else if (double.parse(value) > 2000) {
+        return "Calm down hulk.";
+      }
+    }
+    return null;
+  }
+
+  TimeOfDay get prTime => widget.prTime;
 
   TextEditingController get prNameController => widget.prNameController;
 
@@ -122,6 +162,7 @@ Future<void> showPrSchedulerDialog(
   required TextEditingController prNameController,
   required TextEditingController prDescriptionController,
   required DateTime prDate,
+  required TimeOfDay prTime,
 }) async {
   return showDialog<void>(
     context: context,
@@ -130,6 +171,7 @@ Future<void> showPrSchedulerDialog(
         prNameController: prNameController,
         prDescriptionController: prDescriptionController,
         prDate: prDate,
+        prTime: prTime,
       );
     },
   );

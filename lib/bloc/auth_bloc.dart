@@ -221,8 +221,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             exception: null,
           );
         } else {
-          MainPageCubit.cache.clear();
-          final cUser = await CloudUser.fetchUser(currentAuthUser?.id, true);
+          final cUser = await CloudUser.fetchUser(currentAuthUser?.id, true)
+            ?..setStatistics();
           final workouts = await CloudWorkout.fetchWorkouts(cUser?.id);
           if (workouts.isNotEmpty) {
             MainPageCubit.cache[workoutCacheField] = workouts;
