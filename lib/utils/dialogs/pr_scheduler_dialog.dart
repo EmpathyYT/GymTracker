@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
+import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
+
+import '../../constants/code_constraints.dart';
 
 class PrSchedulerDialog extends StatefulWidget {
   final TextEditingController prNameController;
@@ -20,7 +23,8 @@ class PrSchedulerDialog extends StatefulWidget {
   State<PrSchedulerDialog> createState() => _PrSchedulerDialogState();
 }
 
-class _PrSchedulerDialogState extends State<PrSchedulerDialog> {
+class _PrSchedulerDialogState extends State<PrSchedulerDialog>
+    with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -122,7 +126,20 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog> {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            final weightError = _validateWeightInput(
+              prDescriptionController.text,
+            );
+            if (weightError != null ||
+                prNameController.text.isEmpty) {
+              showErrorSnackBar(
+                context,
+                this,
+                weightError ?? "Please enter the target weight for the PR.",
+                darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+              );
+            } else {
+              Navigator.pop(context);
+            }
           },
           child: const Text("OK"),
         ),

@@ -8,6 +8,8 @@ import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/services/cloud/cloud_squad.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
+import 'package:gymtracker/services/local/local_db_controller.dart';
+import 'package:gymtracker/services/local/local_db_provider.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
@@ -19,6 +21,9 @@ typedef RequestsSortingType = Map<String, Map<String, List<CloudNotification>>>;
 
 class MainPageCubit extends Cubit<MainPageState> {
   CloudUser _currentUser;
+  final LocalDatabaseController localDatabaseController =
+      LocalDatabaseProvider();
+
   bool listeningToNotifications = false;
   static final Map<String, dynamic> cache = {};
 
@@ -586,6 +591,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     try {
       await workout.deleteWorkout();
       final newWorkouts = workouts?.where((e) => e.id != workout.id).toList();
+      cache[workoutCacheField] = newWorkouts;
       emit(
         WorkoutPlanner(
           successText: ["Workout Deleted", "Your workout has been deleted."],
