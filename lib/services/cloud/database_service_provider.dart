@@ -191,4 +191,17 @@ class DatabaseServiceProvider implements DatabaseController {
 
   @override
   Future<List<CloudPr>> fetchPrs(userId) => _provider.fetchPrs(userId);
+
+  @override
+  Future<void> createPr(
+    String userId,
+    String exerciseName,
+    double targetWeight,
+    DateTime prDate,
+  ) => _provider.createPr(
+        userId,
+        exerciseName,
+        targetWeight,
+        prDate,
+      );
 }

@@ -13,7 +13,7 @@ class PrTrackingWidget extends StatefulWidget {
 }
 
 class _PrTrackingWidgetState extends State<PrTrackingWidget> {
-  final prNameController = TextEditingController();
+  final prNameController = TextEditingController()..text = "Select PR Exercise";
   final prDescriptionController = TextEditingController();
   DateTime selectedDate = DateTime.now();
 

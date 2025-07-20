@@ -45,3 +45,54 @@ Color darkenColor(Color color, double factor) {
     color.a,
   );
 }
+
+void showErrorSnackBar(
+    BuildContext context,
+    TickerProvider vsync,
+    String message,
+    Color color,
+    ) {
+  if (ScaffoldMessenger.of(context).mounted) {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+  }
+
+  final controller = AnimationController(
+    vsync: vsync,
+    duration: const Duration(milliseconds: 500),
+  );
+
+  final animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut)
+    ..addStatusListener((status) async {
+      if (status == AnimationStatus.completed) {
+        await Future.delayed(
+          const Duration(milliseconds: 2500),
+              () => controller.reverse(),
+        );
+      }
+    });
+
+  controller.forward();
+  ScaffoldMessenger.of(context)
+      .showSnackBar(
+    SnackBar(
+      content: FadeTransition(
+        opacity: controller,
+        child: Text(
+          message,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ),
+      duration: const Duration(seconds: 3),
+      backgroundColor: color,
+      behavior: SnackBarBehavior.floating,
+      animation: animation,
+      margin: const EdgeInsets.all(20),
+      elevation: 10,
+    ),
+  )
+      .closed
+      .then((_) {
+    controller.dispose();
+  });
+}
+

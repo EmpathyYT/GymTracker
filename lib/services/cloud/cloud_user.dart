@@ -15,7 +15,7 @@ class CloudUser with EquatableMixin {
   final int? squadLimit;
   final String bio;
   final String? authId;
-  final int level;
+  int level;
   int? pointsForNextLevel;
   double? averageWorkoutsPerMonth;
   int? completedWorkoutsCount;

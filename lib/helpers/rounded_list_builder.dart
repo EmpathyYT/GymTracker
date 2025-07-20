@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 
 ListView roundedListBuilder({
   required double borderRadius,
@@ -15,15 +16,23 @@ ListView roundedListBuilder({
       if (itemCount == 1) {
         return DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.white60, width: 1),
+            color: darkenColor(
+              Theme.of(context).scaffoldBackgroundColor,
+              0.2,
+            ),
+            border: Border.all(color: Colors.white60, width: 0.9),
             borderRadius: BorderRadius.circular(borderRadius),
           ),
           child: item,
         );
       } else if (index != 0 && index != itemCount - 1) {
         return DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(
+          decoration: BoxDecoration(
+            color: darkenColor(
+              Theme.of(context).scaffoldBackgroundColor,
+              0.2,
+            ),
+            border: const Border(
               left: BorderSide(color: Colors.white60, width: 1),
               right: BorderSide(color: Colors.white60, width: 1),
               bottom: BorderSide(color: Colors.white60, width: 1),
@@ -34,6 +43,10 @@ ListView roundedListBuilder({
       } else {
         return DecoratedBox(
           decoration: BoxDecoration(
+            color: darkenColor(
+              Theme.of(context).scaffoldBackgroundColor,
+              0.2,
+            ),
             border: Border(
               top:
                   isTop

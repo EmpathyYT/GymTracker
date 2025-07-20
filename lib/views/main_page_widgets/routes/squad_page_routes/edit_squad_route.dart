@@ -68,7 +68,7 @@ class _EditSquadRouteState extends State<EditSquadRoute> {
                       Theme.of(context).scaffoldBackgroundColor,
                       0.2,
                     ),
-                    border: Border.all(color: Colors.white60, width: 1),
+                    border: Border.all(color: Colors.white60, width: 0.9),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(

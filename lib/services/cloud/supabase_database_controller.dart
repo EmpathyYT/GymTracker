@@ -606,4 +606,20 @@ class SupabaseDatabaseController implements DatabaseController {
       (value) => value.map((e) => CloudPr.fromSupabaseMap(e)).toList(),
     );
   }
+
+  @override
+  Future<void> createPr(
+    String userId,
+    String exerciseName,
+    double targetWeight,
+    DateTime prDate,
+  ) {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    return _supabase.from(prTableName).insert({
+      userIdFieldName: userId,
+      exerciseNameFieldName: exerciseName,
+      prTargetWeightFieldName: targetWeight,
+      prDateFieldName: prDate.toIso8601String(),
+    });
+  }
 }

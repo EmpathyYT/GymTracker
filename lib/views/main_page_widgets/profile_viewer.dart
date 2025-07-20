@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +57,6 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   @override
   void didChangeDependencies() {
     user = context.read<MainPageCubit>().currentUser;
-
     loadStatistics();
     if (user.pointsForNextLevel != null && !didFetch.value) {
       didFetch.value = true;
@@ -413,7 +414,7 @@ class _ProfileViewerWidgetState extends State<ProfileViewerWidget>
   };
 
   void checkIfAllLoaded() {
-    if (didCalculate.value && didFetch.value && context.mounted) {
+    if (didCalculate.value && didFetch.value && mounted) {
       setState(() {
         _isLoadedNotifier.value = true;
         _completedWorkoutsCount = user.completedWorkoutsCount;

@@ -12,30 +12,33 @@ class Exercise {
     required this.difficulty,
     required this.mainMuscle,
     required this.secondaryMuscle,
-    required this.primaryEquipment
+    required this.primaryEquipment,
   });
-
 
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
-      'main_muscle': mainMuscle,
-      'secondary_muscle': secondaryMuscle ?? '',
-      'body_region': bodyRegion,
-      'difficulty': difficulty,
-      'primary_equipment': primaryEquipment,
+      'Exercise': name,
+      'Prime Mover Muscle': mainMuscle,
+      'Secondary Muscle': secondaryMuscle ?? '',
+      'Body Region': bodyRegion,
+      'Difficulty Level': difficulty,
+      'Primary Equipment': primaryEquipment,
     };
   }
 
   factory Exercise.fromMap(Map<String, dynamic> map) {
     return Exercise(
-      name: map['name'] as String,
-      mainMuscle: map['main_muscle'] as String,
-      secondaryMuscle: map['secondary_muscle'] as String?,
-      bodyRegion: map['body_region'] as String,
-      difficulty: map['difficulty'] as String,
-      primaryEquipment: map['primary_equipment'] as String,
+      name: map['Exercise'] as String,
+      mainMuscle: map['Prime Mover Muscle'] as String,
+      secondaryMuscle: map['Secondary Muscle'] as String?,
+      bodyRegion: map['Body Region'] as String,
+      difficulty: map['Difficulty Level'] as String,
+      primaryEquipment: map['Primary Equipment'] as String,
     );
   }
 
+  @override
+  String toString() {
+    return 'Exercise{name: $name, mainMuscle: $mainMuscle, secondaryMuscle: $secondaryMuscle, bodyRegion: $bodyRegion, primaryEquipment: $primaryEquipment, difficulty: $difficulty}';
+  }
 }

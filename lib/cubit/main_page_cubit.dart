@@ -618,10 +618,22 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
+
+  Future<List<String>> fetchExercises({
+    String filter = "",
+  }) async {
+   final exercises = await localDatabaseController.getExercises(filter);
+   return exercises.map((e) => e.name).toList();
+  }
+
   Future<void> finishWorkout(CloudWorkout workout) async {
     try {
+      final pointsForLevelUp = _currentUser.pointsForNextLevel;
       await workout.finishWorkout();
       await reloadUser();
+      if (pointsForLevelUp == 1) {
+        _currentUser.level += 1;
+      }
       emit(
         WorkoutPlanner(
           successText: ["Workout Finished", "Your workout has been finished."],

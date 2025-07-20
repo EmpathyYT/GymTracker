@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
 import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
+import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
 
 import '../../constants/code_constraints.dart';
+import '../../cubit/main_page_cubit.dart';
 
 class PrSchedulerDialog extends StatefulWidget {
   final TextEditingController prNameController;
@@ -31,90 +34,83 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
       title: const Text("Enter PR Details"),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.8,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text.rich(
-                TextSpan(
-                  text: "Date: ",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: prDate.toDateWithoutTime(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text.rich(
+              TextSpan(
+                text: "Date: ",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+                children: [
+                  TextSpan(
+                    text: prDate.toDateWithoutTime(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
-              ),
-              Text.rich(
-                TextSpan(
-                  text: "Time: ",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
                   ),
-                  children: [
-                    TextSpan(
-                      text: prTime.format(context),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
+                ],
+              ),
+            ),
+            Text.rich(
+              TextSpan(
+                text: "Time: ",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+                children: [
+                  TextSpan(
+                    text: prTime.format(context),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Divider(color: Colors.white60),
-              ),
-              TextField(
-                controller: prNameController,
-                decoration: InputDecoration(
-                  counterText: "",
-                  border: InputBorder.none,
-                  hintText: "Title",
-                  hintStyle: GoogleFonts.montserrat(
-                    color: Colors.grey,
-                    fontSize: 16,
                   ),
-                ),
-                autofocus: true,
-                minLines: 1,
-                maxLines: 3,
-                maxLength: 50,
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: prDescriptionController,
-                decoration: InputDecoration(
-                  counterText: "",
-                  border: InputBorder.none,
-                  hintText: "Target Weight",
-                  hintStyle: GoogleFonts.montserrat(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                ),
-                autofocus: true,
-                minLines: 1,
-                maxLines: 1,
-                maxLength: 7,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                  signed: false,
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Divider(color: Colors.white60),
+            ),
+            WorkoutSearchSelector(
+              exerciseNameController: prNameController,
+              initialExercises: const [
+                "Barbell Conventional Deadlift",
+                "Barbell Sumo Deadlift",
+                "Barbell Bench Press",
+                "Barbell High Bar Back Squat",
+                "Barbell Low Bar Back Squat",
+                "Barbell Overhead Press",
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: prDescriptionController,
+              decoration: InputDecoration(
+                counterText: "",
+                border: InputBorder.none,
+                hintText: "Target Weight",
+                hintStyle: GoogleFonts.montserrat(
+                  color: Colors.grey,
+                  fontSize: 16,
                 ),
               ),
-            ],
-          ),
+              autofocus: true,
+              minLines: 1,
+              maxLines: 1,
+              maxLength: 7,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: false,
+              ),
+            ),
+          ],
         ),
       ),
       actions: [
@@ -129,8 +125,7 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
             final weightError = _validateWeightInput(
               prDescriptionController.text,
             );
-            if (weightError != null ||
-                prNameController.text.isEmpty) {
+            if (weightError != null || prNameController.text.isEmpty) {
               showErrorSnackBar(
                 context,
                 this,
@@ -183,12 +178,27 @@ Future<void> showPrSchedulerDialog(
 }) async {
   return showDialog<void>(
     context: context,
-    builder: (BuildContext context) {
-      return PrSchedulerDialog(
-        prNameController: prNameController,
-        prDescriptionController: prDescriptionController,
-        prDate: prDate,
-        prTime: prTime,
+    builder: (BuildContext _) {
+      return BlocProvider.value(
+        value: context.read<MainPageCubit>(),
+        child: MediaQuery.removeViewInsets(
+          removeBottom: true,
+          context: context,
+          child: Builder(
+            builder: (_) {
+              return Scaffold(
+                resizeToAvoidBottomInset: false,
+                backgroundColor: Colors.transparent,
+                body: PrSchedulerDialog(
+                  prNameController: prNameController,
+                  prDescriptionController: prDescriptionController,
+                  prDate: prDate,
+                  prTime: prTime,
+                ),
+              );
+            },
+          ),
+        ),
       );
     },
   );

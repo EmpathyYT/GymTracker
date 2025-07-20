@@ -49,10 +49,15 @@ abstract class DatabaseController {
   Future<List<CloudSquadRequest>> fetchServerRequests(userId);
 
   Stream<List<CloudUser>> fetchUsersForSearch(String query);
+
   Future<void> readUserAchievement(String achievementId);
+
   Future<void> readSquadAchievement(String achievementId);
+
   Future<List<CloudUserAchievement>> fetchUserAchievements(userId);
+
   Future<List<CloudSquadAchievement>> fetchSquadAchievements(squadId);
+
   Future<void> leaveSquad(squadId);
 
   Future<void> initialize();
@@ -96,9 +101,19 @@ abstract class DatabaseController {
   Future<void> deleteWorkout(workoutId);
 
   Future<void> finishWorkout(workoutId);
+
   Future<int> getWorkoutFinishedCount(userId);
+
   Future<int> getPointsLeftForNextLevel();
+
   Future<List<CloudPr>> fetchPrs(userId);
+
+  Future<void> createPr(
+    String userId,
+    String exerciseName,
+    double targetWeight,
+    DateTime prDate,
+  );
 
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;

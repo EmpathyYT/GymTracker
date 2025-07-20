@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/services/local/local_db_controller.dart';
 import 'package:gymtracker/services/local/local_exercise.dart';
 import 'package:gymtracker/services/local/local_sqlite_provider.dart';
@@ -10,7 +12,9 @@ class LocalDatabaseProvider implements LocalDatabaseController {
       LocalDatabaseProvider._internal();
 
   // Private constructor
-  LocalDatabaseProvider._internal() : controller = LocalSqliteProvider();
+  LocalDatabaseProvider._internal() : controller = LocalSqliteProvider() {
+    Future.sync(() async => await controller.initialize());
+  }
 
   // Factory constructor to return the singleton instance
   factory LocalDatabaseProvider() {
@@ -32,5 +36,5 @@ class LocalDatabaseProvider implements LocalDatabaseController {
   Future<void> initialize() => controller.initialize();
 
   @override
-  Future<void> loadInitialData() => controller.loadInitialData();
+  Future<void> loadInitialData(path) => controller.loadInitialData(path);
 }

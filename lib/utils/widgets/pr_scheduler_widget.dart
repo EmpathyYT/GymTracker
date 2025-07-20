@@ -56,6 +56,23 @@ class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
                     return Theme(
                       data: Theme.of(context).copyWith(
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        timePickerTheme: TimePickerThemeData(
+                          backgroundColor: darkenColor(
+                            Theme.of(context).scaffoldBackgroundColor,
+                            0.2,
+                          ),
+                          hourMinuteTextColor: Colors.white,
+                          dialBackgroundColor: darkenColor(
+                            Theme.of(context).scaffoldBackgroundColor,
+                            0.2,
+                          ),
+                          entryModeIconColor: Colors.white,
+                          dayPeriodColor:
+                              Theme.of(
+                                context,
+                              ).focusColor,
+                          dayPeriodTextColor: Colors.white,
+                        ),
                       ),
                       child: Directionality(
                         textDirection: TextDirection.ltr,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
 
 class ExerciseBuilderWidget extends StatefulWidget {
   final TextEditingController exerciseNameController;
@@ -35,22 +36,9 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
               flex: 3,
               child: Padding(
                 padding: const EdgeInsets.only(left: 10),
-                child: TextField(
-                  controller: exerciseNameController,
-                  decoration: InputDecoration(
-                    counterText: "",
-                    border: InputBorder.none,
-                    hintText: "Exercise Name",
-                    hintStyle: GoogleFonts.montserrat(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  autofocus: true,
-                  minLines: 1,
-                  maxLines: 3,
-                  maxLength: 50,
+                child: WorkoutSearchSelector(
+                  exerciseNameController: exerciseNameController,
+                  initialExercises: const [],
                 ),
               ),
             ),
@@ -219,5 +207,4 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
       widget.exerciseHWeightController;
 
   ValueNotifier<bool> get isRangeNotifier => widget.isRangeNotifier;
-
 }

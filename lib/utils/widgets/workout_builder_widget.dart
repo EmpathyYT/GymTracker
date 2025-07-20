@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/dialogs/exercise_edit_dialog.dart';
-import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
+import 'package:gymtracker/utils/widgets/exercise_builder_list.dart';
 import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
@@ -90,70 +89,92 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
             style: GoogleFonts.oswald(fontSize: 30),
           ),
           const SizedBox(height: 10),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.6,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white60, width: 0.9),
-            ),
-            child: ExerciseBuilderWidget(
-              exerciseNameController: _exerciseNameController,
-              exerciseSetsController: _exerciseSetsController,
-              exerciseRepsController: _exerciseRepsController,
-              exerciseLWeightController: _exerciseLWeightController,
-              exerciseHWeightController: _exerciseHWeightController,
-              isRangeNotifier: _isRangeNotifier,
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () => _addExerciseButtonOnClick(),
-            child: const Icon(Icons.arrow_downward, size: 35),
-          ),
-          const SizedBox(height: 20),
+          // Container(
+          //   width: MediaQuery.of(context).size.width * 0.6,
+          //   decoration: BoxDecoration(
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(color: Colors.white60, width: 0.9),
+          //   ),
+          //   child: ExerciseBuilderWidget(
+          //     exerciseNameController: _exerciseNameController,
+          //     exerciseSetsController: _exerciseSetsController,
+          //     exerciseRepsController: _exerciseRepsController,
+          //     exerciseLWeightController: _exerciseLWeightController,
+          //     exerciseHWeightController: _exerciseHWeightController,
+          //     isRangeNotifier: _isRangeNotifier,
+          //   ),
+          // ),
+          // const SizedBox(height: 10),
+          // GestureDetector(
+          //   onTap: () => _addExerciseButtonOnClick(),
+          //   child: const Icon(Icons.arrow_downward, size: 35),
+          // ),
+          // const SizedBox(height: 20),
+          // Flexible(
+          //   flex: 7,
+          //   child: Container(
+          //     width: MediaQuery.of(context).size.width * 0.75,
+          //     decoration: BoxDecoration(
+          //       border: Border.all(color: Colors.white60, width: 0.9),
+          //       borderRadius: BorderRadius.circular(20),
+          //     ),
+          //     child: ValueListenableBuilder(
+          //       valueListenable: _exerciseListNotifier,
+          //       builder: (context, value, child) {
+          //         return ReorderableListView.builder(
+          //           proxyDecorator: (child, index, animation) {
+          //             return Material(
+          //               elevation: 8,
+          //               color: Colors.transparent,
+          //               child: ScaleTransition(
+          //                 scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
+          //                 child: child,
+          //               ),
+          //             );
+          //           },
+          //           itemCount: value.length,
+          //           onReorder: (oldIndex, newIndex) {
+          //             if (newIndex > oldIndex) {
+          //               newIndex -= 1;
+          //             }
+          //             final item = value.removeAt(oldIndex);
+          //             value.insert(newIndex, item);
+          //             _removeFromStream(day, item.item1);
+          //             _addToStream(
+          //               day,
+          //               item.item2,
+          //               uid: item.item1,
+          //               index: newIndex,
+          //             );
+          //           },
+          //           itemBuilder: (context, index) {
+          //             return _buildListTile(index, value);
+          //           },
+          //         );
+          //       },
+          //     ),
+          //   ),
+          // ),
           Flexible(
             flex: 7,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.75,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white60, width: 0.9),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ValueListenableBuilder(
-                valueListenable: _exerciseListNotifier,
-                builder: (context, value, child) {
-                  return ReorderableListView.builder(
-                    proxyDecorator: (child, index, animation) {
-                      return Material(
-                        elevation: 8,
-                        color: Colors.transparent,
-                        child: ScaleTransition(
-                          scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
-                          child: child,
-                        ),
-                      );
-                    },
-                    itemCount: value.length,
-                    onReorder: (oldIndex, newIndex) {
-                      if (newIndex > oldIndex) {
-                        newIndex -= 1;
-                      }
-                      final item = value.removeAt(oldIndex);
-                      value.insert(newIndex, item);
-                      _removeFromStream(day, item.item1);
-                      _addToStream(
-                        day,
-                        item.item2,
-                        uid: item.item1,
-                        index: newIndex,
-                      );
-                    },
-                    itemBuilder: (context, index) {
-                      return buildListTile(index, value);
-                    },
-                  );
-                },
-              ),
+            child: ExerciseBuilderList(
+              exerciseListNotifier: _exerciseListNotifier,
+              onReorder: (index, exercise) {
+                _removeFromStream(day, exercise.item1);
+                _addToStream(
+                  day,
+                  exercise.item2,
+                  uid: exercise.item1,
+                  index: index,
+                );
+              },
+              onAddExercise: () {
+                _addExerciseButtonOnClick();
+              },
+              onRemoveExercise: (uid) {
+                _removeFromStream(day, uid);
+              },
+              day: day,
             ),
           ),
           Flexible(
@@ -166,93 +187,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildListTile(int index, List<Tuple2<String, ExerciseType>> value) {
-    final ExerciseType exercise = value[index].item2;
-    final String uuid = value[index].item1;
-    final noWeight =
-        exercise.weightRange.item1 == 0 && exercise.weightRange.item2 == 0;
-
-    final exerciseName =
-        noWeight
-            ? exercise.name
-            : "${exercise.name} "
-                "(${exercise.exerciseWeightToString})";
-
-    onTap() async {
-      await showWorkoutEditDialog(context, exercise).then((_) {
-        if (!mounted) return;
-        FocusScope.of(context).requestFocus(FocusNode());
-      });
-    }
-
-    final initWidget = ListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.fromLTRB(15, 2, 0, 0),
-      title: Text(
-        exerciseName,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(
-        "${exercise.sets} x ${exercise.reps}",
-        style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            onPressed: () => _removeFromStream(day, uuid),
-            icon: const Icon(Icons.remove_circle),
-          ),
-          ReorderableDragStartListener(
-            key: ValueKey(draggingIndex == index),
-            index: index,
-            child: const Icon(Icons.drag_handle),
-          ),
-        ],
-      ),
-    );
-    if (index != 0 && index != value.length - 1) {
-      return copyListTileForTap(initWidget, onTap, uuid, index);
-    }
-    final isTop = index == 0;
-
-    return InkWell(
-      key: ValueKey("$uuid ${index == draggingIndex}"),
-      customBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(isTop ? 20 : 0),
-          topRight: Radius.circular(isTop ? 20 : 0),
-          bottomLeft: Radius.circular(!isTop ? 20 : 0),
-          bottomRight: Radius.circular(!isTop ? 20 : 0),
-        ),
-      ),
-      onTap: () => onTap(),
-      child: initWidget,
-    );
-  }
-
-  ListTile copyListTileForTap(
-    ListTile tile,
-    Function onTap,
-    String uuid,
-    int index,
-  ) {
-    return ListTile(
-      key: ValueKey("$uuid ${index == draggingIndex}"),
-      title: tile.title,
-      dense: tile.dense,
-      contentPadding: tile.contentPadding,
-      subtitle: tile.subtitle,
-      leading: tile.leading,
-      trailing: tile.trailing,
-      onTap: () => onTap(),
     );
   }
 
@@ -348,56 +282,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
       widget.behaviorController;
 
   Uuid get uuid => widget.uuid;
-}
-
-void showErrorSnackBar(
-  BuildContext context,
-  TickerProvider vsync,
-  String message,
-  Color color,
-) {
-  if (ScaffoldMessenger.of(context).mounted) {
-    ScaffoldMessenger.of(context).removeCurrentSnackBar();
-  }
-
-  final controller = AnimationController(
-    vsync: vsync,
-    duration: const Duration(milliseconds: 500),
-  );
-
-  final animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut)
-    ..addStatusListener((status) async {
-      if (status == AnimationStatus.completed) {
-        await Future.delayed(
-          const Duration(milliseconds: 2500),
-          () => controller.reverse(),
-        );
-      }
-    });
-
-  controller.forward();
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-        SnackBar(
-          content: FadeTransition(
-            opacity: controller,
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-          duration: const Duration(seconds: 3),
-          backgroundColor: color,
-          behavior: SnackBarBehavior.floating,
-          animation: animation,
-          margin: const EdgeInsets.all(20),
-          elevation: 10,
-        ),
-      )
-      .closed
-      .then((_) {
-        controller.dispose();
-      });
 }
 
 (bool, String?) workoutInputValidator(
