@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
+import 'package:gymtracker/utils/widgets/new_workout_tile.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../helpers/exercise_type.dart';
@@ -112,7 +111,16 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList> {
         dataToBuild.add(Tuple2(_listWidgetBuilder(i), value[i]));
       }
     } else {
-      dataToBuild.add(Tuple2(_buildNewExerciseTile(0, false), null));
+      dataToBuild.add(
+        const Tuple2(
+          NewWorkoutTile(
+            key: ValueKey("newExerciseTile 0"),
+            index: 0,
+            canDelete: false,
+          ),
+          null,
+        ),
+      );
     }
     return dataToBuild;
   }
@@ -209,116 +217,6 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList> {
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNewExerciseTile(int index, bool canBeDeleted) {
-    return ListTile(
-      key: ValueKey("newExerciseTile $index"),
-      minVerticalPadding: 1,
-      visualDensity: const VisualDensity(vertical: -4),
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      title: Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 350,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: WorkoutSearchSelector(
-                      exerciseNameController: exerciseNameController,
-                      initialExercises: const [],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text("Sets:", style: GoogleFonts.oswald(fontSize: 15)),
-                  const SizedBox(width: 3),
-                  SizedBox(
-                    width: 30,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: TextField(
-                        controller: exerciseSetsController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          border: InputBorder.none,
-                          hintStyle: GoogleFonts.montserrat(
-                            color: Colors.grey,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        maxLength: 2,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text("Reps:", style: GoogleFonts.oswald(fontSize: 15)),
-                  const SizedBox(width: 3),
-                  SizedBox(
-                    width: 30,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: TextField(
-                        controller: exerciseRepsController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          border: InputBorder.none,
-                          hintStyle: GoogleFonts.montserrat(
-                            color: Colors.grey,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        maxLength: 2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 2, top: 5, bottom: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.white60, width: 0.9),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          height: 49,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            style: const TextStyle(fontSize: 18),
-                            decoration: InputDecoration(
-                              counterText: "",
-                              border: InputBorder.none,
-                            ),
-                            maxLength: 4,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],

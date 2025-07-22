@@ -7,11 +7,13 @@ import '../../cubit/main_page_cubit.dart';
 class WorkoutSearchSelector extends StatefulWidget {
   final TextEditingController exerciseNameController;
   final List<String> initialExercises;
+  final DropDownDecoratorProps? decoratorProps;
 
   const WorkoutSearchSelector({
     super.key,
     required this.exerciseNameController,
     required this.initialExercises,
+    this.decoratorProps,
   });
 
   @override
@@ -28,14 +30,15 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
       onChanged: (value) {
         prNameController.text = value ?? "";
       },
+      decoratorProps: decoratorProps,
       popupProps: const PopupPropsMultiSelection.menu(
         showSelectedItems: true,
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            hintText: "Search for an exercise",
+            hintText: "Exercise Name",
             hintStyle: TextStyle(
-              color: Colors.grey,
+              color: Colors.white60,
               fontSize: 14,
             ),
             border: InputBorder.none,
@@ -58,4 +61,5 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
 
   TextEditingController get prNameController => widget.exerciseNameController;
   List<String> get initialExercises => widget.initialExercises;
+  DropDownDecoratorProps? get decoratorProps => widget.decoratorProps;
 }
