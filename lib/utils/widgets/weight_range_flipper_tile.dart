@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
 
 class WeightRangeFlipperTile extends StatefulWidget {
-  const WeightRangeFlipperTile({super.key});
+  final TextEditingController lWeightController;
+  final TextEditingController hWeightController;
+
+  const WeightRangeFlipperTile({
+    super.key,
+    required this.lWeightController,
+    required this.hWeightController,
+  });
 
   @override
   State<WeightRangeFlipperTile> createState() => _WeightRangeFlipperTileState();
@@ -23,48 +30,60 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
           isTwoChild: false,
           flipToTwo: isRange,
           childrenIfOne: [
-            SizedBox(
-              width: 70,
-              height: 50,
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                style: const TextStyle(
-                  fontSize: 18,
-                  textBaseline: TextBaseline.alphabetic,
-                ),
-                decoration: const InputDecoration(
-                  counterText: "",
-                  labelText: "Weight",
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelStyle: TextStyle(color: Colors.white60, fontSize: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+            InkWell(
+              onDoubleTap:
+                  () => setState(() {
+                    isRange = !isRange;
+                  }),
+              child: SizedBox(
+                width: 70,
+                height: 50,
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    textBaseline: TextBaseline.alphabetic,
                   ),
+                  decoration: const InputDecoration(
+                    counterText: "",
+                    labelText: "Weight",
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    labelStyle: TextStyle(color: Colors.white60, fontSize: 14),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                    ),
+                  ),
+                  maxLength: 4,
                 ),
-                maxLength: 4,
               ),
             ),
           ],
           childrenIfTwo: [
-            SizedBox(
-              width: 70,
-              height: 50,
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                style: const TextStyle(
-                  fontSize: 18,
-                  textBaseline: TextBaseline.alphabetic,
-                ),
-                decoration: const InputDecoration(
-                  counterText: "",
-                  labelText: "L Weight",
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelStyle: TextStyle(color: Colors.white60, fontSize: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+            InkWell(
+              onDoubleTap:
+                  () => setState(() {
+                    isRange = !isRange;
+                  }),
+              child: SizedBox(
+                width: 70,
+                height: 50,
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    textBaseline: TextBaseline.alphabetic,
                   ),
+                  decoration: const InputDecoration(
+                    counterText: "",
+                    labelText: "L Weight",
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    labelStyle: TextStyle(color: Colors.white60, fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                    ),
+                  ),
+                  maxLength: 4,
                 ),
-                maxLength: 4,
               ),
             ),
             const SizedBox(width: 10),
@@ -91,16 +110,11 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
             ),
           ],
         ),
-        Expanded(child: Container()),
-        IconButton(
-          icon: const Icon(Icons.swap_horiz, size: 20, color: Colors.grey),
-          onPressed: () {
-            setState(() {
-              isRange = !isRange;
-            });
-          },
-        ),
       ],
     );
   }
+
+  TextEditingController get lWeightController => widget.lWeightController;
+
+  TextEditingController get hWeightController => widget.hWeightController;
 }

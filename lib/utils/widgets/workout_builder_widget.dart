@@ -160,6 +160,7 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
             child: ExerciseBuilderList(
               exerciseListNotifier: _exerciseListNotifier,
               onReorder: (index, exercise) {
+                if (exercise == null) return;
                 _removeFromStream(day, exercise.item1);
                 _addToStream(
                   day,
@@ -168,9 +169,7 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
                   index: index,
                 );
               },
-              onAddExercise: () {
-                _addExerciseButtonOnClick();
-              },
+              onAddExercise: (exercise) => _addToStream(day, exercise),
               onRemoveExercise: (uid) {
                 _removeFromStream(day, uid);
               },
@@ -228,40 +227,40 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     );
   }
 
-  void _addExerciseButtonOnClick() {
-    final (res, errorMessage) = workoutInputValidator(
-      _isRangeNotifier,
-      _exerciseNameController.text.trim(),
-      _exerciseSetsController.text.trim(),
-      _exerciseRepsController.text.trim(),
-      _exerciseLWeightController.text.trim(),
-      _exerciseHWeightController.text.trim(),
-    );
-
-    if (res == false) {
-      final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
-      showErrorSnackBar(context, this, errorMessage!, color);
-      return;
-    }
-
-    final lWeight =
-        _exerciseLWeightController.text.trim().isEmpty
-            ? "0"
-            : _exerciseLWeightController.text.trim();
-
-    final hWeight =
-        _isRangeNotifier.value ? _exerciseHWeightController.text.trim() : "0";
-
-    _addToStream(
-      day,
-      ExerciseType(
-        name: _exerciseNameController.text.trim(),
-        sets: int.parse(_exerciseSetsController.text.trim()),
-        reps: int.parse(_exerciseRepsController.text.trim()),
-        weightRange: Tuple2(double.parse(lWeight), double.parse(hWeight)),
-      ),
-    );
-  }
+  // void _addExerciseButtonOnClick() {
+  //   final (res, errorMessage) = workoutInputValidator(
+  //     _isRangeNotifier,
+  //     _exerciseNameController.text.trim(),
+  //     _exerciseSetsController.text.trim(),
+  //     _exerciseRepsController.text.trim(),
+  //     _exerciseLWeightController.text.trim(),
+  //     _exerciseHWeightController.text.trim(),
+  //   );
+  //
+  //   if (res == false) {
+  //     final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
+  //     showErrorSnackBar(context, this, errorMessage!, color);
+  //     return;
+  //   }
+  //
+  //   final lWeight =
+  //       _exerciseLWeightController.text.trim().isEmpty
+  //           ? "0"
+  //           : _exerciseLWeightController.text.trim();
+  //
+  //   final hWeight =
+  //       _isRangeNotifier.value ? _exerciseHWeightController.text.trim() : "0";
+  //
+  //   _addToStream(
+  //     day,
+  //     ExerciseType(
+  //       name: _exerciseNameController.text.trim(),
+  //       sets: int.parse(_exerciseSetsController.text.trim()),
+  //       reps: int.parse(_exerciseRepsController.text.trim()),
+  //       weightRange: Tuple2(double.parse(lWeight), double.parse(hWeight)),
+  //     ),
+  //   );
+  // }
 
   int get day => widget.day;
 
