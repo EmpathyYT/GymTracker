@@ -129,7 +129,7 @@ class _NoteInputDialogState extends State<NoteInputDialog>
         TextButton(
           onPressed: () {
             final (res, errorMessage) = workoutInputValidator(
-              isRangeNotifier,
+              isRangeNotifier.value,
               exerciseNameController.text.trim(),
               exerciseSetsController.text.trim(),
               exerciseRepsController.text.trim(),
@@ -148,13 +148,13 @@ class _NoteInputDialogState extends State<NoteInputDialog>
 
             final lWeight =
                 exerciseLWeightController.text.trim().isEmpty
-                    ? "0"
+                    ? "0.0"
                     : exerciseLWeightController.text.trim();
 
             final hWeight =
                 isRangeNotifier.value
                     ? exerciseHWeightController.text.trim()
-                    : "0";
+                    : "0.0";
 
             initialExercise.json = {
               'name': exerciseNameController.text.trim(),

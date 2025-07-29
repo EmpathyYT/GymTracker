@@ -15,7 +15,7 @@ class ExerciseBuilderList extends StatefulWidget {
   final ValueNotifier<List<Tuple2<String, ExerciseType>>> exerciseListNotifier;
 
   ///This callback is only for the events that should happen after the reordering is done,
-  ///   the actual reordering is handled by the ReorderableListView.
+  ///the actual reordering is handled by the ReorderableListView.
   final void Function(int, Tuple2<String, ExerciseType>?) onReorder;
   final void Function(ExerciseType) onAddExercise;
   final void Function(String uuid) onRemoveExercise;
@@ -38,8 +38,6 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     with TickerProviderStateMixin {
   final TextEditingController exerciseSetsController = TextEditingController();
   final TextEditingController exerciseRepsController = TextEditingController();
-  final TextEditingController exerciseNameController =
-      TextEditingController()..text = "Select Exercise";
   bool exerciseAdderExists = false;
   String exerciseName = "";
   int? draggingIndex;
@@ -290,6 +288,9 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
     onTap() async {
       await showWorkoutEditDialog(context, exercise).then((_) {
+        setState(() {
+          _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+        });
         if (!mounted) return;
         FocusScope.of(context).requestFocus(FocusNode());
       });

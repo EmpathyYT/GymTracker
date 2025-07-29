@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +9,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../constants/code_constraints.dart';
 import '../../helpers/exercise_type.dart';
 
 typedef FilteredExerciseFormat = Map<int, List<Tuple2<String, ExerciseType>>>;
@@ -284,39 +284,44 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
 }
 
 (bool, String?) workoutInputValidator(
-  ValueNotifier<bool> isRangeNotifier,
-  exerciseName,
-  sets,
-  reps,
-  lWeight,
-  hWeight,
+  bool isRange,
+  String exerciseName,
+  String sets,
+  String reps,
+  String lWeight,
+  String hWeight,
 ) {
-  if (_validateNameInput(exerciseName) != null) {
-    return (false, _validateNameInput(exerciseName));
-  } else if (_validateRepsInput(reps) != null) {
-    return (false, _validateRepsInput(reps));
-  } else if (_validateSetsInput(sets) != null) {
-    return (false, _validateSetsInput(sets));
-  } else if (_validateWeightInput(lWeight) != null) {
-    return (false, _validateWeightInput(lWeight));
-  } else if (isRangeNotifier.value && _validateWeightInput(hWeight) != null) {
-    return (false, _validateWeightInput(hWeight));
-  } else if (lWeight.isNotEmpty &&
-      hWeight.isNotEmpty &&
-      _validateRangesInput(lWeight, hWeight) != null) {
-    return (false, _validateRangesInput(lWeight, hWeight));
+  final repsValidation = _validateRepsInput(reps);
+  final setsValidation = _validateSetsInput(sets);
+  final lWeightValidation = _validateWeightInput(lWeight);
+  final hWeightValidation = isRange ? _validateWeightInput(hWeight) : null;
+  final List<String?> validationErrors =
+      [
+        repsValidation,
+        setsValidation,
+        lWeightValidation,
+        hWeightValidation,
+      ].where((error) => error != null).toList();
+  if (validationErrors.isNotEmpty) {
+    return (false, validationErrors.first);
+  } else if (hWeight.isNotEmpty && lWeight.isEmpty && isRange) {
+    log("message");
+    return (
+      false,
+      "Please enter a low weight if you are entering a high weight.",
+    );
+  } else if (exerciseName.isEmpty) {
+    return (false, "Please enter an exercise name.");
+  } else if (lWeight.isNotEmpty && hWeight.isNotEmpty && isRange) {
+    final rangesValidation = _validateRangesInput(lWeight, hWeight);
+    if (rangesValidation != null) {
+      return (false, rangesValidation);
+    } else {
+      return (true, null);
+    }
   } else {
     return (true, null);
   }
-}
-
-String? _validateNameInput(String? value) {
-  if (value == null || value.isEmpty) {
-    return "Please enter the exercise name in the name field.";
-  } else if (!RegExp(r'^[a-zA-Z !@#$%^&*()1-9\-,.<>=+_]+$').hasMatch(value)) {
-    return "Please enter a valid exercise name.";
-  }
-  return null;
 }
 
 String? _validateRepsInput(String? value) {

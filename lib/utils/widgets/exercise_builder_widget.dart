@@ -30,27 +30,27 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: WorkoutSearchSelector(
+            exerciseNameController: exerciseNameController,
+            initialExercises: const [],
+          ),
+        ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Flexible(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: WorkoutSearchSelector(
-                  exerciseNameController: exerciseNameController,
-                  initialExercises: const [],
-                ),
-              ),
-            ),
-            const SizedBox(width: 5),
-            Text("X", style: GoogleFonts.oswald(fontSize: 15)),
-            const SizedBox(width: 4),
             SizedBox(
-              width: 30,
+              width: 20,
               child: Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: TextField(
                   controller: exerciseSetsController,
+                  style: GoogleFonts.montserrat(
+                  color: Colors.grey,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  ),
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     counterText: "",
@@ -58,31 +58,38 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                     hintText: "S",
                     hintStyle: GoogleFonts.montserrat(
                       color: Colors.grey,
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                  textAlign: TextAlign.center,
                   maxLength: 2,
                 ),
               ),
             ),
-            const SizedBox(width: 2),
-            Text("X", style: GoogleFonts.oswald(fontSize: 15)),
-            const SizedBox(width: 4),
+            const SizedBox(width: 3),
+            Text("X", style: GoogleFonts.oswald(fontSize: 17)),
+            const SizedBox(width: 3),
             SizedBox(
-              width: 30,
+              width: 20,
               child: Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: TextField(
                   controller: exerciseRepsController,
                   keyboardType: TextInputType.number,
+                  style: GoogleFonts.montserrat(
+                    color: Colors.grey,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     counterText: "",
                     border: InputBorder.none,
                     hintText: "R",
                     hintStyle: GoogleFonts.montserrat(
                       color: Colors.grey,
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -103,8 +110,9 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
           builder: (context, setState) {
             return TextButton(
               onPressed:
-                  () => setState(
-                    () => isRangeNotifier.value = !isRangeNotifier.value,
+                  () =>
+                  setState(
+                        () => isRangeNotifier.value = !isRangeNotifier.value,
                   ),
               child: Text(
                 !isRangeNotifier.value ? "Static" : "Range",
@@ -122,72 +130,72 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children:
-          val
-              ? [
-                SizedBox(
-                  width: 50,
-                  child: TextField(
-                    controller: exerciseLWeightController,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: InputBorder.none,
-                      hintText: "Low",
-                      hintStyle: GoogleFonts.montserrat(
-                        color: Colors.grey,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    maxLength: 7,
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                  child: Text("-", style: GoogleFonts.oswald(fontSize: 30)),
-                ),
-                SizedBox(
-                  width: 50,
-                  child: TextField(
-                    controller: exerciseHWeightController,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: InputBorder.none,
-                      hintText: "High",
-                      hintStyle: GoogleFonts.montserrat(
-                        color: Colors.grey,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    maxLength: 7,
-                  ),
-                ),
-              ]
-              : [
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    textAlign: TextAlign.center,
-                    controller: exerciseLWeightController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: InputBorder.none,
-                      hintText: "Weight",
-                      hintStyle: GoogleFonts.montserrat(
-                        color: Colors.grey,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    maxLength: 7,
-                  ),
-                ),
-              ],
+      val
+          ? [
+        SizedBox(
+          width: 50,
+          child: TextField(
+            controller: exerciseLWeightController,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              counterText: "",
+              border: InputBorder.none,
+              hintText: "Low",
+              hintStyle: GoogleFonts.montserrat(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            maxLength: 7,
+          ),
+        ),
+        SizedBox(
+          width: 10,
+          child: Text("-", style: GoogleFonts.oswald(fontSize: 30)),
+        ),
+        SizedBox(
+          width: 50,
+          child: TextField(
+            controller: exerciseHWeightController,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              counterText: "",
+              border: InputBorder.none,
+              hintText: "High",
+              hintStyle: GoogleFonts.montserrat(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            maxLength: 7,
+          ),
+        ),
+      ]
+          : [
+        SizedBox(
+          width: 100,
+          child: TextField(
+            textAlign: TextAlign.center,
+            controller: exerciseLWeightController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              counterText: "",
+              border: InputBorder.none,
+              hintText: "Weight",
+              hintStyle: GoogleFonts.montserrat(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            maxLength: 7,
+          ),
+        ),
+      ],
     );
   }
 

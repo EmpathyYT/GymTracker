@@ -37,10 +37,7 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
             hintText: "Exercise Name",
-            hintStyle: TextStyle(
-              color: Colors.white60,
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: Colors.white60, fontSize: 14),
             border: InputBorder.none,
           ),
         ),
@@ -55,11 +52,16 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
       final exercises = await context.read<MainPageCubit>().fetchExercises(
         filter: filter,
       );
-      return exercises;
+      return exercises.any((e) => e.toLowerCase() == filter.toLowerCase())
+            ? exercises
+            : exercises
+        ..insert(0, filter);
     }
   }
 
   TextEditingController get prNameController => widget.exerciseNameController;
+
   List<String> get initialExercises => widget.initialExercises;
+
   DropDownDecoratorProps? get decoratorProps => widget.decoratorProps;
 }
