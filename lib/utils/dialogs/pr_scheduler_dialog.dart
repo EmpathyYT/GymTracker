@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
-import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
 
 import '../../constants/code_constraints.dart';
@@ -10,14 +9,14 @@ import '../../cubit/main_page_cubit.dart';
 
 class PrSchedulerDialog extends StatefulWidget {
   final TextEditingController prNameController;
-  final TextEditingController prDescriptionController;
+  final TextEditingController prWeightController;
   final DateTime prDate;
   final TimeOfDay prTime;
 
   const PrSchedulerDialog({
     super.key,
     required this.prNameController,
-    required this.prDescriptionController,
+    required this.prWeightController,
     required this.prDate,
     required this.prTime,
   });
@@ -91,7 +90,7 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: prDescriptionController,
+              controller: prWeightController,
               decoration: InputDecoration(
                 counterText: "",
                 border: InputBorder.none,
@@ -122,18 +121,38 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
         ),
         TextButton(
           onPressed: () {
-            final weightError = _validateWeightInput(
-              prDescriptionController.text,
-            );
+            final weightError = _validateWeightInput(prWeightController.text);
             if (weightError != null || prNameController.text.isEmpty) {
-              showErrorSnackBar(
+              showSnackBar(
                 context,
                 this,
                 weightError ?? "Please enter the target weight for the PR.",
                 darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
               );
             } else {
-              Navigator.pop(context);
+              Navigator.pop(context, true);
+              try {
+                context.read<MainPageCubit>().addPr(
+                  prNameController.text,
+                  prDate,
+                  double.parse(prWeightController.text),
+                );
+
+                showSnackBar(
+                  context,
+                  this,
+                  "PR scheduled successfully!",
+                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                );
+
+              } catch (e) {
+                showSnackBar(
+                  context,
+                  this,
+                  "An unexpected error occurred while scheduling the PR.",
+                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                );
+              }
             }
           },
           child: const Text("OK"),
@@ -163,8 +182,7 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
 
   TextEditingController get prNameController => widget.prNameController;
 
-  TextEditingController get prDescriptionController =>
-      widget.prDescriptionController;
+  TextEditingController get prWeightController => widget.prWeightController;
 
   DateTime get prDate => widget.prDate;
 }
@@ -191,7 +209,7 @@ Future<void> showPrSchedulerDialog(
                 backgroundColor: Colors.transparent,
                 body: PrSchedulerDialog(
                   prNameController: prNameController,
-                  prDescriptionController: prDescriptionController,
+                  prWeightController: prDescriptionController,
                   prDate: prDate,
                   prTime: prTime,
                 ),

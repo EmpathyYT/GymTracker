@@ -142,7 +142,7 @@ class _NoteInputDialogState extends State<NoteInputDialog>
                 Theme.of(context).scaffoldBackgroundColor,
                 0.2,
               );
-              showErrorSnackBar(context, this, errorMessage!, color);
+              showSnackBar(context, this, errorMessage!, color);
               return;
             }
 

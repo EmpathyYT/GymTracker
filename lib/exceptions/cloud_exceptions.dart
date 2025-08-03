@@ -121,3 +121,6 @@ class UserAlreadyInSquadException implements Exception {
 class AlreadyFinishedWorkoutException implements Exception {
   final String message = 'Already finished workout';
 }
+class CouldNotSchedulePrException implements Exception {
+  final String message = 'Could not schedule PR';
+}

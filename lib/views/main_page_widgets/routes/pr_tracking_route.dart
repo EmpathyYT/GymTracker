@@ -12,56 +12,72 @@ class PrTrackingWidget extends StatefulWidget {
   State<PrTrackingWidget> createState() => _PrTrackingWidgetState();
 }
 
-class _PrTrackingWidgetState extends State<PrTrackingWidget> {
+class _PrTrackingWidgetState extends State<PrTrackingWidget>
+    with TickerProviderStateMixin {
   final prNameController = TextEditingController()..text = "Select PR Exercise";
   final prDescriptionController = TextEditingController();
+
+  TabController? tabViewController;
   DateTime selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    tabViewController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    tabViewController!.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            toolbarHeight: appBarHeight,
-            scrolledUnderElevation: 0,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          toolbarHeight: appBarHeight,
+          scrolledUnderElevation: 0,
 
-            title: Padding(
-              padding: const EdgeInsets.only(top: appBarPadding),
-              child: Text(
-                'PR Tracker',
-                style: GoogleFonts.oswald(fontSize: appBarTitleSize),
-              ),
-            ),
-            bottom: TabBar(
-              tabs: [
-                Tab(
-                  child: Text(
-                    "PR Scheduling",
-                    style: GoogleFonts.oswald(fontSize: 19),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    "Scheduled PRs",
-                    style: GoogleFonts.oswald(fontSize: 19),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    "PR History",
-                    style: GoogleFonts.oswald(fontSize: 19),
-                  ),
-                ),
-              ],
+          title: Padding(
+            padding: const EdgeInsets.only(top: appBarPadding),
+            child: Text(
+              'PR Tracker',
+              style: GoogleFonts.oswald(fontSize: appBarTitleSize),
             ),
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: TabBarView(children: _bodyWidgetBuilder()),
+          bottom: TabBar(
+            controller: tabViewController,
+            tabs: [
+              Tab(
+                child: Text(
+                  "PR Scheduling",
+                  style: GoogleFonts.oswald(fontSize: 19),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "Scheduled PRs",
+                  style: GoogleFonts.oswald(fontSize: 19),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "PR History",
+                  style: GoogleFonts.oswald(fontSize: 19),
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: TabBarView(
+            controller: tabViewController,
+            children: _bodyWidgetBuilder(),
           ),
         ),
       ),
@@ -73,6 +89,9 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget> {
       PrSchedulerWidget(
         prNameController: prNameController,
         prDescriptionController: prDescriptionController,
+        onPrScheduled: () {
+          tabViewController!.animateTo(1);
+        },
       ),
       const ScheduledPrsWidget(),
       Text("data"),

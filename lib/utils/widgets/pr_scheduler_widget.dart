@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../constants/code_constraints.dart';
@@ -9,11 +8,13 @@ import '../dialogs/pr_scheduler_dialog.dart';
 class PrSchedulerWidget extends StatefulWidget {
   final TextEditingController prDescriptionController;
   final TextEditingController prNameController;
+  final VoidCallback onPrScheduled;
 
   const PrSchedulerWidget({
     super.key,
     required this.prNameController,
     required this.prDescriptionController,
+    required this.onPrScheduled,
   });
 
   @override
@@ -67,10 +68,7 @@ class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
                             0.2,
                           ),
                           entryModeIconColor: Colors.white,
-                          dayPeriodColor:
-                              Theme.of(
-                                context,
-                              ).focusColor,
+                          dayPeriodColor: Theme.of(context).focusColor,
                           dayPeriodTextColor: Colors.white,
                         ),
                       ),
@@ -119,7 +117,7 @@ class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
               ),
               onPressed: () async {
                 if (selectedDate == null || selectedTime == null) {
-                  showErrorSnackBar(
+                  showSnackBar(
                     context,
                     this,
                     "Please select a date and time",
@@ -133,7 +131,17 @@ class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
                   prDescriptionController: prDescriptionController,
                   prDate: selectedDate!,
                   prTime: selectedTime!,
-                );
+                ).then((value) {
+                  value as bool?;
+                  if (value == true) {
+                    // _isHandlingSelectionChange = false;
+                    // dateRangePickerController.selectedDate = DateTime.now();
+                    // selectedDate = DateTime.now();
+                    // selectedTime = TimeOfDay.now();
+                    // _isHandlingSelectionChange = true;
+                    onPrScheduled();
+                  }
+                });
               },
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -164,4 +172,6 @@ class _PrSchedulerWidgetState extends State<PrSchedulerWidget>
 
   TextEditingController get prDescriptionController =>
       widget.prDescriptionController;
+
+  VoidCallback get onPrScheduled => widget.onPrScheduled;
 }

@@ -25,10 +25,16 @@ class CloudPr {
       targetWeight = double.parse(map[prTargetWeightFieldName].toString()),
       actualWeight = map[prActualWeightFieldName];
 
-
-
   static Future<List<CloudPr>> fetchPrs(userId) async {
     return await dbController.fetchPrs(userId);
   }
 
+  static Future<void> addPr(
+    String exercise,
+    userId,
+    DateTime date,
+    double targetWeight,
+  ) async {
+    await dbController.addPr(userId, exercise, date, targetWeight);
+  }
 }

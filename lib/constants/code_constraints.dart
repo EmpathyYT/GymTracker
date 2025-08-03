@@ -46,7 +46,7 @@ Color darkenColor(Color color, double factor) {
   );
 }
 
-void showErrorSnackBar(
+void showSnackBar(
     BuildContext context,
     TickerProvider vsync,
     String message,

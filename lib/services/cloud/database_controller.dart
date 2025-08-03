@@ -115,6 +115,13 @@ abstract class DatabaseController {
     DateTime prDate,
   );
 
+  Future<void> addPr(
+    String exercise,
+    userId,
+    DateTime date,
+    double targetWeight,
+  );
+
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;

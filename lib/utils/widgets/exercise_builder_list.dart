@@ -136,7 +136,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                   InkWell(
                     onTap: () {
                       if (exerciseAdderExists) {
-                        showErrorSnackBar(
+                        showSnackBar(
                           context,
                           this,
                           "Please use the existing exercise adder.",

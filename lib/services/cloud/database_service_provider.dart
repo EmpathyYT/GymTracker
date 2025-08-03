@@ -198,10 +198,13 @@ class DatabaseServiceProvider implements DatabaseController {
     String exerciseName,
     double targetWeight,
     DateTime prDate,
-  ) => _provider.createPr(
-        userId,
-        exerciseName,
-        targetWeight,
-        prDate,
-      );
+  ) => _provider.createPr(userId, exerciseName, targetWeight, prDate);
+
+  @override
+  Future<void> addPr(
+    String exercise,
+    userId,
+    DateTime date,
+    double targetWeight,
+  ) => _provider.addPr(exercise, userId, date, targetWeight);
 }

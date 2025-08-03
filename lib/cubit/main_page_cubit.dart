@@ -13,6 +13,7 @@ import 'package:gymtracker/services/local/local_db_provider.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/cloud/cloud_notification.dart';
+import '../services/cloud/cloud_pr.dart';
 import '../services/cloud/cloud_workout.dart';
 
 part 'main_page_state.dart';
@@ -618,12 +619,9 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-
-  Future<List<String>> fetchExercises({
-    String filter = "",
-  }) async {
-   final exercises = await localDatabaseController.getExercises(filter);
-   return exercises.map((e) => e.name).toList();
+  Future<List<String>> fetchExercises({String filter = ""}) async {
+    final exercises = await localDatabaseController.getExercises(filter);
+    return exercises.map((e) => e.name).toList();
   }
 
   Future<void> finishWorkout(CloudWorkout workout) async {
@@ -657,6 +655,18 @@ class MainPageCubit extends Cubit<MainPageState> {
           notifications: state.notifications,
         ),
       );
+    }
+  }
+
+  Future<void> addPr(
+    String exercise,
+    DateTime prDate,
+    double targetWeight,
+  ) async {
+    try {
+      CloudPr.addPr(currentUser.id, exercise, prDate, targetWeight);
+    } catch (_) {
+      throw CouldNotSchedulePrException();
     }
   }
 

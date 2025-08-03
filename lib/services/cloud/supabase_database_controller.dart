@@ -622,4 +622,20 @@ class SupabaseDatabaseController implements DatabaseController {
       prDateFieldName: prDate.toIso8601String(),
     });
   }
+
+  @override
+  Future<void> addPr(
+    String exercise,
+    userId,
+    DateTime date,
+    double targetWeight,
+  ) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    await _supabase.from(prTableName).insert({
+      userIdFieldName: userId,
+      exerciseNameFieldName: exercise,
+      prTargetWeightFieldName: targetWeight,
+      prDateFieldName: date.toIso8601String(),
+    });
+  }
 }

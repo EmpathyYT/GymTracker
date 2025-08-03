@@ -185,7 +185,7 @@ class _NewWorkoutTileState extends State<NewWorkoutTile>
     );
     if (!valid) {
       final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
-      showErrorSnackBar(context, this, errorMessage!, color);
+      showSnackBar(context, this, errorMessage!, color);
       return;
     } else {
       final exerciseType = ExerciseType(
