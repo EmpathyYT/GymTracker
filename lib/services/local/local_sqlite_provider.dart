@@ -85,7 +85,37 @@ class LocalSqliteProvider implements LocalDatabaseController {
       whereArgs: ['%${query.toLowerCase()}%'],
       limit: 10,
     );
-    log("Found ${maps.length} exercises for query: $query");
+    if (maps.isEmpty) {
+      return [];
+    }
+
+    return maps.map((map) => Exercise.fromMap(map)).toList();
+  }
+
+  @override
+  Future<List<Exercise>> getPrExercises(String query) async {
+    if (database == null) {
+      throw DbNotInitializedException();
+    }
+    final List<String> equipment = [
+      'Barbell',
+      'Dumbbell',
+      'Kettlebell',
+      'Cable',
+      'Bodyweight',
+      'Resistance Band',
+      'Medicine Ball',
+    ];
+
+    final placeholders = List.filled(equipment.length, '?').join(', ');
+
+    final db = await database!;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'exercises',
+      where: 'LOWER(Exercise) LIKE ? AND "Primary Equipment" in ($placeholders)',
+      whereArgs: ['%${query.toLowerCase()}%', ...equipment],
+      limit: 10,
+    );
     if (maps.isEmpty) {
       return [];
     }

@@ -619,8 +619,14 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
-  Future<List<String>> fetchExercises({String filter = ""}) async {
-    final exercises = await localDatabaseController.getExercises(filter);
+  Future<List<String>> fetchExercises({
+    String filter = "",
+    isPr = false,
+  }) async {
+    final exercises =
+        isPr
+            ? (await localDatabaseController.getPrExercises(filter))
+            : (await localDatabaseController.getExercises(filter));
     return exercises.map((e) => e.name).toList();
   }
 

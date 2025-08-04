@@ -8,12 +8,14 @@ class WorkoutSearchSelector extends StatefulWidget {
   final TextEditingController exerciseNameController;
   final List<String> initialExercises;
   final DropDownDecoratorProps? decoratorProps;
+  final bool isPr;
 
   const WorkoutSearchSelector({
     super.key,
     required this.exerciseNameController,
     required this.initialExercises,
     this.decoratorProps,
+    this.isPr = false,
   });
 
   @override
@@ -51,7 +53,13 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
     } else {
       final exercises = await context.read<MainPageCubit>().fetchExercises(
         filter: filter,
+        isPr: isPr,
       );
+
+      if (isPr) {
+        return exercises;
+      }
+
       return exercises.any((e) => e.toLowerCase() == filter.toLowerCase())
             ? exercises
             : exercises
@@ -64,4 +72,6 @@ class _WorkoutSearchSelectorState extends State<WorkoutSearchSelector> {
   List<String> get initialExercises => widget.initialExercises;
 
   DropDownDecoratorProps? get decoratorProps => widget.decoratorProps;
+
+  bool get isPr => widget.isPr;
 }

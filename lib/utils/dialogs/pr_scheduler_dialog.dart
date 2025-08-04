@@ -87,6 +87,7 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
                 "Barbell Low Bar Back Squat",
                 "Barbell Overhead Press",
               ],
+              isPr: true,
             ),
             const SizedBox(height: 16),
             TextField(

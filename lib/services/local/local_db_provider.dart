@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:gymtracker/services/local/local_db_controller.dart';
 import 'package:gymtracker/services/local/local_exercise.dart';
 import 'package:gymtracker/services/local/local_sqlite_provider.dart';
@@ -37,4 +35,8 @@ class LocalDatabaseProvider implements LocalDatabaseController {
 
   @override
   Future<void> loadInitialData(path) => controller.loadInitialData(path);
+
+  @override
+  Future<List<Exercise>> getPrExercises(String query) =>
+      controller.getPrExercises(query);
 }

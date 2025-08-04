@@ -6,5 +6,6 @@ abstract class LocalDatabaseController {
   Future<void> addExercise(Map<String, dynamic> exercise);
   Future<Exercise> getExercise(String name);
   Future<List<Exercise>> getExercises(String query);
+  Future<List<Exercise>> getPrExercises(String query);
 
 }
