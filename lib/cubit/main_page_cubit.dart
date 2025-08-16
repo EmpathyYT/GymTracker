@@ -676,5 +676,33 @@ class MainPageCubit extends Cubit<MainPageState> {
     }
   }
 
+  Future<List<CloudPr>> fetchFinishedPrs() async {
+    try {
+      final prs = await CloudPr.getFinishedPrs(_currentUser.id);
+      return prs;
+    } catch (e) {
+      throw CouldNotFetchPrsException();
+    }
+  }
+
+  Future<List<CloudPr>> fetchPrs() async {
+    try {
+      final prs = await CloudPr.fetchPrs(_currentUser.id);
+      return prs;
+    } catch (e) {
+      throw CouldNotFetchPrsException();
+    }
+  }
+
+  Future<List<CloudPr>> fetchAllPrs() async {
+    try {
+      final prs = await CloudPr.getAllPrs(_currentUser.id);
+      return prs;
+    } catch (e) {
+      log("Could not fetch all PRs: $e");
+      throw CouldNotFetchPrsException();
+    }
+  }
+
   CloudUser get currentUser => _currentUser;
 }

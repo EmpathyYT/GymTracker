@@ -46,7 +46,7 @@ Color darkenColor(Color color, double factor) {
   );
 }
 
-void showSnackBar(
+AnimationController showSnackBar(
     BuildContext context,
     TickerProvider vsync,
     String message,
@@ -92,7 +92,7 @@ void showSnackBar(
   )
       .closed
       .then((_) {
-    controller.dispose();
   });
+  return controller;
 }
 

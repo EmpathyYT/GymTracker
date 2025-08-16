@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/pr_statistics_widget.dart';
 import 'package:gymtracker/utils/widgets/scheduled_prs_widget.dart';
 
 import '../../../constants/code_constraints.dart';
+import '../../../cubit/main_page_cubit.dart';
+import '../../../services/cloud/cloud_pr.dart';
 import '../../../utils/widgets/pr_scheduler_widget.dart';
 
 class PrTrackingWidget extends StatefulWidget {
@@ -17,12 +22,17 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
   final prNameController = TextEditingController()..text = "Select PR Exercise";
   final prDescriptionController = TextEditingController();
 
+  static bool didLoad = false;
+  static List<CloudPr> prsCache = [];
+
+
   TabController? tabViewController;
   DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
+    _getAllPrs();
     tabViewController = TabController(length: 3, vsync: this);
   }
 
@@ -34,50 +44,53 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          toolbarHeight: appBarHeight,
-          scrolledUnderElevation: 0,
+    return LoadingWidgetFlipper(
+      isLoaded: didLoad,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            toolbarHeight: appBarHeight,
+            scrolledUnderElevation: 0,
 
-          title: Padding(
-            padding: const EdgeInsets.only(top: appBarPadding),
-            child: Text(
-              'PR Tracker',
-              style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+            title: Padding(
+              padding: const EdgeInsets.only(top: appBarPadding),
+              child: Text(
+                'PR Tracker',
+                style: GoogleFonts.oswald(fontSize: appBarTitleSize),
+              ),
+            ),
+            bottom: TabBar(
+              controller: tabViewController,
+              tabs: [
+                Tab(
+                  child: Text(
+                    "Scheduling",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "Upcoming",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    "Statistics",
+                    style: GoogleFonts.oswald(fontSize: 19),
+                  ),
+                ),
+              ],
             ),
           ),
-          bottom: TabBar(
-            controller: tabViewController,
-            tabs: [
-              Tab(
-                child: Text(
-                  "PR Scheduling",
-                  style: GoogleFonts.oswald(fontSize: 19),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "Scheduled PRs",
-                  style: GoogleFonts.oswald(fontSize: 19),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "PR History",
-                  style: GoogleFonts.oswald(fontSize: 19),
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: TabBarView(
-            controller: tabViewController,
-            children: _bodyWidgetBuilder(),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: TabBarView(
+              controller: tabViewController,
+              children: _bodyWidgetBuilder(),
+            ),
           ),
         ),
       ),
@@ -93,8 +106,23 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
           tabViewController!.animateTo(1);
         },
       ),
-      const ScheduledPrsWidget(),
-      Text("data"),
+      ScheduledPrsWidget(cache: prsCache),
+      PrStatisticsWidget(cache: prsCache),
     ];
+  }
+
+  Future<void> _getAllPrs() async {
+    Future<List<CloudPr>> fetchAllPrsFuture() async {
+      final cubit = context.read<MainPageCubit>();
+      final prs = await cubit.fetchAllPrs();
+      return prs;
+    }
+
+    fetchAllPrsFuture().then((val) {
+      setState(() {
+        prsCache = val;
+        didLoad = true;
+      });
+    });
   }
 }

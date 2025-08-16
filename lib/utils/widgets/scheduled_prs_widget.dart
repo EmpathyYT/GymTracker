@@ -1,22 +1,19 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
 import 'package:gymtracker/utils/widgets/scheduled_pr_list_tile.dart';
 
 import '../../services/cloud/cloud_pr.dart';
 
 class ScheduledPrsWidget extends StatelessWidget {
-  static List<CloudPr>? _cache;
+  final List<CloudPr> cache;
 
-  const ScheduledPrsWidget({super.key});
+  const ScheduledPrsWidget({super.key, required this.cache});
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<MainPageCubit>().currentUser.id;
+    final scheduledPrs = cache.where((pr) => pr.actualWeight == null).toList();
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -29,44 +26,18 @@ class ScheduledPrsWidget extends StatelessWidget {
               builder: (context, constraints) {
                 return SizedBox(
                   height: constraints.maxHeight * 0.92,
-                  child: FutureBuilder(
-                    future: CloudPr.fetchPrs(userId),
-                    initialData: _cache,
-                    builder: (context, snapshot) {
-                      final loaded =
-                          snapshot.connectionState == ConnectionState.done;
-
-                      if (snapshot.hasError) {
-                        return const BigAbsoluteCenteredText(
-                          text: "Error loading scheduled PRs",
-                        );
-                      }
-                      final data = snapshot.data;
-                      if (data != null) {
-                        if (!const DeepCollectionEquality().equals(
-                          data,
-                          _cache,
-                        )) {
-                          _cache = List.from(data);
-                        }
-                      }
-                      return LoadingWidgetFlipper(
-                        isLoaded: loaded || _cache != null,
-                        child: DoubleWidgetFlipper(
-                          buildOne: ({child, children}) => child!,
-                          buildTwo: ({child, children}) => child!,
-                          isOneChild: true,
-                          isTwoChild: true,
-                          flipToTwo: (data ?? []).isNotEmpty,
-                          childrenIfOne: const [
-                            BigAbsoluteCenteredText(
-                              text: "You have no scheduled PRs",
-                            ),
-                          ],
-                          childrenIfTwo: [_buildBody(context, data ?? [])],
-                        ),
-                      );
-                    },
+                  child: DoubleWidgetFlipper(
+                    buildOne: ({child, children}) => child!,
+                    buildTwo: ({child, children}) => child!,
+                    isOneChild: true,
+                    isTwoChild: true,
+                    flipToTwo: (scheduledPrs ?? []).isNotEmpty,
+                    childrenIfOne: const [
+                      BigAbsoluteCenteredText(
+                        text: "You have no scheduled PRs",
+                      ),
+                    ],
+                    childrenIfTwo: [_buildBody(context, scheduledPrs ?? [])],
                   ),
                 );
               },
@@ -102,11 +73,7 @@ class ScheduledPrsWidget extends StatelessWidget {
               placedBarrier = true;
               return Column(
                 children: [
-                  const Divider(
-                    color: Colors.grey,
-                    height: 1,
-                    thickness: 0.8,
-                  ),
+                  const Divider(color: Colors.grey, height: 1, thickness: 0.8),
                   ScheduledPrListTile(name: pr.exercise, date: pr.date),
                 ],
               );

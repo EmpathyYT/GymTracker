@@ -122,6 +122,10 @@ abstract class DatabaseController {
     double targetWeight,
   );
 
+  Future<List<CloudPr>> getFinishedPrs(userId);
+
+  Future<List<CloudPr>> getAllPrs(userId);
+
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;

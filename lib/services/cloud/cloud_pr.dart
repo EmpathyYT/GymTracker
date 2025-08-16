@@ -37,4 +37,13 @@ class CloudPr {
   ) async {
     await dbController.addPr(userId, exercise, date, targetWeight);
   }
+
+  static Future<List<CloudPr>> getFinishedPrs(userId) async {
+    return await dbController.getFinishedPrs(userId);
+  }
+
+  static Future<List<CloudPr>> getAllPrs(userId) async {
+    return await dbController.getAllPrs(userId);
+  }
+
 }

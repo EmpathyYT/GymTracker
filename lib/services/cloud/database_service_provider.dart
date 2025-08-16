@@ -207,4 +207,13 @@ class DatabaseServiceProvider implements DatabaseController {
     DateTime date,
     double targetWeight,
   ) => _provider.addPr(exercise, userId, date, targetWeight);
+
+  @override
+  Future<List<CloudPr>> getFinishedPrs(userId) async =>
+      await _provider.getFinishedPrs(userId);
+
+  @override
+  Future<List<CloudPr>> getAllPrs(userId) async => _provider.getAllPrs(userId);
+
+
 }

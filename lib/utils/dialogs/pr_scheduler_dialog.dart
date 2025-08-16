@@ -27,6 +27,18 @@ class PrSchedulerDialog extends StatefulWidget {
 
 class _PrSchedulerDialogState extends State<PrSchedulerDialog>
     with TickerProviderStateMixin {
+  // Collecting all controllers to dispose them after the dialog is closed
+  // This is necessary to avoid memory leaks and ensure proper cleanup
+  final controllerLists = <AnimationController>[];
+
+  @override
+  void dispose() {
+    for (var controller in controllerLists) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -124,34 +136,32 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
           onPressed: () {
             final weightError = _validateWeightInput(prWeightController.text);
             if (weightError != null || prNameController.text.isEmpty) {
-              showSnackBar(
-                context,
-                this,
-                weightError ?? "Please enter the target weight for the PR.",
-                darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+              controllerLists.add(
+                showSnackBar(
+                  context,
+                  this,
+                  weightError ?? "Please enter the target weight for the PR.",
+                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                ),
               );
             } else {
-              Navigator.pop(context, true);
               try {
                 context.read<MainPageCubit>().addPr(
                   prNameController.text,
-                  prDate,
+                  prDate
+                      .copyWith(hour: prTime.hour, minute: prTime.minute)
+                      .toUtc(),
                   double.parse(prWeightController.text),
                 );
-
-                showSnackBar(
-                  context,
-                  this,
-                  "PR scheduled successfully!",
-                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
-                );
-
+                Navigator.pop(context, true);
               } catch (e) {
-                showSnackBar(
-                  context,
-                  this,
-                  "An unexpected error occurred while scheduling the PR.",
-                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                controllerLists.add(
+                  showSnackBar(
+                    context,
+                    this,
+                    "An unexpected error occurred while scheduling the PR.",
+                    darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                  ),
                 );
               }
             }

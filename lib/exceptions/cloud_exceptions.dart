@@ -124,3 +124,7 @@ class AlreadyFinishedWorkoutException implements Exception {
 class CouldNotSchedulePrException implements Exception {
   final String message = 'Could not schedule PR';
 }
+
+class CouldNotFetchPrsException implements Exception {
+  final String message = 'Could not fetch PRs';
+}

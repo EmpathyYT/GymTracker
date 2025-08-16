@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,7 +23,24 @@ class ScheduledPrListTile extends StatefulWidget {
 
 class _ScheduledPrListTileState extends State<ScheduledPrListTile>
     with TickerProviderStateMixin {
-  Animation<Color?>? anim;
+  late final AnimationController _controller;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+  }
+
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +57,10 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
 
   Widget _getTrailingText() {
     if (DateTime.now().isAfter(date)) {
+      const red = Colors.red;
+      final darkenedColor = darkenColor(red, 0.5);
       return AnimatedBuilder(
-        animation: anim!,
+        animation: _controller,
         builder: (context, child) {
           return Text(
             date.toDateWithoutTime(),
@@ -47,7 +68,7 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
               fontSize: 19,
               color: Colors.white60,
               decoration: TextDecoration.lineThrough,
-              decorationColor: anim!.value,
+              decorationColor: Color.lerp(red, darkenedColor, _controller.value),
               decorationThickness: 2,
             ),
           );
@@ -64,16 +85,17 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
   Widget? _getSubtitle() {
     final now = DateTime.now();
     final difference = date.difference(now);
+    const color = Colors.red;
+    final darkenedColor = darkenColor(color, 0.5);
     if (difference.isNegative) {
-      _buildAndStartAnimation(Colors.red, darkenColor(Colors.red, 0.5));
       return AnimatedBuilder(
-        animation: anim!,
+        animation: _controller,
         builder: (context, child) {
           return Text(
             "Awaiting PR Confirmation",
             style: TextStyle(
               fontSize: 14,
-              color: anim!.value,
+              color: Color.lerp(color, darkenedColor, _controller.value),
               fontWeight: FontWeight.w700,
             ),
           );
@@ -83,15 +105,15 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
       final days = _getCeilDays();
       if (days <= 7) {
         final color = _colorBuilder();
-        _buildAndStartAnimation(color, darkenColor(color, 0.5));
+        final darkenedColor = darkenColor(color, 0.5);
         return AnimatedBuilder(
-          animation: anim!,
+          animation: _controller,
           builder: (BuildContext context, Widget? child) {
             return Text(
               _getSubtitleText(days),
               style: TextStyle(
                 fontSize: 14,
-                color: anim!.value,
+                color: Color.lerp(color, darkenedColor, _controller.value),
                 fontWeight: FontWeight.w700,
               ),
             );
@@ -125,16 +147,5 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
     final user = context.read<MainPageCubit>().currentUser;
     final color = frostColorBuilder(user.level);
     return color;
-  }
-
-  void _buildAndStartAnimation(Color color1, Color color2) {
-    final controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    );
-
-    anim = ColorTween(begin: color1, end: color2).animate(controller);
-
-    controller.repeat(reverse: true);
   }
 }

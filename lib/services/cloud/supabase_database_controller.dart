@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/constants/cloud_contraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
@@ -631,11 +633,37 @@ class SupabaseDatabaseController implements DatabaseController {
     double targetWeight,
   ) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
+    log(
+      "Adding PR: $exercise, $userId, $date, $targetWeight",
+    );
     await _supabase.from(prTableName).insert({
       userIdFieldName: userId,
       exerciseNameFieldName: exercise,
       prTargetWeightFieldName: targetWeight,
       prDateFieldName: date.toIso8601String(),
     });
+  }
+
+  @override
+  Future<List<CloudPr>> getFinishedPrs(userId) {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    return _supabase
+        .from(prTableName)
+        .select()
+        .eq(userIdFieldName, userId)
+        .not(prActualWeightFieldName, "is", null)
+        .order(prDateFieldName, ascending: false)
+        .then((value) => value.map((e) => CloudPr.fromSupabaseMap(e)).toList());
+  }
+
+  @override
+  Future<List<CloudPr>> getAllPrs(userId) {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    return _supabase
+        .from(prTableName)
+        .select()
+        .eq(userIdFieldName, userId)
+        .order(prDateFieldName, ascending: false)
+        .then((value) => value.map((e) => CloudPr.fromSupabaseMap(e)).toList());
   }
 }
