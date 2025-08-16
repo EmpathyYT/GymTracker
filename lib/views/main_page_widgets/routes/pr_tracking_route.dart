@@ -22,9 +22,8 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
   final prNameController = TextEditingController()..text = "Select PR Exercise";
   final prDescriptionController = TextEditingController();
 
-  static bool didLoad = false;
+  bool didLoad = false;
   static List<CloudPr> prsCache = [];
-
 
   TabController? tabViewController;
   DateTime selectedDate = DateTime.now();
@@ -102,7 +101,8 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
       PrSchedulerWidget(
         prNameController: prNameController,
         prDescriptionController: prDescriptionController,
-        onPrScheduled: () {
+        onPrScheduled: () async {
+          await _getAllPrs();
           tabViewController!.animateTo(1);
         },
       ),
