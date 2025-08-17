@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +26,7 @@ class PrStatisticsWidget extends StatefulWidget {
 class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   final PageController _pageController = PageController(initialPage: 0);
   final PointsData _pointsData = {};
-  late final int userLevel;
+  late int userLevel;
   late bool isDataSameYear;
   List<LineChartBarData> _pointsToDraw = [];
 
@@ -92,7 +90,10 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       _pointsData[exerciseName] ??= Tuple2([], []);
       final actualWeight = pr.actualWeight;
       final estimatedWeight = pr.targetWeight;
-      final dateInMilliseconds = pr.date.toLocal().millisecondsSinceEpoch; //todo use day system instead of ms
+      final dateInMilliseconds =
+          pr.date
+              .toLocal()
+              .millisecondsSinceEpoch; //todo use day system instead of ms
 
       //item 1 is the estimated weight, item 2 is the actual weight
       _pointsData[exerciseName]!.item1.add(
@@ -164,8 +165,54 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
             rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
+            topTitles: AxisTitles(
+              sideTitles: const SideTitles(showTitles: false),
+              axisNameSize: 30,
+              axisNameWidget: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(
+                      width: 15,
+                      child: CustomPaint(
+                        painter: StrikePainter(
+                          strikeWidth: 12,
+                          strikeHeight: 2,
+                          gradient: LinearGradient(
+                            colors: [Colors.red, Colors.orangeAccent],
+                          ),
+                          gapSize: 3,
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left:8.0),
+                      child: Text("Estimated"),
+                    ),
+                    const SizedBox(width: 20),
+                    SizedBox(
+                      width: 15,
+                      child: CustomPaint(
+                        painter: StrikePainter(
+                          strikeWidth: 15,
+                          strikeHeight: 2,
+                          gradient: LinearGradient(
+                            colors: [
+                              borderColors.first.item1,
+                              frostColorBuilder(userLevel),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text("Actual"),
+                    ),
+                  ],
+                ),
+              ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
@@ -377,4 +424,56 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   List<CloudPr> get prCache => widget.cache;
+}
+
+class StrikePainter extends CustomPainter {
+  final double strikeWidth;
+  final Gradient gradient;
+  final double strikeHeight;
+  final double? gapSize;
+
+  const StrikePainter({
+    required this.gradient,
+    required this.strikeWidth,
+    required this.strikeHeight,
+    this.gapSize,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint =
+        Paint()
+          ..shader = gradient.createShader(
+            Rect.fromLTWH(0, 0, strikeWidth, strikeHeight),
+          )
+          ..strokeWidth = strikeHeight
+          ..style = PaintingStyle.stroke;
+
+    if (gapSize != null && gapSize! > 0) {
+      final path =
+          Path()
+            ..moveTo(0, strikeHeight / 2)
+            ..lineTo(strikeWidth / 2, strikeHeight / 2)
+            ..moveTo(strikeWidth / 2 + gapSize!, strikeHeight / 2)
+            ..lineTo(strikeWidth + gapSize!, strikeHeight / 2);
+
+      canvas.drawPath(path, paint);
+      return;
+    }
+
+    final path =
+        Path()
+          ..moveTo(0, strikeHeight / 2)
+          ..lineTo(strikeWidth, strikeHeight / 2);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return oldDelegate is StrikePainter &&
+        (oldDelegate.strikeWidth != strikeWidth ||
+            oldDelegate.strikeHeight != strikeHeight ||
+            oldDelegate.gradient != gradient);
+  }
 }

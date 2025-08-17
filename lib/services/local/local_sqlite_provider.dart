@@ -100,11 +100,8 @@ class LocalSqliteProvider implements LocalDatabaseController {
     final List<String> equipment = [
       'Barbell',
       'Dumbbell',
-      'Kettlebell',
-      'Cable',
       'Bodyweight',
-      'Resistance Band',
-      'Medicine Ball',
+      'Trap Bar'
     ];
 
     final placeholders = List.filled(equipment.length, '?').join(', ');
