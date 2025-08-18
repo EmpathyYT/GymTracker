@@ -63,14 +63,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   Widget _buildStatisticsWidgets() {
-    final finishedPrs =
-        prCache
-            .where(
-              (pr) =>
-                  pr.actualWeight != null &&
-                  countPrsOfSameExercise(pr.exercise) > 1,
-            )
-            .toList();
+    final finishedPrs = _prsToBuild(prCache);
 
     if (finishedPrs.isEmpty) {
       return const Expanded(
@@ -187,7 +180,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
                       ),
                     ),
                     const Padding(
-                      padding: EdgeInsets.only(left:8.0),
+                      padding: EdgeInsets.only(left: 8.0),
                       child: Text("Estimated"),
                     ),
                     const SizedBox(width: 20),
@@ -419,10 +412,6 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
     return Color.lerp(colors.first, colors.last, clampedT)!;
   }
 
-  int countPrsOfSameExercise(String exerciseName) {
-    return prCache.where((pr) => pr.exercise == exerciseName).length;
-  }
-
   List<CloudPr> get prCache => widget.cache;
 }
 
@@ -476,4 +465,18 @@ class StrikePainter extends CustomPainter {
             oldDelegate.strikeHeight != strikeHeight ||
             oldDelegate.gradient != gradient);
   }
+}
+int countPrsOfSameExercise(List<CloudPr> cache, String exerciseName) {
+  return cache.where((pr) => pr.exercise == exerciseName).length;
+}
+
+List<CloudPr> _prsToBuild(List<CloudPr> cache) {
+  return cache
+      .where(
+        (pr) =>
+    pr.actualWeight != null &&
+        countPrsOfSameExercise(cache, pr.exercise) > 1,
+  )
+      .toList();
+
 }
