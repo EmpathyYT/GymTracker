@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -287,14 +289,33 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   bool _toDraw(int index, List<FlSpot> spots) {
-    if (spots.length <= 5) return true;
     if (index == 0 || index == spots.length - 1) return true;
+    if (spots.length <= 5) {
+      return !_dateDrawnAlready(index, spots);
+    }
 
     final lengthToPickFrom = spots.length - 2;
-
     final step = (lengthToPickFrom / 3).ceil();
 
-    return index % step == 0;
+    return index % step == 0 && !_dateDrawnAlready(index, spots);
+  }
+
+  bool _dateDrawnAlready(int index, List<FlSpot> spots) {
+    final page = _pageController.page?.round() ?? 0;
+    final safeIndex = page % _pointsData.length;
+    final pointList = _pointsData.values.elementAt(safeIndex).item1;
+    final originalData = pointList[index];
+    final originalDate = DateTime.fromMillisecondsSinceEpoch(
+      originalData.item2,
+    );
+    final splicedList = pointList.sublist(0, index);
+    return splicedList.any(
+      (data) =>
+          DateTime.fromMillisecondsSinceEpoch(data.item2).month ==
+              originalDate.month &&
+          DateTime.fromMillisecondsSinceEpoch(data.item2).year ==
+              originalDate.year,
+    );
   }
 
   void _prSorter(List<CloudPr> finishedPrs) {
