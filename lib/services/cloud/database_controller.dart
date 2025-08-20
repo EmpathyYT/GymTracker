@@ -46,7 +46,7 @@ abstract class DatabaseController {
 
   Future<List<CloudKinRequest>> fetchFriendRequests(userId);
 
-  Future<List<CloudSquadRequest>> fetchServerRequests(userId);
+  Future<List<CloudSquadRequest>> fetchSquadRequests(userId);
 
   Stream<List<CloudUser>> fetchUsersForSearch(String query);
 

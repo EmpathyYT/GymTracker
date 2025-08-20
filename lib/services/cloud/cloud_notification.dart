@@ -259,7 +259,7 @@ class CloudSquadRequest extends CloudRequest {
   CloudSquadRequest.fromMap(Map<String, dynamic> map)
     : serverId = map[serverIdFieldName].toString(),
       super(
-        id: map[idFieldName],
+        id: map[idFieldName].toString(),
         fromUser: map[sendingUserFieldName].toString(),
         toUser: map[recipientFieldName].toString(),
         read: map[readFieldName],
@@ -297,8 +297,8 @@ class CloudSquadRequest extends CloudRequest {
     dbController.sendServerRequest(fromUser, toUser, serverId);
   }
 
-  static Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
-    return dbController.fetchServerRequests(userId);
+  static Future<List<CloudSquadRequest>> fetchSquadRequests(userId) async {
+    return dbController.fetchSquadRequests(userId);
   }
 
   static Future<List<CloudSquadRequest>> fetchSendingSquadRequests(

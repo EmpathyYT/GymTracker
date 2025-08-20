@@ -252,7 +252,7 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudSquadRequest>> fetchServerRequests(userId) async {
+  Future<List<CloudSquadRequest>> fetchSquadRequests(userId) async {
     final data = await _supabase
         .from(pendingServerRequestsTableName)
         .select()

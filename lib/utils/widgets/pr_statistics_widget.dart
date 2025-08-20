@@ -77,32 +77,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       );
     }
     _pointsData.clear();
-    for (final pr in finishedPrs) {
-      final exerciseName = pr.exercise;
-      // ignore: prefer_const_constructors
-      _pointsData[exerciseName] ??= Tuple2([], []);
-      final actualWeight = pr.actualWeight;
-      final estimatedWeight = pr.targetWeight;
-      final dateInMilliseconds =
-          pr.date
-              .toLocal()
-              .millisecondsSinceEpoch; //todo use day system instead of ms
-
-      //item 1 is the estimated weight, item 2 is the actual weight
-      _pointsData[exerciseName]!.item1.add(
-        Tuple2(estimatedWeight, dateInMilliseconds),
-      );
-      _pointsData[exerciseName]!.item2.add(
-        Tuple2(actualWeight!, dateInMilliseconds),
-      );
-      final currentPrsData = _pointsData.values.elementAt(0).item1;
-
-      if (currentPrsData.any((pr) => _checkIsCurrentYear(pr.item2))) {
-        isDataSameYear = true;
-      } else {
-        isDataSameYear = false;
-      }
-    }
+    _prSorter(finishedPrs);
     final keys = _pointsData.keys.toList();
     final titleCarousel = Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -154,6 +129,56 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       child: LineChart(
         LineChartData(
           lineBarsData: _pointsToDraw,
+          lineTouchData: LineTouchData(
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipColor: (spot) => Colors.black87,
+              getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                final touchedSpot = touchedSpots.first;
+                final index = _pageController.page?.round() ?? 0;
+
+                final safeIndex = index % _pointsData.length;
+                final exerciseName = _pointsData.keys.elementAt(safeIndex);
+                final points = _pointsData[exerciseName];
+                final estimatedSpot = points!.item1[touchedSpot.x.toInt() - 1];
+                final actualSpot = points.item2[touchedSpot.x.toInt() - 1];
+                final pointDate = DateTime.fromMillisecondsSinceEpoch(
+                  estimatedSpot.item2,
+                );
+                final day = pointDate.day.toString().padLeft(2, '0');
+                final month = DateFormat("MMM").format(pointDate);
+                final year = pointDate.year.toString().substring(2);
+                final dateToDisplay =
+                    isDataSameYear ? "$day-$month" : "$day-$month\n$year";
+                final sortedWeights = [estimatedSpot.item1, actualSpot.item1]
+                  ..sort((a, b) => -a.compareTo(b));
+
+                return <LineTooltipItem>[
+                  LineTooltipItem(
+                    "$dateToDisplay\n${sortedWeights[0]}",
+                    TextStyle(
+                      color: _resolvePointColor(
+                        sortedWeights[0],
+                        touchedSpot.x.toInt(),
+                        touchedSpots,
+                      ),
+                    ),
+                  ),
+                  LineTooltipItem(
+                    sortedWeights[1].toString(),
+                    TextStyle(
+                      color: _resolvePointColor(
+                        sortedWeights[1],
+                        touchedSpot.x.toInt(),
+                        touchedSpots,
+                      ),
+                    ),
+                  ),
+                ];
+              },
+            ),
+          ),
           titlesData: FlTitlesData(
             rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
@@ -209,14 +234,15 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
-                reservedSize: 30,
+                reservedSize: 44,
                 showTitles: true,
-                interval: const Duration(days: 1).inMilliseconds.toDouble(),
                 getTitlesWidget: (val, metaData) {
                   final hasDot = _pointsToDraw.any(
                     (bar) => bar.spots.any((s) => (s.x - val).abs() < 0.5),
                   );
-                  if (!hasDot) {
+                  final spots = _pointsToDraw.first.spots;
+                  if (!hasDot || !_toDraw(val.toInt() - 1, spots)) {
+                    // If the dot does not exist or the month already exists,
                     return const SizedBox.shrink();
                   }
                   return _generateBottomAxisWidgets(val, metaData);
@@ -232,6 +258,69 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [titleCarousel, const SizedBox(height: 20), graphWidget],
     );
+  }
+
+  Color _resolvePointColor(double weight, int x, List<LineBarSpot> spots) {
+    // Find the exact touched spot from the provided list
+    final match = spots.firstWhere(
+      (s) => s.x == x.toDouble() && s.y == weight,
+      orElse: () => spots.first,
+    );
+
+    final bar = match.bar;
+    final barSpots = bar.spots;
+    final idx = barSpots.indexWhere((fl) => fl.x == match.x && fl.y == match.y);
+    final dots = barSpots.length;
+    final t = (dots <= 1 || idx < 0) ? 1.0 : idx / (dots - 1);
+
+    List<Color> colors;
+    if (bar.gradient is LinearGradient) {
+      colors = (bar.gradient as LinearGradient).colors;
+    } else {
+      colors = [Colors.grey, Colors.grey];
+    }
+
+    if (colors.length < 2) {
+      return colors.first;
+    }
+    return _lerpGradient(colors, t);
+  }
+
+  bool _toDraw(int index, List<FlSpot> spots) {
+    if (spots.length <= 5) return true;
+    if (index == 0 || index == spots.length - 1) return true;
+
+    final lengthToPickFrom = spots.length - 2;
+
+    final step = (lengthToPickFrom / 3).ceil();
+
+    return index % step == 0;
+  }
+
+  void _prSorter(List<CloudPr> finishedPrs) {
+    for (final pr in finishedPrs) {
+      final exerciseName = pr.exercise;
+      // ignore: prefer_const_constructors
+      _pointsData[exerciseName] ??= Tuple2([], []);
+      final actualWeight = pr.actualWeight;
+      final estimatedWeight = pr.targetWeight;
+      final dateInMilliseconds = pr.date.toLocal().millisecondsSinceEpoch;
+
+      //item 1 is the estimated weight, item 2 is the actual weight
+      _pointsData[exerciseName]!.item1.add(
+        Tuple2(estimatedWeight, dateInMilliseconds),
+      );
+      _pointsData[exerciseName]!.item2.add(
+        Tuple2(actualWeight!, dateInMilliseconds),
+      );
+      final currentPrsData = _pointsData.values.elementAt(0).item1;
+
+      if (currentPrsData.any((pr) => _checkIsCurrentYear(pr.item2))) {
+        isDataSameYear = true;
+      } else {
+        isDataSameYear = false;
+      }
+    }
   }
 
   /// Handles navigation arrow taps for the PR statistics `PageView`.
@@ -303,10 +392,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
 
     final estimatedLine = LineChartBarData(
       preventCurveOverShooting: true,
-      spots:
-          estimatedPoints
-              .map((point) => FlSpot(point.item2.toDouble(), point.item1))
-              .toList(),
+      spots: _getGraphSpots(estimatedPoints),
       isCurved: true,
       dashArray: [6, 3],
       gradient: estimatedPointsGradient,
@@ -322,10 +408,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
 
     final actualLine = LineChartBarData(
       preventCurveOverShooting: true,
-      spots:
-          actualPoints
-              .map((point) => FlSpot(point.item2.toDouble(), point.item1))
-              .toList(),
+      spots: _getGraphSpots(actualPoints),
       isCurved: true,
       gradient: actualPointsGradient,
       barWidth: 2,
@@ -360,12 +443,18 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   Widget _generateBottomAxisWidgets(double value, TitleMeta meta) {
-    final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    final page = _pageController.page?.round() ?? 0;
+    final safeIndex = page % _pointsData.length;
+    final pointList = _pointsData.values.elementAt(safeIndex).item1;
+    final originalData = pointList[value.toInt() - 1];
+
+    final originalDateMs = originalData.item2;
+
+    final date = DateTime.fromMillisecondsSinceEpoch(originalDateMs);
     final month = DateFormat("MMM").format(date);
     final year = date.year.toString().substring(2);
 
-    final dataToDisplay =
-        isDataSameYear ? "${date.day}-$month" : "$year\n${date.day}-$month";
+    final dataToDisplay = isDataSameYear ? month : "$month\n$year";
 
     return SideTitleWidget(
       fitInside: SideTitleFitInsideData.fromTitleMeta(
@@ -373,14 +462,28 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
         distanceFromEdge: 0,
       ),
       meta: meta,
-      space: 10,
-      child: Text(dataToDisplay),
+      child: Text(
+        dataToDisplay,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        softWrap: true,
+        overflow: TextOverflow.visible,
+        style: const TextStyle(fontSize: 12),
+      ),
     );
   }
 
   bool _checkIsCurrentYear(int ms) {
     final date = DateTime.fromMillisecondsSinceEpoch(ms);
     return date.year == DateTime.now().year;
+  }
+
+  List<FlSpot> _getGraphSpots(List<Tuple2<double, int>> points) {
+    final List<FlSpot> spots = [];
+    for (final (index, point) in enumerate(points)) {
+      spots.add(FlSpot(index + 1, point.item1));
+    }
+    return spots;
   }
 
   FlDotData _getDotData(
@@ -466,17 +569,41 @@ class StrikePainter extends CustomPainter {
             oldDelegate.gradient != gradient);
   }
 }
+
 int countPrsOfSameExercise(List<CloudPr> cache, String exerciseName) {
   return cache.where((pr) => pr.exercise == exerciseName).length;
 }
 
 List<CloudPr> _prsToBuild(List<CloudPr> cache) {
-  return cache
-      .where(
-        (pr) =>
-    pr.actualWeight != null &&
-        countPrsOfSameExercise(cache, pr.exercise) > 1,
-  )
-      .toList();
+  final filteredCache =
+      List<CloudPr>.from(
+        cache,
+      ).where((pr) => countPrsOfSameExercise(cache, pr.exercise) > 1).toList();
 
+  filteredCache.sort((a, b) => a.date.compareTo(b.date));
+
+  final List<List<CloudPr>> groupedByExercise = [];
+  final Set<String> exerciseNames =
+      filteredCache.map((pr) => pr.exercise).toSet();
+
+  for (final exerciseName in exerciseNames) {
+    final prsOfSameExercise =
+        filteredCache.where((pr) => pr.exercise == exerciseName).toList();
+    if (prsOfSameExercise.isNotEmpty) {
+      if (prsOfSameExercise.length > 50) {
+        final length = prsOfSameExercise.length;
+        final List<CloudPr> selectedPrs = [];
+        final lastIndex = length - 1;
+        for (int i = 0; i < 50; i++) {
+          final idx = ((i * lastIndex) / 49).round();
+          selectedPrs.add(prsOfSameExercise[idx]);
+        }
+        groupedByExercise.add(selectedPrs);
+      } else {
+        groupedByExercise.add(prsOfSameExercise);
+      }
+    }
+  }
+
+  return [for (final group in groupedByExercise) ...group];
 }

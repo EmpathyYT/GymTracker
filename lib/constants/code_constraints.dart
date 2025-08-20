@@ -96,3 +96,9 @@ AnimationController showSnackBar(
   return controller;
 }
 
+Iterable<(int, T)> enumerate<T>(List<T> list) sync* {
+  for (int i = 0; i < list.length; i++) {
+    yield (i, list[i]);
+  }
+}
+

@@ -199,14 +199,13 @@ class MainPageCubit extends Cubit<MainPageState> {
     if (state.notifications != null) return;
 
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
-
-    final srqData = await CloudSquadRequest.fetchServerRequests(
+    final srqData = await CloudSquadRequest.fetchSquadRequests(
       _currentUser.id,
     );
-
     final achievements = await CloudUserAchievement.fetchUserAchievements(
       _currentUser.id,
     );
+    
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
         krqKeyName: [],
@@ -219,7 +218,6 @@ class MainPageCubit extends Cubit<MainPageState> {
         achievementsKeyName: [],
       },
     };
-
     for (final frq in frqData) {
       if (frq.read) {
         notifications[oldNotifsKeyName]![krqKeyName]!.add(frq);
