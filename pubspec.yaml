@@ -57,6 +57,8 @@ dependencies:
   dropdown_search: ^6.0.2
   path_provider: ^2.1.5
   fl_chart: ^1.0.0
+  share_plus: ^11.1.0
+  image_gallery_saver_plus: ^4.0.1
 
 dev_dependencies:
   build_runner: ^2.4.6

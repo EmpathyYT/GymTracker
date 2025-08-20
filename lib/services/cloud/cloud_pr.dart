@@ -46,4 +46,8 @@ class CloudPr {
     return await dbController.getAllPrs(userId);
   }
 
+  @override
+  String toString() {
+    return 'CloudPr{id: $id, exercise: $exercise, date: $date, targetWeight: $targetWeight, actualWeight: $actualWeight}';
+  }
 }

@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gymtracker/helpers/chart_printer.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
 import 'package:intl/intl.dart';
@@ -25,21 +24,28 @@ class PrStatisticsWidget extends StatefulWidget {
   State<PrStatisticsWidget> createState() => _PrStatisticsWidgetState();
 }
 
-class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
+class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
+    with TickerProviderStateMixin {
   final PageController _pageController = PageController(initialPage: 0);
+  final GlobalKey _chartKey = GlobalKey();
   final PointsData _pointsData = {};
-  late int userLevel;
-  late bool isDataSameYear;
+  late final List<CloudPr> _finishedPrs;
+  late int _userLevel;
+  late bool _isDataSameYear;
+  late double _graphMinY;
+  late double _graphMaxY;
+  late double _graphMaxX;
+
+  final Duration _animationDuration = const Duration();
   List<LineChartBarData> _pointsToDraw = [];
+  bool _isInitialBuild = true;
 
   @override
   void initState() {
+    _finishedPrs = _prsToBuild(prCache);
+    _prSorter(_finishedPrs);
+    _setGraphBounds();
     super.initState();
-    _pageController.addListener(() {
-      if (_pageController.page != null) {
-        _changeDataOnNavigation();
-      }
-    });
   }
 
   @override
@@ -51,7 +57,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   @override
   void didChangeDependencies() {
     final cubit = context.read<MainPageCubit>();
-    userLevel = cubit.currentUser.level;
+    _userLevel = cubit.currentUser.level;
     super.didChangeDependencies();
   }
 
@@ -65,9 +71,8 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   Widget _buildStatisticsWidgets() {
-    final finishedPrs = _prsToBuild(prCache);
-
-    if (finishedPrs.isEmpty) {
+    _initialBuild();
+    if (_finishedPrs.isEmpty) {
       return const Expanded(
         child: Stack(
           children: [
@@ -78,188 +83,68 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
         ),
       );
     }
-    _pointsData.clear();
-    _prSorter(finishedPrs);
-    final keys = _pointsData.keys.toList();
-    final titleCarousel = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          onPressed: () => _navigationArrowCallback(NavigationType.left, keys),
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-        Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
-            height: 50,
-            child: PageView.builder(
-              controller: _pageController,
-              itemBuilder: (context, index) {
-                final keyList = _pointsData.keys.toList();
-                if (keyList.isEmpty) return const SizedBox.shrink();
-                final safeIndex = index % keyList.length;
-
-                return Center(
-                  child: AutoSizeText(
-                    maxFontSize: 15,
-                    minFontSize: 8,
-                    keyList[safeIndex],
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: () => _navigationArrowCallback(NavigationType.right, keys),
-          icon: const Icon(Icons.arrow_forward_ios),
-        ),
-      ],
-    );
-    _pointsToDraw = _buildLineChartData(_pointsData.keys.first, _pointsData);
-
+    final chartBg = Theme.of(context).scaffoldBackgroundColor;
     final graphWidget = SizedBox(
       width: MediaQuery.of(context).size.width * 0.8,
       height: MediaQuery.of(context).size.height * 0.3,
-      child: LineChart(
-        LineChartData(
-          lineBarsData: _pointsToDraw,
-          lineTouchData: LineTouchData(
-            enabled: true,
-            handleBuiltInTouches: true,
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (spot) => Colors.black87,
-              getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                final touchedSpot = touchedSpots.first;
-                final index = _pageController.page?.round() ?? 0;
-
-                final safeIndex = index % _pointsData.length;
-                final exerciseName = _pointsData.keys.elementAt(safeIndex);
-                final points = _pointsData[exerciseName];
-                final estimatedSpot = points!.item1[touchedSpot.x.toInt() - 1];
-                final actualSpot = points.item2[touchedSpot.x.toInt() - 1];
-                final pointDate = DateTime.fromMillisecondsSinceEpoch(
-                  estimatedSpot.item2,
-                );
-                final day = pointDate.day.toString().padLeft(2, '0');
-                final month = DateFormat("MMM").format(pointDate);
-                final year = pointDate.year.toString().substring(2);
-                final dateToDisplay =
-                    isDataSameYear ? "$day-$month" : "$day-$month\n$year";
-                final sortedWeights = [estimatedSpot.item1, actualSpot.item1]
-                  ..sort((a, b) => -a.compareTo(b));
-
-                return <LineTooltipItem>[
-                  LineTooltipItem(
-                    "$dateToDisplay\n${sortedWeights[0]}",
-                    TextStyle(
-                      color: _resolvePointColor(
-                        sortedWeights[0],
-                        touchedSpot.x.toInt(),
-                        touchedSpots,
-                      ),
-                    ),
-                  ),
-                  LineTooltipItem(
-                    sortedWeights[1].toString(),
-                    TextStyle(
-                      color: _resolvePointColor(
-                        sortedWeights[1],
-                        touchedSpot.x.toInt(),
-                        touchedSpots,
-                      ),
-                    ),
-                  ),
-                ];
-              },
-            ),
-          ),
-          titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: AxisTitles(
-              sideTitles: const SideTitles(showTitles: false),
-              axisNameSize: 30,
-              axisNameWidget: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(
-                      width: 15,
-                      child: CustomPaint(
-                        painter: StrikePainter(
-                          strikeWidth: 12,
-                          strikeHeight: 2,
-                          gradient: LinearGradient(
-                            colors: [Colors.red, Colors.orangeAccent],
-                          ),
-                          gapSize: 3,
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Text("Estimated"),
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 15,
-                      child: CustomPaint(
-                        painter: StrikePainter(
-                          strikeWidth: 15,
-                          strikeHeight: 2,
-                          gradient: LinearGradient(
-                            colors: [
-                              borderColors.first.item1,
-                              frostColorBuilder(userLevel),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Text("Actual"),
-                    ),
-                  ],
-                ),
+      child: Material(
+        color: chartBg,
+        child: RepaintBoundary(
+          key: _chartKey,
+          child: LineChart(
+            LineChartData(
+              backgroundColor: chartBg,
+              maxX: _graphMaxX,
+              maxY: _graphMaxY,
+              minY: _graphMinY,
+              lineBarsData: _pointsToDraw,
+              lineTouchData: LineTouchData(
+                enabled: true,
+                handleBuiltInTouches: true,
+                touchTooltipData: toolTipData,
               ),
+              titlesData: flTitlesData,
             ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                reservedSize: 44,
-                showTitles: true,
-                getTitlesWidget: (val, metaData) {
-                  final hasDot = _pointsToDraw.any(
-                    (bar) => bar.spots.any((s) => (s.x - val).abs() < 0.5),
-                  );
-                  final spots = _pointsToDraw.first.spots;
-                  if (!hasDot || !_toDraw(val.toInt() - 1, spots)) {
-                    // If the dot does not exist or the month already exists,
-                    return const SizedBox.shrink();
-                  }
-                  return _generateBottomAxisWidgets(val, metaData);
-                },
-              ),
-            ),
+            curve: Curves.fastEaseInToSlowEaseOut,
+            duration: _animationDuration,
           ),
         ),
       ),
     );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [titleCarousel, const SizedBox(height: 20), graphWidget],
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          graphChangingWidget,
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.only(right: 30),
+            child: graphWidget,
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  shareButton,
+                  const SizedBox(width: 15),
+                  downloadButton,
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  void _initialBuild() {
+    if (_isInitialBuild) {
+      _pointsToDraw = _buildLineChartData(currentExercises.key, _pointsData);
+      _isInitialBuild = false;
+    }
   }
 
   Color _resolvePointColor(double weight, int x, List<LineBarSpot> spots) {
@@ -337,9 +222,9 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       final currentPrsData = _pointsData.values.elementAt(0).item1;
 
       if (currentPrsData.any((pr) => _checkIsCurrentYear(pr.item2))) {
-        isDataSameYear = true;
+        _isDataSameYear = true;
       } else {
-        isDataSameYear = false;
+        _isDataSameYear = false;
       }
     }
   }
@@ -397,10 +282,33 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
     }
   }
 
+  void _setGraphBounds() {
+    final currentExercise = currentExercises.key;
+    final dataToUse = _pointsData[currentExercise]!;
+    final resultList = [];
+    for (final tuple in dataToUse.item1) {
+      resultList.add(tuple.item1);
+    }
+
+    for (final tuple in dataToUse.item2) {
+      resultList.add(tuple.item1);
+    }
+
+    _graphMaxY =
+        resultList.isNotEmpty ? resultList.reduce((a, b) => a > b ? a : b) : 0;
+
+    _graphMinY =
+        resultList.isNotEmpty ? resultList.reduce((a, b) => a < b ? a : b) : 0;
+
+    _graphMaxX =
+        dataToUse.item1.isNotEmpty ? dataToUse.item1.length.toDouble() : 0;
+  }
+
   List<LineChartBarData> _buildLineChartData(
     String exercise,
-    PointsData pointsData,
-  ) {
+    PointsData pointsData, {
+    bool show = true,
+  }) {
     final estimatedPoints = pointsData[exercise]!.item1;
     final actualPoints = pointsData[exercise]!.item2;
 
@@ -408,7 +316,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       colors: [Colors.red, Colors.orangeAccent],
     );
     final actualPointsGradient = LinearGradient(
-      colors: [borderColors.first.item1, frostColorBuilder(userLevel)],
+      colors: [borderColors.first.item1, frostColorBuilder(_userLevel)],
     );
 
     final estimatedLine = LineChartBarData(
@@ -418,6 +326,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       dashArray: [6, 3],
       gradient: estimatedPointsGradient,
       barWidth: 2,
+      show: show,
       belowBarData: BarAreaData(show: false),
       dotData: _getDotData(
         true,
@@ -433,6 +342,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
       isCurved: true,
       gradient: actualPointsGradient,
       barWidth: 2,
+      show: show,
       belowBarData: BarAreaData(show: false),
       dotData: _getDotData(
         false,
@@ -445,19 +355,20 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
     return [estimatedLine, actualLine];
   }
 
-  void _changeDataOnNavigation() {
+  void _changeDataOnNavigation(int index) {
     final rawPage = _pageController.page?.round() ?? 0;
-    final keyCount = _pointsData.keys.length;
+    final keyCount = keyList.length;
     if (keyCount == 0) return;
 
     final page = rawPage % keyCount;
     final exercise = _pointsData.keys.elementAt(page);
     final pointsToDraw = _buildLineChartData(exercise, _pointsData);
-
     final currentPrsData = _pointsData.values.elementAt(page).item1;
+
     setState(() {
+      _setGraphBounds();
       _pointsToDraw = pointsToDraw;
-      isDataSameYear = currentPrsData.any(
+      _isDataSameYear = currentPrsData.any(
         (pr) => _checkIsCurrentYear(pr.item2),
       );
     });
@@ -475,7 +386,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
     final month = DateFormat("MMM").format(date);
     final year = date.year.toString().substring(2);
 
-    final dataToDisplay = isDataSameYear ? month : "$month\n$year";
+    final dataToDisplay = _isDataSameYear ? month : "$month\n$year";
 
     return SideTitleWidget(
       fitInside: SideTitleFitInsideData.fromTitleMeta(
@@ -537,6 +448,242 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget> {
   }
 
   List<CloudPr> get prCache => widget.cache;
+
+  List<String> get keyList => _pointsData.keys.toList();
+
+  MapEntry<String, Tuple2<List, List>> get currentExercises {
+    try {
+      final page = _pageController.page?.round() ?? 0;
+      final safeIndex = page % _pointsData.length;
+      final exerciseName = _pointsData.keys.elementAt(safeIndex);
+      return MapEntry(exerciseName, _pointsData[exerciseName]!);
+    } catch (_) {
+      return _pointsData.entries.first;
+    }
+  }
+
+  FlTitlesData get flTitlesData => FlTitlesData(
+    rightTitles: rightTitles,
+    topTitles: topTitles,
+    bottomTitles: bottomTitles,
+  );
+
+  LineTouchTooltipData get toolTipData => LineTouchTooltipData(
+    getTooltipColor: (spot) => Colors.black87,
+    getTooltipItems: (List<LineBarSpot> touchedSpots) {
+      final touchedSpot = touchedSpots.first;
+      final index = _pageController.page?.round() ?? 0;
+
+      final safeIndex = index % _pointsData.length;
+      final exerciseName = _pointsData.keys.elementAt(safeIndex);
+      final points = _pointsData[exerciseName];
+      final estimatedSpot = points!.item1[touchedSpot.x.toInt() - 1];
+      final actualSpot = points.item2[touchedSpot.x.toInt() - 1];
+      final pointDate = DateTime.fromMillisecondsSinceEpoch(
+        estimatedSpot.item2,
+      );
+      final day = pointDate.day.toString().padLeft(2, '0');
+      final month = DateFormat("MMM").format(pointDate);
+      final year = pointDate.year.toString().substring(2);
+      final dateToDisplay =
+          _isDataSameYear ? "$day-$month" : "$day-$month\n$year";
+      final sortedWeights = [estimatedSpot.item1, actualSpot.item1]
+        ..sort((a, b) => -a.compareTo(b));
+
+      return <LineTooltipItem>[
+        LineTooltipItem(
+          "$dateToDisplay\n${sortedWeights[0]}",
+          TextStyle(
+            color: _resolvePointColor(
+              sortedWeights[0],
+              touchedSpot.x.toInt(),
+              touchedSpots,
+            ),
+          ),
+        ),
+        LineTooltipItem(
+          sortedWeights[1].toString(),
+          TextStyle(
+            color: _resolvePointColor(
+              sortedWeights[1],
+              touchedSpot.x.toInt(),
+              touchedSpots,
+            ),
+          ),
+        ),
+      ];
+    },
+  );
+
+  AxisTitles get bottomTitles => AxisTitles(
+    sideTitles: SideTitles(
+      interval: 1,
+      reservedSize: 44,
+      showTitles: true,
+      getTitlesWidget: (val, metaData) {
+        final hasDot = _pointsToDraw.any(
+          (bar) => bar.spots.any((s) => s.x == val.toInt()),
+        );
+
+        final spots = _pointsToDraw.first.spots;
+        if (!hasDot || !_toDraw(val.toInt() - 1, spots)) {
+          // If the dot does not exist or the month already exists,
+          return const SizedBox.shrink();
+        }
+        return _generateBottomAxisWidgets(val, metaData);
+      },
+    ),
+  );
+
+  AxisTitles get rightTitles =>
+      const AxisTitles(sideTitles: SideTitles(showTitles: false));
+
+  AxisTitles get topTitles => AxisTitles(
+    sideTitles: const SideTitles(showTitles: false),
+    axisNameSize: 30,
+    axisNameWidget: Center(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 30),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...estimatedWeightsChartLegend,
+            const SizedBox(width: 20),
+            ...actualWeightsChartLegend,
+          ],
+        ),
+      ),
+    ),
+  );
+
+  List<Widget> get estimatedWeightsChartLegend => [
+    const SizedBox(
+      width: 15,
+      child: CustomPaint(
+        painter: StrikePainter(
+          strikeWidth: 12,
+          strikeHeight: 2,
+          gradient: LinearGradient(colors: [Colors.red, Colors.orangeAccent]),
+          gapSize: 3,
+        ),
+      ),
+    ),
+    const Padding(
+      padding: EdgeInsets.only(left: 8.0),
+      child: Text("Estimated"),
+    ),
+  ];
+
+  List<Widget> get actualWeightsChartLegend => [
+    SizedBox(
+      width: 15,
+      child: CustomPaint(
+        painter: StrikePainter(
+          strikeWidth: 15,
+          strikeHeight: 2,
+          gradient: LinearGradient(
+            colors: [borderColors.first.item1, frostColorBuilder(_userLevel)],
+          ),
+        ),
+      ),
+    ),
+    const Padding(padding: EdgeInsets.only(left: 8.0), child: Text("Actual")),
+  ];
+
+  Row get graphChangingWidget => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        onPressed: () => _navigationArrowCallback(NavigationType.left, keyList),
+        icon: const Icon(Icons.arrow_back_ios),
+      ),
+      Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: 50,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) => _changeDataOnNavigation(index),
+            itemBuilder: (context, index) {
+              if (keyList.isEmpty) return const SizedBox.shrink();
+              final safeIndex = index % keyList.length;
+
+              return Center(
+                child: AutoSizeText(
+                  maxFontSize: 15,
+                  minFontSize: 8,
+                  keyList[safeIndex],
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+      IconButton(
+        onPressed:
+            () => _navigationArrowCallback(NavigationType.right, keyList),
+        icon: const Icon(Icons.arrow_forward_ios),
+      ),
+    ],
+  );
+
+  Widget get shareButton => FilledButton.tonal(
+    onPressed: () async {
+      final printer = ChartPrinter(chartKey: _chartKey);
+      await printer.shareChart(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        rightPadding: 30,
+      );
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.share, color: Theme.of(context).colorScheme.primary),
+        const Padding(
+          padding: EdgeInsets.only(left: 4.0),
+          child: Text("Share Chart"),
+        ),
+      ],
+    ),
+  );
+
+  Widget get downloadButton => FilledButton.tonal(
+    onPressed: () async {
+      final printer = ChartPrinter(chartKey: _chartKey);
+      final res = await printer.saveToGallery(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        rightPadding: 30,
+      );
+      if (!mounted) return;
+
+      final message =
+          res != null ? "Chart saved to gallery!" : "Failed to save chart";
+
+      final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
+
+      showSnackBar(context, this, message, color);
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.download, color: Theme.of(context).colorScheme.primary),
+        const Padding(
+          padding: EdgeInsets.only(left: 4.0),
+          child: Text("Download Chart"),
+        ),
+      ],
+    ),
+  );
 }
 
 class StrikePainter extends CustomPainter {
