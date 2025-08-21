@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
+import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:tuple/tuple.dart';
 
 import '../constants/code_constraints.dart';
 
-class ExerciseType with EquatableMixin{
+class ExerciseType with EquatableMixin {
   String name;
   int reps;
   int sets;
@@ -42,17 +43,19 @@ class ExerciseType with EquatableMixin{
   }
 
   String get exerciseWeightToString {
-    String initialWeight = weightRange.item1.toString();
+    String initialWeight =
+        weightRange.item1.removeDecimalIfNecessary.toString();
     if (initialWeight.isEmpty || weightRange.item1 == 0) {
       return noWeightRestrictionMessage;
     }
     if (weightRange.item2 == 0 || weightRange.item2 == weightRange.item1) {
       initialWeight += " kg";
     } else {
-      initialWeight += " - ${weightRange.item2} kg";
+      initialWeight += " - ${weightRange.item2.removeDecimalIfNecessary} kg";
     }
     return initialWeight;
   }
+
   //todo add an edit method to update the exercise type
 
   set json(Map<String, dynamic> map) {
@@ -72,11 +75,5 @@ class ExerciseType with EquatableMixin{
   }
 
   @override
-  List<Object?> get props => [
-    name,
-    reps,
-    sets,
-    weightRange,
-    notes,
-  ];
+  List<Object?> get props => [name, reps, sets, weightRange, notes];
 }

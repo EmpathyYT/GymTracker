@@ -154,6 +154,8 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
                   double.parse(prWeightController.text),
                 );
                 if (!context.mounted) return;
+                prNameController.clear();
+                prWeightController.clear();
                 Navigator.pop(context, true);
               } catch (e) {
                 controllerLists.add(

@@ -9,7 +9,7 @@ import 'package:gymtracker/utils/dialogs/pr_confirmation_dialog.dart';
 
 class ScheduledPrListTile extends StatefulWidget {
   final CloudPr pr;
-  final Function(List<CloudPr> listOfPrs) onPrConfirmation;
+  final Function(List<CloudPr> listOfPrs, CloudPr originalPr) onPrConfirmation;
 
   const ScheduledPrListTile({
     super.key,
@@ -66,7 +66,7 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
 
   CloudPr get pr => widget.pr;
 
-  Function(List<CloudPr> listOfPrs) get prConfirmationCallback =>
+  Function(List<CloudPr> listOfPrs, CloudPr originalPr) get prConfirmationCallback =>
       widget.onPrConfirmation;
 
   Widget _getTrailingText() {

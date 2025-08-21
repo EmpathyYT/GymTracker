@@ -131,8 +131,8 @@ final class KinViewer extends MainPageState {
 //
 // }
 
-final class Settings extends MainPageState {
-  const Settings({
+final class Workshop extends MainPageState {
+  const Workshop({
     super.exception,
     super.isLoading = false,
     super.loadingText = "",
@@ -141,8 +141,8 @@ final class Settings extends MainPageState {
   });
 
   @override
-  Settings copyWith({RequestsSortingType? notifications}) {
-    return Settings(
+  Workshop copyWith({RequestsSortingType? notifications}) {
+    return Workshop(
       exception: exception,
       isLoading: isLoading,
       loadingText: loadingText,

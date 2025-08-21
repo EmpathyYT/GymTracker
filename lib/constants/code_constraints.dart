@@ -13,6 +13,8 @@ const glowLevel = 10;
 const noWeightRestrictionMessage = 'No Weight Range';
 const workoutCacheField = "workouts";
 const mainSizeIcon = 26.0;
+const logFileDirectory = "GymTrackerAppLogs";
+
 
 const Color maxLevelColor = Color(0xff8e0cf3);
 final List<Tuple2<Color, bool>> borderColors = [

@@ -14,6 +14,7 @@ import 'package:gymtracker/utils/widgets/squad_creator_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
+import 'package:gymtracker/views/main_page_widgets/workshop.dart';
 
 import '../bloc/auth_state.dart';
 import '../helpers/loading/loading_dialog.dart';
@@ -185,7 +186,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.all(16.0),
         child: ProfileViewerWidget(),
       ),
-      Settings() => const Text("Settings"),
+      Workshop() => const WorkshopWidget(),
       WorkoutPlanner() => const Padding(
         padding: EdgeInsets.all(16.0),
         child: WorkoutPlannerWidget(),
@@ -208,9 +209,9 @@ class _MainPageState extends State<MainPage> {
     } else if (state is ProfileViewer) {
       currentIndex = 3;
       _title = "Profile Viewer";
-    } else if (state is Settings) {
+    } else if (state is Workshop) {
       currentIndex = 4;
-      _title = "Settings";
+      _title = "Workshop";
     } else {
       currentIndex = 0;
     }

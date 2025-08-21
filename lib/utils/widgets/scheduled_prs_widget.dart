@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
@@ -9,7 +7,8 @@ import '../../services/cloud/cloud_pr.dart';
 
 class ScheduledPrsWidget extends StatefulWidget {
   final List<CloudPr> cache;
-  final Function(List<CloudPr> listOfPrs) onPrConfirmationCallback;
+  final Function(List<CloudPr> listOfPrs, CloudPr originalPr)
+  onPrConfirmationCallback;
 
   const ScheduledPrsWidget({
     super.key,
@@ -22,8 +21,6 @@ class ScheduledPrsWidget extends StatefulWidget {
 }
 
 class _ScheduledPrsWidgetState extends State<ScheduledPrsWidget> {
-
-
   @override
   Widget build(BuildContext context) {
     final scheduledPrs = cache.where((pr) => pr.actualWeight == null).toList();
@@ -111,6 +108,6 @@ class _ScheduledPrsWidgetState extends State<ScheduledPrsWidget> {
 
   List<CloudPr> get cache => widget.cache;
 
-  Function(List<CloudPr> listOfPrs) get onPrConfirmationCallback =>
-      widget.onPrConfirmationCallback;
+  Function(List<CloudPr> listOfPrs, CloudPr originalPr)
+  get onPrConfirmationCallback => widget.onPrConfirmationCallback;
 }

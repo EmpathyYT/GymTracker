@@ -45,7 +45,7 @@ class MainPageCubit extends Cubit<MainPageState> {
         emit(ProfileViewer(notifications: notifications));
         break;
       case 4:
-        emit(Settings(notifications: notifications));
+        emit(Workshop(notifications: notifications));
         break;
       default:
         emit(SquadSelector(notifications: notifications));
@@ -668,7 +668,7 @@ class MainPageCubit extends Cubit<MainPageState> {
     double targetWeight,
   ) async {
     try {
-      CloudPr.addPr(currentUser.id, exercise, prDate, targetWeight);
+      await CloudPr.addPr(currentUser.id, exercise, prDate, targetWeight);
     } catch (_) {
       throw CouldNotSchedulePrException();
     }

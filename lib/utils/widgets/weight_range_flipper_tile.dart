@@ -40,9 +40,10 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
                         rangeNotifier.value = !value;
                       }),
                   child: SizedBox(
-                    width: 70,
+                    width: 90,
                     height: 50,
                     child: TextFormField(
+                      textAlign: TextAlign.center,
                       focusNode: FocusNode(canRequestFocus: false),
                       controller: lWeightController,
                       keyboardType: TextInputType.number,
@@ -52,7 +53,7 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
                       ),
                       decoration: const InputDecoration(
                         counterText: "",
-                        labelText: "Weight",
+                        labelText: "Weight KG",
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelStyle: TextStyle(color: Colors.white60, fontSize: 14),
                         border: OutlineInputBorder(
@@ -74,6 +75,7 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
                     width: 70,
                     height: 50,
                     child: TextFormField(
+                      textAlign: TextAlign.center,
                       focusNode: FocusNode(canRequestFocus: false),
                       controller: lWeightController,
                       keyboardType: TextInputType.number,
@@ -99,6 +101,7 @@ class _WeightRangeFlipperTileState extends State<WeightRangeFlipperTile> {
                   width: 70,
                   height: 50,
                   child: TextFormField(
+                    textAlign: TextAlign.center,
                     focusNode: FocusNode(canRequestFocus: false),
                     controller: hWeightController,
                     keyboardType: TextInputType.number,

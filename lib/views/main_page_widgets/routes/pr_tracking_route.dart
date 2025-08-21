@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +21,7 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
     with TickerProviderStateMixin {
   final prNameController = TextEditingController()..text = "Select PR Exercise";
   final prDescriptionController = TextEditingController();
-
+  //used for the loading screen
   bool didLoad = false;
   static List<CloudPr> prsCache = [];
 
@@ -98,6 +96,7 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
     );
   }
 
+  // Builds the body of the widget with three tabs:
   List<Widget> _bodyWidgetBuilder() {
     return [
       PrSchedulerWidget(
@@ -106,7 +105,6 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
         onPrScheduled: () async {
           await _getAllPrs();
           tabViewController!.animateTo(1);
-          log("message");
         },
       ),
       ScheduledPrsWidget(
@@ -117,7 +115,7 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
       PrStatisticsWidget(key: ValueKey("${prsCache}1"), cache: prsCache),
     ];
   }
-
+  // refreshes the list of PRs from the cloud and updates the local state.
   Future<void> _getAllPrs() async {
     Future<List<CloudPr>> fetchAllPrsFuture() async {
       final cubit = context.read<MainPageCubit>();
@@ -133,10 +131,60 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
     });
   }
 
-  void _prConfirmationCallback(List<CloudPr> prs) {
+  /// Handles confirmation of a PR action and updates the local state.
+  ///
+  /// Steps:
+  /// 1. Replaces the in\-memory cache (`prsCache`) with `prs`.
+  /// 2. Reorders the cache so PRs for `originalPr.exercise` come first, then by date.
+  /// 3. Triggers a UI refresh via `setState`.
+  /// 4. Navigates to the "Statistics" tab if there are at least two PRs
+  ///    for the same exercise.
+  ///
+  /// Params:
+  /// - `prs`: The latest list of PRs after confirmation.
+  /// - `originalPr`: The PR used to determine the target exercise.
+  void _prConfirmationCallback(List<CloudPr> prs, CloudPr originalPr) {
     prsCache.clear();
     prsCache.addAll(prs);
+    _placeNewPrsAtTheBeginning(prs, originalPr);
     setState(() {});
-    tabViewController!.animateTo(2);
+    _switchPagesIfMoreThanTwoPrs(prs, originalPr);
+  }
+
+
+  /// Navigates to the "Statistics" tab when there are at least two PRs
+  /// for the same exercise as `originalPr`.
+  ///
+  /// No\-op if fewer than two such PRs exist.
+  ///
+  /// Params:
+  /// - `prs`: The current list of PRs (not used in the check).
+  /// - `originalPr`: The PR used to derive the target exercise.
+  void _switchPagesIfMoreThanTwoPrs(List<CloudPr> prs, CloudPr originalPr) {
+    final pageLength =
+        prsCache.where((pr) => pr.exercise == pr.exercise).length;
+
+    if (pageLength < 2) {
+      return;
+    } else {
+      tabViewController!.animateTo(2);
+    }
+  }
+
+
+  /// Sorts `prsCache` in place so that PRs matching `originalPr.exercise`
+  /// appear first, and within each group items are ordered by ascending date.
+  ///
+  /// Params:
+  /// - `prs`: Unused; the method works directly on `prsCache`.
+  /// - `originalPr`: The PR whose `exercise` determines priority ordering.
+  void _placeNewPrsAtTheBeginning(List<CloudPr> prs, CloudPr originalPr) {
+    prsCache.sort((a, b) {
+      final aIsTarget = a.exercise == originalPr.exercise;
+      final bIsTarget = b.exercise == originalPr.exercise;
+      if (aIsTarget && !bIsTarget) return -1;
+      if (!aIsTarget && bIsTarget) return 1;
+      return a.date.compareTo(b.date);
+    });
   }
 }

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,19 +19,24 @@ import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/krq_notifications.dart';
 import 'package:gymtracker/views/profile_setup_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
+import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'helpers/loading/loading_dialog.dart';
 import 'views/register_page.dart';
 
+final Logger _logger = Logger('GymTracker');
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await GoogleFonts.pendingFonts([
-    GoogleFonts.oswaldTextTheme(),
-    GoogleFonts.montserratTextTheme(),
-  ]);
-
-  runApp(const MyApp());
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await GoogleFonts.pendingFonts([
+      GoogleFonts.oswaldTextTheme(),
+      GoogleFonts.montserratTextTheme(),
+    ]);
+    _setupLogging();
+    runApp(const MyApp());
+  }, _logError);
 }
 
 class MyApp extends StatelessWidget {
@@ -101,4 +109,26 @@ class HomePage extends StatelessWidget {
       },
     );
   }
+}
+
+Future<void> _setupLogging() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final logFile = File('${directory.path}/app_logs.txt');
+  final IOSink logSink = logFile.openWrite(mode: FileMode.append);
+
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    final log =
+        '${record.time.toIso8601String()} [${record.level.name}] '
+        '${record.loggerName}: ${record.message}\n';
+    logSink.write(log);
+  });
+  FlutterError.onError = (FlutterErrorDetails details) {
+    _logger.severe('FlutterError', details.exception, details.stack);
+    FlutterError.dumpErrorToConsole(details);
+  };
+}
+
+void _logError(Object error, StackTrace trace) {
+  _logger.severe("Flutter Error", error.toString(), trace);
 }

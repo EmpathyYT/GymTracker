@@ -296,12 +296,14 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
   final setsValidation = _validateSetsInput(sets);
   final lWeightValidation = validateWeightInput(lWeight);
   final hWeightValidation = isRange ? validateWeightInput(hWeight) : null;
+  final exerciseNameValidation = validateExerciseName(exerciseName);
   final List<String?> validationErrors =
       [
         repsValidation,
         setsValidation,
         lWeightValidation,
         hWeightValidation,
+        exerciseNameValidation,
       ].where((error) => error != null).toList();
   if (validationErrors.isNotEmpty) {
     return (false, validationErrors.first);
@@ -360,6 +362,21 @@ String? _validateSetsInput(String? value) {
 String? _validateRangesInput(String low, String high) {
   if (double.parse(low) > double.parse(high)) {
     return "Please enter a valid range.";
+  }
+  return null;
+}
+
+String? validateExerciseName(String? value) {
+  final allowed = RegExp(r'^[a-zA-Z !@#\$%\^&\*\(\)1-9\-,\.<>=\+_]+$');
+
+  if (value == null || value.isEmpty) {
+    return "Please enter an exercise name.";
+  } else if (value.length > 50) {
+    return "Exercise name is too long. "
+        "Please enter a name with less than 50 characters.";
+  } else if (!allowed.hasMatch(value)) {
+    return "Please enter a valid exercise name. "
+        "Only letters, numbers, and special characters are allowed.";
   }
   return null;
 }

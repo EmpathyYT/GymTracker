@@ -8,7 +8,8 @@ import '../../services/cloud/cloud_pr.dart';
 
 class PrConfirmationDialog extends StatefulWidget {
   final CloudPr pr;
-  final Function(List<CloudPr> listOfPrs) additionalCallback;
+  final Function(List<CloudPr> listOfPrs, CloudPr originalPr)
+  additionalCallback;
 
   const PrConfirmationDialog({
     super.key,
@@ -76,7 +77,7 @@ class _PrConfirmationDialogState extends State<PrConfirmationDialog>
               await pr.confirmWeight(double.parse(weightController.text));
               if (!context.mounted) return;
               final prs = await context.read<MainPageCubit>().fetchAllPrs();
-              additionalCallback(prs);
+              additionalCallback(prs, pr);
             } catch (_) {
               const message = "Failed to confirm PR weight.";
               if (!context.mounted) return;
@@ -93,14 +94,14 @@ class _PrConfirmationDialogState extends State<PrConfirmationDialog>
 
   CloudPr get pr => widget.pr;
 
-  Function(List<CloudPr> listOfPrs) get additionalCallback =>
-      widget.additionalCallback;
+  Function(List<CloudPr> listOfPrs, CloudPr originalPr)
+  get additionalCallback => widget.additionalCallback;
 }
 
 Future<void> showPrConfirmationDialog(
   BuildContext context,
   CloudPr pr,
-  Function(List<CloudPr> listOfPrs) additionalCallback,
+  Function(List<CloudPr> listOfPrs, CloudPr originalPr) additionalCallback,
 ) async {
   await showDialog<CloudPr?>(
     context: context,
