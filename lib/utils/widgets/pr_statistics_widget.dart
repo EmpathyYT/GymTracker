@@ -83,35 +83,6 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
         ),
       );
     }
-    final chartBg = Theme.of(context).scaffoldBackgroundColor;
-    final graphWidget = SizedBox(
-      width: MediaQuery.of(context).size.width * 0.8,
-      height: MediaQuery.of(context).size.height * 0.3,
-      child: Material(
-        color: chartBg,
-        child: RepaintBoundary(
-          key: _chartKey,
-          child: LineChart(
-            LineChartData(
-              backgroundColor: chartBg,
-              maxX: _graphMaxX,
-              maxY: _graphMaxY,
-              minY: _graphMinY,
-              lineBarsData: _pointsToDraw,
-              lineTouchData: LineTouchData(
-                enabled: true,
-                handleBuiltInTouches: true,
-                touchTooltipData: toolTipData,
-              ),
-              titlesData: flTitlesData,
-            ),
-            curve: Curves.fastEaseInToSlowEaseOut,
-            duration: _animationDuration,
-          ),
-        ),
-      ),
-    );
-
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -140,6 +111,8 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     );
   }
 
+
+  /// Initializes the chart data for the first build.
   void _initialBuild() {
     if (_isInitialBuild) {
       _pointsToDraw = _buildLineChartData(currentExercises.key, _pointsData);
@@ -147,6 +120,20 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     }
   }
 
+  /// Returns the color for a point based on its position along the parent line's
+  /// gradient.
+  ///
+  /// This locates the matching spot in [spots] using [x] and [weight], determines
+  /// the spot's index within its bar, and linearly interpolates the bar's
+  /// [LinearGradient] colors by that relative index. If the bar has no gradient,
+  /// a grey fallback is used.
+  ///
+  /// Params:
+  /// - [weight]: The y-value of the point to color.
+  /// - [x]: The x-value (as an int) of the point to color.
+  /// - [spots]: The set of touched [LineBarSpot]s provided by fl_chart callbacks.
+  ///
+  /// Returns the resolved [Color] for the point
   Color _resolvePointColor(double weight, int x, List<LineBarSpot> spots) {
     // Find the exact touched spot from the provided list
     final match = spots.firstWhere(
@@ -173,6 +160,8 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     return _lerpGradient(colors, t);
   }
 
+
+  /// Determines whether a date should be drawn on the graph based on its index and the list of spots.
   bool _toDraw(int index, List<FlSpot> spots) {
     if (index == 0 || index == spots.length - 1) return true;
     if (spots.length <= 5) {
@@ -184,7 +173,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
 
     return index % step == 0 && !_dateDrawnAlready(index, spots);
   }
-
+  /// Checks if a month has already been drawn on the graph for the given index.
   bool _dateDrawnAlready(int index, List<FlSpot> spots) {
     final page = _pageController.page?.round() ?? 0;
     final safeIndex = page % _pointsData.length;
@@ -203,31 +192,44 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     );
   }
 
-  void _prSorter(List<CloudPr> finishedPrs) {
-    for (final pr in finishedPrs) {
-      final exerciseName = pr.exercise;
-      // ignore: prefer_const_constructors
-      _pointsData[exerciseName] ??= Tuple2([], []);
-      final actualWeight = pr.actualWeight;
-      final estimatedWeight = pr.targetWeight;
-      final dateInMilliseconds = pr.date.toLocal().millisecondsSinceEpoch;
+  /// Builds per-exercise time series for the chart from a list of completed PRs.
+    ///
+    /// Side effects:
+    /// - Populates \`_pointsData\` with two series per exercise:
+    ///   - \`item1\`: estimated weights as tuples \`(double weight, int msSinceEpoch)\`
+    ///   - \`item2\`: actual weights as tuples \`(double weight, int msSinceEpoch)\`
+    /// - Updates \`_isDataSameYear\` based on whether any date in the first exercise's
+    ///   estimated series occurs in the current calendar year.
+    ///
+    /// Params:
+    /// - \`finishedPrs\`: list of PRs (caller ensures \`actualWeight\` is non-null).
+    void _prSorter(List<CloudPr> finishedPrs) {
+      // Populate per-exercise series with (weight, timestamp) tuples.
+      for (final pr in finishedPrs) {
+        final exerciseName = pr.exercise;
+        // Lazily initialize storage for this exercise:
+        //   item1 -> estimated weights, item2 -> actual weights.
+        // ignore: prefer_const_constructors
+        _pointsData[exerciseName] ??= Tuple2([], []);
+        final actualWeight = pr.actualWeight;
+        final estimatedWeight = pr.targetWeight;
+        // Normalize to local time to keep axis labels consistent.
+        final dateInMilliseconds = pr.date.toLocal().millisecondsSinceEpoch;
 
-      //item 1 is the estimated weight, item 2 is the actual weight
-      _pointsData[exerciseName]!.item1.add(
-        Tuple2(estimatedWeight, dateInMilliseconds),
-      );
-      _pointsData[exerciseName]!.item2.add(
-        Tuple2(actualWeight!, dateInMilliseconds),
-      );
-      final currentPrsData = _pointsData.values.elementAt(0).item1;
+        // item1 is the estimated weight series.
+        _pointsData[exerciseName]!.item1.add(
+          Tuple2(estimatedWeight, dateInMilliseconds),
+        );
+        // item2 is the actual weight series (non-null for filtered input).
+        _pointsData[exerciseName]!.item2.add(
+          Tuple2(actualWeight!, dateInMilliseconds),
+        );
 
-      if (currentPrsData.any((pr) => _checkIsCurrentYear(pr.item2))) {
-        _isDataSameYear = true;
-      } else {
-        _isDataSameYear = false;
+        // Use the first exercise group's dates to decide if labels can omit the year.
+        final currentPrsData = _pointsData.values.elementAt(0).item1;
+        _isDataSameYear = currentPrsData.any((p) => _checkIsCurrentYear(p.item2));
       }
     }
-  }
 
   /// Handles navigation arrow taps for the PR statistics `PageView`.
   ///
@@ -282,6 +284,18 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     }
   }
 
+
+  /// Computes axis bounds for the currently selected exercise.
+  ///
+  /// Side effects:
+  /// - Updates \`_graphMaxY\` and \`_graphMinY\` using the min/max across both
+  ///   estimated and actual series for the exercise.
+  /// - Updates \`_graphMaxX\` using the number of estimated points
+  ///   (x-values start at 1 in \`_getGraphSpots\`).
+  ///
+  /// Notes:
+  /// - Falls back to 0 when there is no data.
+  /// - Uses \`currentExercises\` to determine the active exercise.
   void _setGraphBounds() {
     final currentExercise = currentExercises.key;
     final dataToUse = _pointsData[currentExercise]!;
@@ -304,6 +318,26 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
         dataToUse.item1.isNotEmpty ? dataToUse.item1.length.toDouble() : 0;
   }
 
+
+  /// Builds the two time‑series lines for an exercise: estimated and actual.
+  ///
+  /// Data:
+  /// - Reads `pointsData[exercise]` where:
+  ///   - `item1` => estimated points `List<Tuple2<double weight, int msSinceEpoch>>`
+  ///   - `item2` => actual points `List<Tuple2<double weight, int msSinceEpoch>>`
+  ///
+  /// Presentation:
+  /// - Estimated line: curved, dashed, red→orange gradient, visible dots.
+  /// - Actual line: curved, solid, user‑themed gradient, visible dots.
+  /// - Dots are color‑interpolated along each line’s gradient based on index.
+  ///
+  /// Params:
+  /// - `exercise`: key in `pointsData`.
+  /// - `pointsData`: per‑exercise tuples of estimated/actual series.
+  /// - `show` (default `true`): toggles both lines’ visibility.
+  ///
+  /// Returns:
+  /// - A list with two `LineChartBarData` items: `[estimatedLine, actualLine]`
   List<LineChartBarData> _buildLineChartData(
     String exercise,
     PointsData pointsData, {
@@ -355,7 +389,15 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     return [estimatedLine, actualLine];
   }
 
-  void _changeDataOnNavigation(int index) {
+  /// Updates the chart state when the `PageView` changes page.
+  ///
+  /// Behavior:
+  /// - Resolves the current exercise using `_pageController.page` wrapped by `keyList.length`.
+  /// - Rebuilds series via `_buildLineChartData(...)`.
+  /// - Calls `_setGraphBounds()` to refresh `_graphMinY`, `_graphMaxY`, and `_graphMaxX`.
+  /// - Updates `_pointsToDraw` and `_isDataSameYear` to affect rendering and labels.
+  ///
+  void _changeDataOnNavigation() {
     final rawPage = _pageController.page?.round() ?? 0;
     final keyCount = keyList.length;
     if (keyCount == 0) return;
@@ -405,11 +447,31 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     );
   }
 
+  /// Returns whether the provided timestamp occurs in the current calendar year.
+  ///
+  /// Params:
+  /// - `ms`: Milliseconds since epoch (interpreted in the device's local time).
+  ///
+  /// Returns:
+  /// - `true` if the year of `ms` matches `DateTime.now().year`, otherwise `false`.
+
   bool _checkIsCurrentYear(int ms) {
     final date = DateTime.fromMillisecondsSinceEpoch(ms);
     return date.year == DateTime.now().year;
   }
 
+
+  /// Converts a list of `(weight, timestamp)` tuples into `FlSpot`s for charting.
+  ///
+  /// Behavior:
+  /// - X values are 1‑based indices (1..N) to keep spacing uniform on the chart.
+  /// - Y values are the `weight` component (`Tuple2.item1`).
+  ///
+  /// Params:
+  /// - `points`: List of tuples where `item1` is weight and `item2` is timestamp.
+  ///
+  /// Returns:
+  /// - A list of `FlSpot` representing the series to plot.
   List<FlSpot> _getGraphSpots(List<Tuple2<double, int>> points) {
     final List<FlSpot> spots = [];
     for (final (index, point) in enumerate(points)) {
@@ -418,6 +480,23 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     return spots;
   }
 
+  /// Builds `FlDotData` for a line, coloring each dot by interpolating along the
+  /// line's gradient.
+  ///
+  /// Behavior:
+  /// - Uses index‑based `t` in [0..1] where `t = index / (dots - 1)`
+  ///   (or `1.0` when `dots <= 1`).
+  /// - Chooses `estimatedColors` when `isEstimated` is true, otherwise `actualColors`.
+  /// - Returns circular dot painters with radius 3.
+  ///
+  /// Params:
+  /// - `isEstimated`: whether this dot data is for the estimated series.
+  /// - `estimatedColors`: gradient colors for the estimated line.
+  /// - `actualColors`: gradient colors for the actual line.
+  /// - `dots`: total number of points in the series (used to compute `t`).
+  ///
+  /// Returns:
+  /// - Configured `FlDotData` that colors dots consistently with the line gradient.
   FlDotData _getDotData(
     bool isEstimated,
     List<Color> estimatedColors,
@@ -437,6 +516,20 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
     );
   }
 
+
+  /// Linearly interpolates between the first and last color in `colors` by `t`.
+  ///
+  /// Notes:
+  /// - The list is reversed to match the drawing direction used elsewhere.
+  /// - Requires at least 2 colors (asserts in debug mode).
+  /// - Clamps `t` to \[0.0, 1.0\].
+  ///
+  /// Params:
+  /// - `colors`: gradient stops (at least two).
+  /// - `t`: interpolation factor in \[0, 1\].
+  ///
+  /// Returns:
+  /// - The interpolated `Color`.
   Color _lerpGradient(List<Color> colors, double t) {
     colors = colors.reversed.toList();
     assert(
@@ -605,7 +698,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
           height: 50,
           child: PageView.builder(
             controller: _pageController,
-            onPageChanged: (index) => _changeDataOnNavigation(index),
+            onPageChanged: (index) => _changeDataOnNavigation(),
             itemBuilder: (context, index) {
               if (keyList.isEmpty) return const SizedBox.shrink();
               final safeIndex = index % keyList.length;
@@ -684,6 +777,39 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
       ],
     ),
   );
+
+  Widget get graphWidget {
+    final chartBg = Theme.of(context).scaffoldBackgroundColor;
+    return SizedBox(
+    width: MediaQuery.of(context).size.width * 0.8,
+    height: MediaQuery.of(context).size.height * 0.3,
+    child: Material(
+      color: chartBg,
+      child: RepaintBoundary(
+        key: _chartKey,
+        child: LineChart(
+          LineChartData(
+            backgroundColor: chartBg,
+            maxX: _graphMaxX,
+            maxY: _graphMaxY,
+            minY: _graphMinY,
+            lineBarsData: _pointsToDraw,
+            lineTouchData: LineTouchData(
+              enabled: true,
+              handleBuiltInTouches: true,
+              touchTooltipData: toolTipData,
+            ),
+            titlesData: flTitlesData,
+          ),
+          curve: Curves.fastEaseInToSlowEaseOut,
+          duration: _animationDuration,
+        ),
+      ),
+    ),
+  );
+  }
+
+
 }
 
 class StrikePainter extends CustomPainter {

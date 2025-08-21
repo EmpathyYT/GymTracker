@@ -41,139 +41,150 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
 
   @override
   Widget build(BuildContext context) {
+    var mainWidth = MediaQuery.of(context).size.width * 0.8;
     return AlertDialog(
       title: const Text("Enter PR Details"),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.8,
+        width: mainWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text.rich(
-              TextSpan(
-                text: "Date: ",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  TextSpan(
-                    text: prDate.toDateWithoutTime(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text.rich(
-              TextSpan(
-                text: "Time: ",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  TextSpan(
-                    text: prTime.format(context),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ...richTextList,
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Divider(color: Colors.white60),
             ),
-            WorkoutSearchSelector(
-              exerciseNameController: prNameController,
-              initialExercises: const [
-                "Barbell Conventional Deadlift",
-                "Barbell Sumo Deadlift",
-                "Barbell Bench Press",
-                "Barbell High Bar Back Squat",
-                "Barbell Low Bar Back Squat",
-                "Barbell Overhead Press",
-              ],
-              isPr: true,
-            ),
+            workoutSearchSelector,
             const SizedBox(height: 16),
-            TextField(
-              controller: prWeightController,
-              decoration: InputDecoration(
-                counterText: "",
-                border: InputBorder.none,
-                hintText: "Target Weight",
-                hintStyle: GoogleFonts.montserrat(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
-              ),
-              autofocus: true,
-              minLines: 1,
-              maxLines: 1,
-              maxLength: 7,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-                signed: false,
-              ),
-            ),
+            workoutTextField,
           ],
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
-        TextButton(
-          onPressed: () async {
-            final weightError = validateWeightInput(prWeightController.text);
-            if (weightError != null || prNameController.text.isEmpty) {
-              controllerLists.add(
-                showSnackBar(
-                  context,
-                  this,
-                  weightError ?? "Please enter the target weight for the PR.",
-                 darkenBackgroundColor(context),
-                ),
-              );
-            } else {
-              try {
-                await context.read<MainPageCubit>().addPr(
-                  prNameController.text,
-                  prDate
-                      .copyWith(hour: prTime.hour, minute: prTime.minute)
-                      .toUtc(),
-                  double.parse(prWeightController.text),
-                );
-                if (!context.mounted) return;
-                prNameController.clear();
-                prWeightController.clear();
-                Navigator.pop(context, true);
-              } catch (e) {
-                controllerLists.add(
-                  showSnackBar(
-                    context,
-                    this,
-                    "An unexpected error occurred while scheduling the PR.",
-                   darkenBackgroundColor(context),
-                  ),
-                );
-              }
-            }
-          },
-          child: const Text("OK"),
-        ),
+        TextButton(onPressed: _okButtonCallback, child: const Text("OK")),
       ],
     );
   }
+
+
+  /// Handles the OK button action for scheduling a PR.
+  ///
+  /// Validation:
+  /// - Ensures the target weight is valid via `validateWeightInput(...)`.
+  /// - Ensures the PR name is not empty.
+  ///
+  /// On success:
+  /// - Calls `MainPageCubit.addPr(...)` with the combined UTC date-time and
+  ///   parsed target weight.
+  /// - Clears the text controllers and pops the dialog returning `true`.
+  ///
+  /// On error:
+  /// - Displays a snackbar with either a validation message or a generic error.
+  ///
+  /// Side effects:
+  /// - Tracks created snackbar `AnimationController`s in `controllerLists`
+  ///   for proper disposal.
+  /// - Interacts with navigation by popping the current route on success.
+  ///
+  /// Returns:
+  /// - A `Future<void>` that completes when the flow finishes.
+  Future<void> _okButtonCallback() async {
+    final weightError = validateWeightInput(prWeightController.text);
+    if (weightError != null || prNameController.text.isEmpty) {
+      controllerLists.add(
+        showSnackBar(
+          context,
+          this,
+          weightError ?? "Please enter the target weight for the PR.",
+          darkenBackgroundColor(context),
+        ),
+      );
+    } else {
+      try {
+        await context.read<MainPageCubit>().addPr(
+          prNameController.text,
+          prDate.copyWith(hour: prTime.hour, minute: prTime.minute).toUtc(),
+          double.parse(prWeightController.text),
+        );
+        if (!mounted) return;
+        prNameController.clear();
+        prWeightController.clear();
+        Navigator.pop(context, true);
+      } catch (e) {
+        controllerLists.add(
+          showSnackBar(
+            context,
+            this,
+            "An unexpected error occurred while scheduling the PR.",
+            darkenBackgroundColor(context),
+          ),
+        );
+      }
+    }
+  }
+
+  WorkoutSearchSelector get workoutSearchSelector => WorkoutSearchSelector(
+    exerciseNameController: prNameController,
+    initialExercises: const [
+      "Barbell Conventional Deadlift",
+      "Barbell Sumo Deadlift",
+      "Barbell Bench Press",
+      "Barbell High Bar Back Squat",
+      "Barbell Low Bar Back Squat",
+      "Barbell Overhead Press",
+    ],
+    isPr: true,
+  );
+
+  TextField get workoutTextField => TextField(
+    controller: prWeightController,
+    decoration: InputDecoration(
+      counterText: "",
+      border: InputBorder.none,
+      hintText: "Target Weight",
+      hintStyle: GoogleFonts.montserrat(color: Colors.grey, fontSize: 16),
+    ),
+    autofocus: true,
+    minLines: 1,
+    maxLines: 1,
+    maxLength: 7,
+    keyboardType: const TextInputType.numberWithOptions(
+      decimal: true,
+      signed: false,
+    ),
+  );
+
+  List<Text> get richTextList => [
+    Text.rich(
+      TextSpan(
+        text: "Date: ",
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        children: [
+          TextSpan(
+            text: prDate.toDateWithoutTime(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    ),
+    Text.rich(
+      TextSpan(
+        text: "Time: ",
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        children: [
+          TextSpan(
+            text: prTime.format(context),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    ),
+  ];
 
   TimeOfDay get prTime => widget.prTime;
 
