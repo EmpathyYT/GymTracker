@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -104,10 +106,15 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
         onPrScheduled: () async {
           await _getAllPrs();
           tabViewController!.animateTo(1);
+          log("message");
         },
       ),
-      ScheduledPrsWidget(cache: prsCache),
-      PrStatisticsWidget(cache: prsCache),
+      ScheduledPrsWidget(
+        key: ValueKey(prsCache),
+        cache: prsCache,
+        onPrConfirmationCallback: _prConfirmationCallback,
+      ),
+      PrStatisticsWidget(key: ValueKey("${prsCache}1"), cache: prsCache),
     ];
   }
 
@@ -118,11 +125,18 @@ class _PrTrackingWidgetState extends State<PrTrackingWidget>
       return prs;
     }
 
-    fetchAllPrsFuture().then((val) {
+    await fetchAllPrsFuture().then((val) {
       setState(() {
         prsCache = val;
         didLoad = true;
       });
     });
+  }
+
+  void _prConfirmationCallback(List<CloudPr> prs) {
+    prsCache.clear();
+    prsCache.addAll(prs);
+    setState(() {});
+    tabViewController!.animateTo(2);
   }
 }

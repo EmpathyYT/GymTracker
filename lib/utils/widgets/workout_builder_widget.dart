@@ -9,6 +9,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../constants/code_constraints.dart';
 import '../../helpers/exercise_type.dart';
 
 typedef FilteredExerciseFormat = Map<int, List<Tuple2<String, ExerciseType>>>;
@@ -293,8 +294,8 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
 ) {
   final repsValidation = _validateRepsInput(reps);
   final setsValidation = _validateSetsInput(sets);
-  final lWeightValidation = _validateWeightInput(lWeight);
-  final hWeightValidation = isRange ? _validateWeightInput(hWeight) : null;
+  final lWeightValidation = validateWeightInput(lWeight);
+  final hWeightValidation = isRange ? validateWeightInput(hWeight) : null;
   final List<String?> validationErrors =
       [
         repsValidation,
@@ -351,23 +352,6 @@ String? _validateSetsInput(String? value) {
     } else if (int.parse(value) > 30) {
       return "What on God's green earth are you thinking?? "
           "Enter a number less than 30 in the sets field.";
-    }
-  }
-  return null;
-}
-
-String? _validateWeightInput(String? value) {
-  if (value == null || value.isEmpty) {
-    return null;
-  } else if (double.tryParse(value) == null) {
-    return "Please enter a valid number in the weight field(s).";
-  } else {
-    if (value.contains('.') && value.split('.')[1].length > 2) {
-      return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
-    } else if (double.parse(value) < 1) {
-      return "Please enter a positive number greater than 0 in the weight field(s).";
-    } else if (double.parse(value) > 2000) {
-      return "Calm down hulk.";
     }
   }
   return null;

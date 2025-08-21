@@ -126,6 +126,9 @@ abstract class DatabaseController {
 
   Future<List<CloudPr>> getAllPrs(userId);
 
+  Future<void> confirmPrWeight(String prId, double weight);
+
+
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
     CloudUser.dbController = controller;

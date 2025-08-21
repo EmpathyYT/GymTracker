@@ -133,26 +133,27 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
           child: const Text("Cancel"),
         ),
         TextButton(
-          onPressed: () {
-            final weightError = _validateWeightInput(prWeightController.text);
+          onPressed: () async {
+            final weightError = validateWeightInput(prWeightController.text);
             if (weightError != null || prNameController.text.isEmpty) {
               controllerLists.add(
                 showSnackBar(
                   context,
                   this,
                   weightError ?? "Please enter the target weight for the PR.",
-                  darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                 darkenBackgroundColor(context),
                 ),
               );
             } else {
               try {
-                context.read<MainPageCubit>().addPr(
+                await context.read<MainPageCubit>().addPr(
                   prNameController.text,
                   prDate
                       .copyWith(hour: prTime.hour, minute: prTime.minute)
                       .toUtc(),
                   double.parse(prWeightController.text),
                 );
+                if (!context.mounted) return;
                 Navigator.pop(context, true);
               } catch (e) {
                 controllerLists.add(
@@ -160,7 +161,7 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
                     context,
                     this,
                     "An unexpected error occurred while scheduling the PR.",
-                    darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+                   darkenBackgroundColor(context),
                   ),
                 );
               }
@@ -170,23 +171,6 @@ class _PrSchedulerDialogState extends State<PrSchedulerDialog>
         ),
       ],
     );
-  }
-
-  String? _validateWeightInput(String? value) {
-    if (value == null || value.isEmpty) {
-      return null;
-    } else if (double.tryParse(value) == null) {
-      return "Please enter a valid number in the weight field(s).";
-    } else {
-      if (value.contains('.') && value.split('.')[1].length > 2) {
-        return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
-      } else if (double.parse(value) < 1) {
-        return "Please enter a positive number greater than 0 in the weight field(s).";
-      } else if (double.parse(value) > 2000) {
-        return "Calm down hulk.";
-      }
-    }
-    return null;
   }
 
   TimeOfDay get prTime => widget.prTime;

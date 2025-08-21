@@ -744,9 +744,13 @@ int countPrsOfSameExercise(List<CloudPr> cache, String exerciseName) {
 
 List<CloudPr> _prsToBuild(List<CloudPr> cache) {
   final filteredCache =
-      List<CloudPr>.from(
-        cache,
-      ).where((pr) => countPrsOfSameExercise(cache, pr.exercise) > 1).toList();
+      List<CloudPr>.from(cache)
+          .where(
+            (pr) =>
+                countPrsOfSameExercise(cache, pr.exercise) > 1 &&
+                pr.actualWeight != null,
+          )
+          .toList();
 
   filteredCache.sort((a, b) => a.date.compareTo(b.date));
 

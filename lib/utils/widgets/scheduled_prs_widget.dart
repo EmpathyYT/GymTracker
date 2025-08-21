@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
@@ -5,10 +7,22 @@ import 'package:gymtracker/utils/widgets/scheduled_pr_list_tile.dart';
 
 import '../../services/cloud/cloud_pr.dart';
 
-class ScheduledPrsWidget extends StatelessWidget {
+class ScheduledPrsWidget extends StatefulWidget {
   final List<CloudPr> cache;
+  final Function(List<CloudPr> listOfPrs) onPrConfirmationCallback;
 
-  const ScheduledPrsWidget({super.key, required this.cache});
+  const ScheduledPrsWidget({
+    super.key,
+    required this.cache,
+    required this.onPrConfirmationCallback,
+  });
+
+  @override
+  State<ScheduledPrsWidget> createState() => _ScheduledPrsWidgetState();
+}
+
+class _ScheduledPrsWidgetState extends State<ScheduledPrsWidget> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +88,18 @@ class ScheduledPrsWidget extends StatelessWidget {
               return Column(
                 children: [
                   const Divider(color: Colors.grey, height: 1, thickness: 0.8),
-                  ScheduledPrListTile(name: pr.exercise, date: pr.date),
+                  ScheduledPrListTile(
+                    pr: pr,
+                    onPrConfirmation: onPrConfirmationCallback,
+                  ),
                 ],
               );
             }
           }
-          return ScheduledPrListTile(name: pr.exercise, date: pr.date);
+          return ScheduledPrListTile(
+            pr: pr,
+            onPrConfirmation: onPrConfirmationCallback,
+          );
         },
       ),
     );
@@ -88,4 +108,9 @@ class ScheduledPrsWidget extends StatelessWidget {
   void _reorderPrs(List<CloudPr> prs) {
     prs.sort((a, b) => a.date.compareTo(b.date));
   }
+
+  List<CloudPr> get cache => widget.cache;
+
+  Function(List<CloudPr> listOfPrs) get onPrConfirmationCallback =>
+      widget.onPrConfirmationCallback;
 }

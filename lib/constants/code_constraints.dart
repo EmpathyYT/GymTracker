@@ -23,7 +23,6 @@ final List<Tuple2<Color, bool>> borderColors = [
   const Tuple2(Color(0xff00fffd), false),
 ];
 
-
 Color frostColorBuilder(int level) {
   return switch (level) {
     == 2 => borderColors[0].item1,
@@ -47,11 +46,11 @@ Color darkenColor(Color color, double factor) {
 }
 
 AnimationController showSnackBar(
-    BuildContext context,
-    TickerProvider vsync,
-    String message,
-    Color color,
-    ) {
+  BuildContext context,
+  TickerProvider vsync,
+  String message,
+  Color color,
+) {
   if (ScaffoldMessenger.of(context).mounted) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
   }
@@ -66,7 +65,7 @@ AnimationController showSnackBar(
       if (status == AnimationStatus.completed) {
         await Future.delayed(
           const Duration(milliseconds: 2500),
-              () => controller.reverse(),
+          () => controller.reverse(),
         );
       }
     });
@@ -74,25 +73,24 @@ AnimationController showSnackBar(
   controller.forward();
   ScaffoldMessenger.of(context)
       .showSnackBar(
-    SnackBar(
-      content: FadeTransition(
-        opacity: controller,
-        child: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+        SnackBar(
+          content: FadeTransition(
+            opacity: controller,
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+          duration: const Duration(seconds: 3),
+          backgroundColor: color,
+          behavior: SnackBarBehavior.floating,
+          animation: animation,
+          margin: const EdgeInsets.all(20),
+          elevation: 10,
         ),
-      ),
-      duration: const Duration(seconds: 3),
-      backgroundColor: color,
-      behavior: SnackBarBehavior.floating,
-      animation: animation,
-      margin: const EdgeInsets.all(20),
-      elevation: 10,
-    ),
-  )
+      )
       .closed
-      .then((_) {
-  });
+      .then((_) {});
   return controller;
 }
 
@@ -102,3 +100,25 @@ Iterable<(int, T)> enumerate<T>(List<T> list) sync* {
   }
 }
 
+String? validateWeightInput(String? value) {
+  if (value == null || value.isEmpty) {
+    return null;
+  } else if (double.tryParse(value) == null) {
+    return "Please enter a valid number in the weight field(s).";
+  } else {
+    if (value.contains('.') && value.split('.')[1].length > 2) {
+      return "Please enter a valid number with up to 2 decimal places in the weight field(s).";
+    } else if (double.parse(value) < 1) {
+      return "Please enter a positive number greater than 0 in the weight field(s).";
+    } else if (double.parse(value) > 2000) {
+      return "Calm down hulk.";
+    }
+  }
+  return null;
+}
+
+
+
+Color darkenBackgroundColor(BuildContext context) {
+  return darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
+}

@@ -215,5 +215,8 @@ class DatabaseServiceProvider implements DatabaseController {
   @override
   Future<List<CloudPr>> getAllPrs(userId) async => _provider.getAllPrs(userId);
 
+  @override
+  Future<void> confirmPrWeight(String prId, double weight) =>
+      _provider.confirmPrWeight(prId, weight);
 
 }

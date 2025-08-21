@@ -596,7 +596,7 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudPr>> fetchPrs(userId) {
+  Future<List<CloudPr>> fetchPrs(userId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
     final data = _supabase
         .from(prTableName)
@@ -615,7 +615,7 @@ class SupabaseDatabaseController implements DatabaseController {
     String exerciseName,
     double targetWeight,
     DateTime prDate,
-  ) {
+  ) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
     return _supabase.from(prTableName).insert({
       userIdFieldName: userId,
@@ -645,7 +645,7 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudPr>> getFinishedPrs(userId) {
+  Future<List<CloudPr>> getFinishedPrs(userId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
     return _supabase
         .from(prTableName)
@@ -657,7 +657,7 @@ class SupabaseDatabaseController implements DatabaseController {
   }
 
   @override
-  Future<List<CloudPr>> getAllPrs(userId) {
+  Future<List<CloudPr>> getAllPrs(userId) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
     return _supabase
         .from(prTableName)
@@ -665,5 +665,14 @@ class SupabaseDatabaseController implements DatabaseController {
         .eq(userIdFieldName, userId)
         .order(prDateFieldName, ascending: false)
         .then((value) => value.map((e) => CloudPr.fromSupabaseMap(e)).toList());
+  }
+
+  @override
+  Future<void> confirmPrWeight(String prId, double weight) async {
+    if (_auth.currentUser == null) throw UserNotLoggedInException();
+    return _supabase
+        .from(prTableName)
+        .update({prActualWeightFieldName: weight})
+        .eq(idFieldName, prId);
   }
 }

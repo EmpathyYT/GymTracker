@@ -1,20 +1,20 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
+import 'package:gymtracker/services/cloud/cloud_pr.dart';
+import 'package:gymtracker/utils/dialogs/pr_confirmation_dialog.dart';
 
 class ScheduledPrListTile extends StatefulWidget {
-  final String name;
-  final DateTime date;
+  final CloudPr pr;
+  final Function(List<CloudPr> listOfPrs) onPrConfirmation;
 
   const ScheduledPrListTile({
     super.key,
-    required this.name,
-    required this.date,
+    required this.pr,
+    required this.onPrConfirmation,
   });
 
   @override
@@ -25,7 +25,6 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
 
-
   @override
   void initState() {
     super.initState();
@@ -35,7 +34,6 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
     )..repeat(reverse: true);
   }
 
-
   @override
   void dispose() {
     _controller.dispose();
@@ -44,16 +42,32 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(name, style: GoogleFonts.oswald(fontSize: 21)),
-      subtitle: _getSubtitle(),
-      trailing: _getTrailingText(),
-    );
+    if (date.isBefore(DateTime.now())) {
+      return ListTile(
+        title: Text(name, style: GoogleFonts.oswald(fontSize: 21)),
+        subtitle: _getSubtitle(),
+        trailing: _getTrailingText(),
+        onTap: () async {
+          await showPrConfirmationDialog(context, pr, prConfirmationCallback);
+        },
+      );
+    } else {
+      return ListTile(
+        title: Text(name, style: GoogleFonts.oswald(fontSize: 21)),
+        subtitle: _getSubtitle(),
+        trailing: _getTrailingText(),
+      );
+    }
   }
 
-  String get name => widget.name;
+  String get name => widget.pr.exercise;
 
-  DateTime get date => widget.date.shiftToLocal();
+  DateTime get date => widget.pr.date.shiftToLocal();
+
+  CloudPr get pr => widget.pr;
+
+  Function(List<CloudPr> listOfPrs) get prConfirmationCallback =>
+      widget.onPrConfirmation;
 
   Widget _getTrailingText() {
     if (DateTime.now().isAfter(date)) {
@@ -68,7 +82,11 @@ class _ScheduledPrListTileState extends State<ScheduledPrListTile>
               fontSize: 19,
               color: Colors.white60,
               decoration: TextDecoration.lineThrough,
-              decorationColor: Color.lerp(red, darkenedColor, _controller.value),
+              decorationColor: Color.lerp(
+                red,
+                darkenedColor,
+                _controller.value,
+              ),
               decorationThickness: 2,
             ),
           );
