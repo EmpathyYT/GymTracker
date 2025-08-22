@@ -106,7 +106,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                         children: [
                                           TextSpan(
                                             text:
-                                                " (${exerciseElement.sets} "
+                                                "\n(${exerciseElement.sets} "
                                                 "x ${exerciseElement.reps})",
                                             style: const TextStyle(
                                               fontSize: 17,
