@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +45,10 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
   @override
   void initState() {
     _finishedPrs = _prsToBuild(prCache);
-    _prSorter(_finishedPrs);
-    _setGraphBounds();
+    if (_finishedPrs.isNotEmpty) {
+      _prSorter(_finishedPrs);
+      _setGraphBounds();
+    }
     super.initState();
   }
 
@@ -71,7 +75,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
   }
 
   Widget _buildStatisticsWidgets() {
-    _initialBuild();
+    log(_finishedPrs.toString());
     if (_finishedPrs.isEmpty) {
       return const Expanded(
         child: Stack(
@@ -83,6 +87,7 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
         ),
       );
     }
+    _initialBuild();
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
