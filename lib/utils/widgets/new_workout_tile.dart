@@ -11,7 +11,7 @@ import '../../helpers/exercise_type.dart';
 class NewWorkoutTile extends StatefulWidget {
   final int index;
   final bool canDelete;
-  final void Function(ExerciseType) onAddExercise;
+  final void Function(ExerciseType, int) onAddExercise;
   final VoidCallback? onDelete;
 
   const NewWorkoutTile({
@@ -194,7 +194,7 @@ class _NewWorkoutTileState extends State<NewWorkoutTile>
         reps: reps!,
         weightRange: Tuple2(lWeight ?? 0.0, hWeight ?? 0.0),
       );
-      widget.onAddExercise(exerciseType);
+      widget.onAddExercise(exerciseType, index);
     }
   }
 

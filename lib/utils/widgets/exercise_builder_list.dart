@@ -17,7 +17,7 @@ class ExerciseBuilderList extends StatefulWidget {
   ///This callback is only for the events that should happen after the reordering is done,
   ///the actual reordering is handled by the ReorderableListView.
   final void Function(int, Tuple2<String, ExerciseType>?) onReorder;
-  final void Function(ExerciseType) onAddExercise;
+  final void Function(ExerciseType, int) onAddExercise;
   final void Function(String uuid) onRemoveExercise;
   final int day;
 
@@ -172,8 +172,8 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                                 child: NewWorkoutTile(
                                   index: index,
                                   canDelete: true,
-                                  onAddExercise: (exercise) {
-                                    onAddExercise(exercise);
+                                  onAddExercise: (exercise, index) {
+                                    onAddExercise(exercise, index);
                                     FocusScope.of(
                                       context,
                                     ).requestFocus(FocusNode());
@@ -405,7 +405,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   void Function(int, Tuple2<String, ExerciseType>?) get onReorder =>
       widget.onReorder;
 
-  void Function(ExerciseType) get onAddExercise => widget.onAddExercise;
+  void Function(ExerciseType, int) get onAddExercise => widget.onAddExercise;
 
   void Function(String uuid) get onRemoveExercise => widget.onRemoveExercise;
 

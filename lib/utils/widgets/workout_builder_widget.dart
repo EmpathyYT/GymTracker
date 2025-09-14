@@ -90,72 +90,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
             style: GoogleFonts.oswald(fontSize: 30),
           ),
           const SizedBox(height: 10),
-          // Container(
-          //   width: MediaQuery.of(context).size.width * 0.6,
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.circular(12),
-          //     border: Border.all(color: Colors.white60, width: 0.9),
-          //   ),
-          //   child: ExerciseBuilderWidget(
-          //     exerciseNameController: _exerciseNameController,
-          //     exerciseSetsController: _exerciseSetsController,
-          //     exerciseRepsController: _exerciseRepsController,
-          //     exerciseLWeightController: _exerciseLWeightController,
-          //     exerciseHWeightController: _exerciseHWeightController,
-          //     isRangeNotifier: _isRangeNotifier,
-          //   ),
-          // ),
-          // const SizedBox(height: 10),
-          // GestureDetector(
-          //   onTap: () => _addExerciseButtonOnClick(),
-          //   child: const Icon(Icons.arrow_downward, size: 35),
-          // ),
-          // const SizedBox(height: 20),
-          // Flexible(
-          //   flex: 7,
-          //   child: Container(
-          //     width: MediaQuery.of(context).size.width * 0.75,
-          //     decoration: BoxDecoration(
-          //       border: Border.all(color: Colors.white60, width: 0.9),
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     child: ValueListenableBuilder(
-          //       valueListenable: _exerciseListNotifier,
-          //       builder: (context, value, child) {
-          //         return ReorderableListView.builder(
-          //           proxyDecorator: (child, index, animation) {
-          //             return Material(
-          //               elevation: 8,
-          //               color: Colors.transparent,
-          //               child: ScaleTransition(
-          //                 scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
-          //                 child: child,
-          //               ),
-          //             );
-          //           },
-          //           itemCount: value.length,
-          //           onReorder: (oldIndex, newIndex) {
-          //             if (newIndex > oldIndex) {
-          //               newIndex -= 1;
-          //             }
-          //             final item = value.removeAt(oldIndex);
-          //             value.insert(newIndex, item);
-          //             _removeFromStream(day, item.item1);
-          //             _addToStream(
-          //               day,
-          //               item.item2,
-          //               uid: item.item1,
-          //               index: newIndex,
-          //             );
-          //           },
-          //           itemBuilder: (context, index) {
-          //             return _buildListTile(index, value);
-          //           },
-          //         );
-          //       },
-          //     ),
-          //   ),
-          // ),
           Flexible(
             flex: 7,
             child: ExerciseBuilderList(
@@ -170,7 +104,9 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
                   index: index,
                 );
               },
-              onAddExercise: (exercise) => _addToStream(day, exercise),
+              onAddExercise:
+                  (exercise, index) =>
+                      _addToStream(day, exercise, index: index),
               onRemoveExercise: (uid) {
                 _removeFromStream(day, uid);
               },
@@ -205,13 +141,18 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     }
   }
 
-  void _addToStream(int day, ExerciseType exercise, {int? index, String? uid}) {
+  void _addToStream(
+    int day,
+    ExerciseType exercise, {
+    required int index,
+    String? uid,
+  }) {
     _exerciseController.add(
       {..._exerciseController.valueOrNull ?? {}}..update(day, (e) {
-        if (index != null && uid != null) {
+        if (uid != null) {
           e.insert(index, Tuple2(uid, exercise));
         } else {
-          e.add(Tuple2(uuid.v4(), exercise));
+          e.insert(index, Tuple2(uuid.v4(), exercise));
         }
         return e;
       }, ifAbsent: () => [Tuple2(uuid.v4(), exercise)]),
@@ -227,41 +168,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
       ),
     );
   }
-
-  // void _addExerciseButtonOnClick() {
-  //   final (res, errorMessage) = workoutInputValidator(
-  //     _isRangeNotifier,
-  //     _exerciseNameController.text.trim(),
-  //     _exerciseSetsController.text.trim(),
-  //     _exerciseRepsController.text.trim(),
-  //     _exerciseLWeightController.text.trim(),
-  //     _exerciseHWeightController.text.trim(),
-  //   );
-  //
-  //   if (res == false) {
-  //     final color = darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);
-  //     showErrorSnackBar(context, this, errorMessage!, color);
-  //     return;
-  //   }
-  //
-  //   final lWeight =
-  //       _exerciseLWeightController.text.trim().isEmpty
-  //           ? "0"
-  //           : _exerciseLWeightController.text.trim();
-  //
-  //   final hWeight =
-  //       _isRangeNotifier.value ? _exerciseHWeightController.text.trim() : "0";
-  //
-  //   _addToStream(
-  //     day,
-  //     ExerciseType(
-  //       name: _exerciseNameController.text.trim(),
-  //       sets: int.parse(_exerciseSetsController.text.trim()),
-  //       reps: int.parse(_exerciseRepsController.text.trim()),
-  //       weightRange: Tuple2(double.parse(lWeight), double.parse(hWeight)),
-  //     ),
-  //   );
-  // }
 
   int get day => widget.day;
 

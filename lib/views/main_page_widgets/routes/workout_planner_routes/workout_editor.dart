@@ -73,7 +73,6 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
         if (context.mounted) Navigator.pop(context);
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           toolbarHeight: appBarHeight,
           scrolledUnderElevation: 0,

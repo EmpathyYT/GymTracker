@@ -49,7 +49,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
             ),
             _centerWidgetIfListEmpty() ?? const SizedBox(),
             Positioned(
-              bottom: 0,
+              bottom: 15,
               left: 0,
               right: 0,
               child: NavigationIconsWidget(
@@ -78,7 +78,8 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  Expanded(
+                  Flexible(
+                    flex: 6,
                     child: roundedListBuilder(
                       borderRadius: 10,
                       itemCount: exercise.length,
@@ -150,27 +151,32 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                       },
                     ),
                   ),
-                  Center(
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(
-                          darkenColor(
-                            Theme.of(context).scaffoldBackgroundColor,
-                            0.2,
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all<Color>(
+                              darkenColor(
+                                Theme.of(context).scaffoldBackgroundColor,
+                                0.2,
+                              ),
+                            ),
                           ),
+                          onPressed:
+                              () async => await finishExerciseCallback(context),
+                          child: const Text("Finish Workout"),
                         ),
-                      ),
-                      onPressed:
-                          () async => await finishExerciseCallback(context),
-                      child: const Text("Finish Workout"),
+
+                        NavigationIconsWidget(
+                          type: _navigationType,
+                          arrowNavigationCallback:
+                              (bool moveToRight) =>
+                              arrowNavigationCallback(moveToRight),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  NavigationIconsWidget(
-                    type: _navigationType,
-                    arrowNavigationCallback:
-                        (bool moveToRight) =>
-                            arrowNavigationCallback(moveToRight),
                   ),
                 ],
               ),

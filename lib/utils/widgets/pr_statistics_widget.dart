@@ -75,7 +75,6 @@ class _PrStatisticsWidgetState extends State<PrStatisticsWidget>
   }
 
   Widget _buildStatisticsWidgets() {
-    log(_finishedPrs.toString());
     if (_finishedPrs.isEmpty) {
       return const Expanded(
         child: Stack(
