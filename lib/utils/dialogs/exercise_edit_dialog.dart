@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
 import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
 
 import '../../constants/code_constraints.dart';
+import '../../cubit/main_page_cubit.dart';
 
 class NoteInputDialog extends StatefulWidget {
   final ExerciseType initialExercise;
@@ -184,14 +186,17 @@ Future<void> showWorkoutEditDialog(
   await showDialog<ExerciseType?>(
     context: context,
     builder:
-        (_) => ScaffoldMessenger(
-          child: Builder(
-            builder: (context) {
-              return Scaffold(
-                backgroundColor: Colors.transparent,
-                body: NoteInputDialog(initialExercise: exercise),
-              );
-            },
+        (_) => BlocProvider.value(
+          value: context.read<MainPageCubit>(),
+          child: ScaffoldMessenger(
+            child: Builder(
+              builder: (context) {
+                return Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: NoteInputDialog(initialExercise: exercise),
+                );
+              },
+            ),
           ),
         ),
   );
