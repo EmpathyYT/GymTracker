@@ -77,3 +77,7 @@ class AuthStateSettingUpProfile extends AuthState {
     required this.exception,
   });
 }
+
+class AuthStateNoInternet extends AuthState {
+  const AuthStateNoInternet({required super.isLoading});
+}

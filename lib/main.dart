@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -17,8 +18,10 @@ import 'package:gymtracker/views/login_page.dart';
 import 'package:gymtracker/views/main_page.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/krq_notifications.dart';
+import 'package:gymtracker/views/no_internet_page.dart';
 import 'package:gymtracker/views/profile_setup_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -68,12 +71,16 @@ class MyApp extends StatelessWidget {
 
 class HomePage extends StatelessWidget {
   AuthState? oldSate;
+  InternetStatus? oldStatus;
 
   HomePage({super.key});
 
+  StreamSubscription<InternetStatus>? _internetSubscription;
+
   @override
   Widget build(BuildContext context) {
-    context.read<AuthBloc>().add(const AuthEventInitialize());
+    _internetSubscription ??= _createInternetConnectionChecks(context);
+    //context.read<AuthBloc>().add(const AuthEventInitialize());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.isLoading) {
@@ -101,6 +108,8 @@ class HomePage extends StatelessWidget {
           return const ForgotPassword();
         } else if (state is AuthStateSettingUpProfile) {
           return const ProfileSetupView();
+        } else if (state is AuthStateNoInternet) {
+          return const NoInternet();
         } else {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -108,6 +117,28 @@ class HomePage extends StatelessWidget {
         }
       },
     );
+  }
+
+  StreamSubscription<InternetStatus> _createInternetConnectionChecks(
+    BuildContext context,
+  ) {
+    return InternetConnection().onStatusChange.listen((status) {
+      if (status == oldStatus) return;
+      switch (status) {
+        case InternetStatus.connected:
+          if (!context.mounted) break;
+          log("connected");
+          oldStatus = status;
+          context.read<AuthBloc>().add(const AuthEventInitialize());
+          break;
+        case InternetStatus.disconnected:
+          if (!context.mounted) break;
+          oldStatus = status;
+          log("disconnected");
+          context.read<AuthBloc>().add(const AuthEventNoInternet());
+          break;
+      }
+    });
   }
 }
 

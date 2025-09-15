@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
@@ -109,10 +111,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventInitialize>((event, emit) async {
       try {
-        await _provider.initialize();
-        await _databaseController.initialize();
-        await DatabaseController.initCloudObjects(dbController);
+        try {
+          await _provider.initialize();
+          await _databaseController.initialize();
+          await DatabaseController.initCloudObjects(dbController);
+        } catch (_) {}
 
+        log("initializing");
         final user = _provider.currentUser;
         var newState = await _stateSelectorByUser(user);
 
@@ -198,6 +203,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           hasSentEmail: didSendEmail,
         ),
       );
+    });
+
+    on<AuthEventNoInternet>((event, emit) {
+      emit(const AuthStateNoInternet(isLoading: false));
     });
   }
 

@@ -10,6 +10,10 @@ class AuthEventInitialize extends AuthEvent {
   const AuthEventInitialize();
 }
 
+class AuthEventNoInternet extends AuthEvent {
+  const AuthEventNoInternet();
+}
+
 class AuthEventSendEmailVerification extends AuthEvent {
   final AuthUser user;
   const AuthEventSendEmailVerification({required this.user});
