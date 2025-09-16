@@ -3,14 +3,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/exercise_builder_list.dart';
-import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
+import 'package:gymtracker/utils/widgets/workout/exercise_builder_list.dart';
+import 'package:gymtracker/utils/widgets/misc/navigation_icons_widget.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../constants/code_constraints.dart';
-import '../../helpers/exercise_type.dart';
+import '../../../constants/code_constraints.dart';
+import '../../../helpers/exercise_type.dart';
 
 typedef FilteredExerciseFormat = Map<int, List<Tuple2<String, ExerciseType>>>;
 
@@ -202,7 +202,7 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
   final setsValidation = _validateSetsInput(sets);
   final lWeightValidation = validateWeightInput(lWeight);
   final hWeightValidation = isRange ? validateWeightInput(hWeight) : null;
-  final exerciseNameValidation = validateExerciseName(exerciseName);
+  final exerciseNameValidation = validateTitles(exerciseName);
   final List<String?> validationErrors =
       [
         repsValidation,
@@ -272,17 +272,4 @@ String? _validateRangesInput(String low, String high) {
   return null;
 }
 
-String? validateExerciseName(String? value) {
-  final allowed = RegExp(r'^[a-zA-Z !@#\$%\^&\*\(\)1-9\-,\.<>=\+_]+$');
 
-  if (value == null || value.isEmpty) {
-    return "Please enter an exercise name.";
-  } else if (value.length > 50) {
-    return "Exercise name is too long. "
-        "Please enter a name with less than 50 characters.";
-  } else if (!allowed.hasMatch(value)) {
-    return "Please enter a valid exercise name. "
-        "Only letters, numbers, and special characters are allowed.";
-  }
-  return null;
-}

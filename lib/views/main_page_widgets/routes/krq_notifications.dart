@@ -3,11 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/extensions/argument_getter_extension.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/error_list_tile.dart';
-import 'package:gymtracker/utils/widgets/krq_subtitle.dart';
-import 'package:gymtracker/utils/widgets/loading_list_tile.dart';
-import 'package:gymtracker/utils/widgets/request_notification_tile.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/misc/error_list_tile.dart';
+import 'package:gymtracker/utils/widgets/kin/krq_subtitle.dart';
+import 'package:gymtracker/utils/widgets/loading/loading_list_tile.dart';
+import 'package:gymtracker/utils/widgets/misc/request_notification_tile.dart';
 
 import '../../../services/cloud/cloud_notification.dart';
 

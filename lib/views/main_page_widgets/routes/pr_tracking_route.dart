@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/pr_statistics_widget.dart';
-import 'package:gymtracker/utils/widgets/scheduled_prs_widget.dart';
+import 'package:gymtracker/utils/widgets/loading/loading_widget_flipper.dart';
 
 import '../../../constants/code_constraints.dart';
 import '../../../cubit/main_page_cubit.dart';
 import '../../../services/cloud/cloud_pr.dart';
-import '../../../utils/widgets/pr_scheduler_widget.dart';
+import '../../../utils/widgets/pr/pr_scheduler_widget.dart';
+import '../../../utils/widgets/pr/pr_statistics_widget.dart';
+import '../../../utils/widgets/pr/scheduled_prs_widget.dart';
 
 class PrTrackingWidget extends StatefulWidget {
   const PrTrackingWidget({super.key});

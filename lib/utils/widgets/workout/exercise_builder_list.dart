@@ -2,11 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/utils/widgets/new_workout_tile.dart';
+import 'package:gymtracker/utils/widgets/workout/new_exercise_tile.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../helpers/exercise_type.dart';
-import '../dialogs/exercise_edit_dialog.dart';
+import '../../../helpers/exercise_type.dart';
+import '../../dialogs/exercise_edit_dialog.dart';
 
 typedef ExerciseListBuilderType =
     List<Tuple2<Widget, Tuple2<String, ExerciseType>?>>;
@@ -87,7 +87,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     } else {
       dataToBuild.add(
         Tuple2(
-          NewWorkoutTile(
+          NewExerciseTile(
             key: const ValueKey("newExerciseTile 0"),
             index: 0,
             canDelete: false,
@@ -169,7 +169,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                                     Radius.circular(5),
                                   ),
                                 ),
-                                child: NewWorkoutTile(
+                                child: NewExerciseTile(
                                   index: index,
                                   canDelete: true,
                                   onAddExercise: (exercise, index) {

@@ -5,14 +5,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/helpers/chart_printer.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-import 'package:gymtracker/utils/widgets/navigation_icons_widget.dart';
+import 'package:gymtracker/utils/widgets/misc/navigation_icons_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../constants/code_constraints.dart';
-import '../../cubit/main_page_cubit.dart';
-import '../../services/cloud/cloud_pr.dart';
+import '../../../constants/code_constraints.dart';
+import '../../../cubit/main_page_cubit.dart';
+import '../../../services/cloud/cloud_pr.dart';
+import '../misc/big_centered_text_widget.dart';
 
 typedef PointsData =
     Map<String, Tuple2<List<Tuple2<double, int>>, List<Tuple2<double, int>>>>;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
 
 class WeightRangeFlipperTile extends StatefulWidget {
   final TextEditingController lWeightController;

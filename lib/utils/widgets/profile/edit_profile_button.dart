@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/profile_editor.dart';
 
-import '../../constants/code_constraints.dart';
+import '../../../constants/code_constraints.dart';
 
 class EditProfileButton extends StatelessWidget {
   final MainPageState state;

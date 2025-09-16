@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
-import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
 
 import '../../constants/code_constraints.dart';
 import '../../cubit/main_page_cubit.dart';
+import '../widgets/workout/workout_search_selector.dart';
 
 class PrSchedulerDialog extends StatefulWidget {
   final TextEditingController prNameController;

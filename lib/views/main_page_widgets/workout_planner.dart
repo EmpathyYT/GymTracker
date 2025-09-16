@@ -8,8 +8,8 @@ import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/utils/dialogs/confirmation_dialog.dart';
 import 'package:gymtracker/utils/dialogs/error_dialog.dart';
-import 'package:gymtracker/utils/widgets/frost_card_widget.dart';
-import 'package:gymtracker/utils/widgets/split_slanted_button.dart';
+import 'package:gymtracker/utils/widgets/misc/split_slanted_button.dart';
+import 'package:gymtracker/utils/widgets/workout/frost_card_widget.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/workout_planner_routes/new_workout.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/workout_planner_routes/workout_editor.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/workout_planner_routes/workout_viewer.dart';
@@ -127,36 +127,59 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
       return FrostCardWidget(
         level: _user!.level,
         blurSigma: 10,
-        widget: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
+        widget: Stack(
           children: [
-            Text(
-              workouts[i].name,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.oswald(fontSize: 34),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 6, left: 8.0, right: 8.0),
-              child: Text(
-                textAlign: TextAlign.center,
-                softWrap: true,
-                "Press the button below to view or edit your workout.",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  color: Colors.white60,
-                  fontWeight: FontWeight.w500,
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: PopupMenuButton(
+                  onSelected:
+                      (value) =>
+                          onClickPopUpMenu(value, workouts[i], workouts.length),
+                  itemBuilder:
+                      (BuildContext context) => const [
+                        PopupMenuItem(
+                          value: 'Duplicate',
+                          child: Text('Duplicate'),
+                        ),
+                      ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 15),
-              child: SplitSlantedButton(
-                onLeftTap: () => _openWorkoutButton(workouts[i]),
-                onMiddleTap:
-                    () async => await _deleteWorkoutButton(workouts[i]),
-                onRightTap: () => _editWorkoutButton(workouts[i]),
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  workouts[i].name,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.oswald(fontSize: 34),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 8.0, right: 8.0),
+                  child: Text(
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    "Press the button below to view or edit your workout.",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: Colors.white60,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: SplitSlantedButton(
+                    onLeftTap: () => _openWorkoutButton(workouts[i]),
+                    onMiddleTap:
+                        () async => await _deleteWorkoutButton(workouts[i]),
+                    onRightTap: () => _editWorkoutButton(workouts[i]),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -227,4 +250,19 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
       await context.read<MainPageCubit>().deleteWorkout(workout);
     }
   }
+
+  Function(String, CloudWorkout, int) get onClickPopUpMenu => (
+    String value,
+    CloudWorkout workout,
+    int count,
+  ) {
+    if (count >= 7) {
+      showErrorDialog(
+        context,
+        "You can only have a maximum of 7 workouts. "
+        "Please delete an existing workout before creating a new one.",
+      );
+      return;
+    }
+  };
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
-
+import 'package:gymtracker/utils/widgets/workout/workout_search_selector.dart';
 class ExerciseBuilderWidget extends StatefulWidget {
   final TextEditingController exerciseNameController;
   final TextEditingController exerciseSetsController;

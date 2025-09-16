@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/utils/dialogs/success_dialog.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/friend_tile_widget.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/kin/friend_tile_widget.dart';
 
 import '../../services/cloud/cloud_user.dart';
-import '../../utils/widgets/error_list_tile.dart';
-import '../../utils/widgets/loading_list_tile.dart';
+import '../../utils/widgets/misc/big_centered_text_widget.dart';
+import '../../utils/widgets/misc/error_list_tile.dart';
+import '../../utils/widgets/loading/loading_list_tile.dart';
 
 class FriendsViewerWidget extends StatefulWidget {
   const FriendsViewerWidget({super.key});

@@ -199,13 +199,11 @@ class MainPageCubit extends Cubit<MainPageState> {
     if (state.notifications != null) return;
 
     final frqData = await CloudKinRequest.fetchFriendRequests(_currentUser.id);
-    final srqData = await CloudSquadRequest.fetchSquadRequests(
-      _currentUser.id,
-    );
+    final srqData = await CloudSquadRequest.fetchSquadRequests(_currentUser.id);
     final achievements = await CloudUserAchievement.fetchUserAchievements(
       _currentUser.id,
     );
-    
+
     final RequestsSortingType notifications = {
       oldNotifsKeyName: {
         krqKeyName: [],
@@ -471,6 +469,53 @@ class MainPageCubit extends Cubit<MainPageState> {
       emit(
         WorkoutPlanner(
           exception: e as Exception,
+          notifications: state.notifications,
+        ),
+      );
+    }
+  }
+
+  Future<void> duplicateWorkout(CloudWorkout workout, String name) async {
+    try {
+      emit(
+        WorkoutPlanner(
+          isLoading: true,
+          loadingText: "Duplicating Workout...",
+          workouts: (state as WorkoutPlanner).workouts,
+          notifications: state.notifications,
+        ),
+      );
+      final data = await CloudWorkout.createWorkout(
+        currentUser.id,
+        workout.workouts,
+        name,
+      );
+      final workouts = List<CloudWorkout>.from(
+        (state as WorkoutPlanner).workouts ?? [],
+      )..add(data);
+      emit(
+        WorkoutPlanner(
+          successText: [
+            "Workout Duplicated",
+            "Your workout has been duplicated.",
+          ],
+          workouts: workouts,
+          success: true,
+          notifications: state.notifications,
+        ),
+      );
+      emit(
+        WorkoutPlanner(
+          workouts: workouts,
+          success: false,
+          notifications: state.notifications,
+        ),
+      );
+    } catch (e) {
+      emit(
+        WorkoutPlanner(
+          exception: e as Exception,
+          workouts: (state as WorkoutPlanner).workouts,
           notifications: state.notifications,
         ),
       );

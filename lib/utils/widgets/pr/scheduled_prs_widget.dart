@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/scheduled_pr_list_tile.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/pr/scheduled_pr_list_tile.dart';
 
-import '../../services/cloud/cloud_pr.dart';
+import '../../../services/cloud/cloud_pr.dart';
+import '../misc/big_centered_text_widget.dart';
 
 class ScheduledPrsWidget extends StatefulWidget {
   final List<CloudPr> cache;

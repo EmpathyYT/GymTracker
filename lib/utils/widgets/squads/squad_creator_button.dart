@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../constants/code_constraints.dart';
-import '../../cubit/main_page_cubit.dart';
-import '../../views/main_page_widgets/routes/squad_creator.dart';
+import '../../../constants/code_constraints.dart';
+import '../../../cubit/main_page_cubit.dart';
+import '../../../views/main_page_widgets/routes/squad_creator.dart';
 
 class SquadCreatorButton extends StatelessWidget {
   final MainPageState state;

@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/utils/widgets/absolute_centered_widget.dart';
+import 'package:gymtracker/utils/widgets/misc/absolute_centered_widget.dart';
 
 class NoInternet extends StatefulWidget {
   const NoInternet({super.key});

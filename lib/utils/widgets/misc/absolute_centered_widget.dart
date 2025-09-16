@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/code_constraints.dart';
+import '../../../constants/code_constraints.dart';
 
 class AbsoluteCenteredWidget extends StatefulWidget {
   final Widget child;

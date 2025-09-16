@@ -5,7 +5,6 @@ import 'package:gymtracker/services/cloud/database_controller.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../constants/cloud_contraints.dart';
-import '../../utils/widgets/workout_builder_widget.dart';
 
 class CloudWorkout extends WorkoutJsonAdapter with EquatableMixin {
   static late final DatabaseController dbController;

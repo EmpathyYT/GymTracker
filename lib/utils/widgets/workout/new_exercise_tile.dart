@@ -1,20 +1,20 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/utils/widgets/weight_range_flipper_tile.dart';
-import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
-import 'package:gymtracker/utils/widgets/workout_search_selector.dart';
+import 'package:gymtracker/utils/widgets/workout/weight_range_flipper_tile.dart';
+import 'package:gymtracker/utils/widgets/workout/workout_builder_widget.dart';
+import 'package:gymtracker/utils/widgets/workout/workout_search_selector.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../helpers/exercise_type.dart';
+import '../../../helpers/exercise_type.dart';
 
-class NewWorkoutTile extends StatefulWidget {
+class NewExerciseTile extends StatefulWidget {
   final int index;
   final bool canDelete;
   final void Function(ExerciseType, int) onAddExercise;
   final VoidCallback? onDelete;
 
-  const NewWorkoutTile({
+  const NewExerciseTile({
     super.key,
     required this.index,
     required this.canDelete,
@@ -23,10 +23,10 @@ class NewWorkoutTile extends StatefulWidget {
   });
 
   @override
-  State<NewWorkoutTile> createState() => _NewWorkoutTileState();
+  State<NewExerciseTile> createState() => _NewExerciseTileState();
 }
 
-class _NewWorkoutTileState extends State<NewWorkoutTile>
+class _NewExerciseTileState extends State<NewExerciseTile>
     with TickerProviderStateMixin {
   final TextEditingController exerciseNameController = TextEditingController();
   final TextEditingController _lWeight = TextEditingController();

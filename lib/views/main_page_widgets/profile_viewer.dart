@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
-import 'package:gymtracker/utils/widgets/level_indicator_widget.dart';
-import 'package:gymtracker/utils/widgets/loading_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/profile/level_indicator_widget.dart';
+import 'package:gymtracker/utils/widgets/loading/loading_widget_flipper.dart';
 
 import '../../constants/code_constraints.dart';
 

@@ -10,7 +10,7 @@ import 'package:gymtracker/utils/dialogs/success_dialog.dart';
 import 'package:gymtracker/utils/dialogs/user_info_card_dialog.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../../utils/widgets/big_centered_text_widget.dart';
+import '../../../utils/widgets/misc/big_centered_text_widget.dart';
 
 class AddWarriorWidget extends StatefulWidget {
   const AddWarriorWidget({super.key});

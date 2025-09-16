@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
-import 'package:gymtracker/utils/widgets/exercise_builder_widget.dart';
-import 'package:gymtracker/utils/widgets/workout_builder_widget.dart';
+import 'package:gymtracker/utils/widgets/workout/exercise_builder_widget.dart';
 
 import '../../constants/code_constraints.dart';
 import '../../cubit/main_page_cubit.dart';
+import '../widgets/workout/workout_builder_widget.dart';
 
 class NoteInputDialog extends StatefulWidget {
   final ExerciseType initialExercise;

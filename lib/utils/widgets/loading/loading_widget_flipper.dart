@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import 'double_widget_flipper.dart';
+import '../misc/double_widget_flipper.dart';
 
 class LoadingWidgetFlipper extends StatefulWidget {
   final bool isLoaded;

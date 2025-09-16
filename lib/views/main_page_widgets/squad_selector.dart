@@ -3,17 +3,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/universal_card.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/misc/universal_card.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/squad_page_route.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/srq_notifications.dart';
 
 import '../../cubit/main_page_cubit.dart';
 import '../../services/cloud/cloud_notification.dart';
 import '../../services/cloud/cloud_squad.dart';
-import '../../utils/widgets/error_list_tile.dart';
-import '../../utils/widgets/squad_tile_widget.dart';
+import '../../utils/widgets/misc/big_centered_text_widget.dart';
+import '../../utils/widgets/misc/error_list_tile.dart';
+import '../../utils/widgets/squads/squad_tile_widget.dart';
 
 class SquadSelectorWidget extends StatefulWidget {
   const SquadSelectorWidget({super.key});

@@ -9,7 +9,7 @@ import '../../../../constants/code_constraints.dart';
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../services/cloud/cloud_workout.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
-import '../../../../utils/widgets/workout_builder_widget.dart';
+import '../../../../utils/widgets/workout/workout_builder_widget.dart';
 
 class WorkoutEditorRoute extends StatefulWidget {
   final CloudWorkout workout;
@@ -59,6 +59,13 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
           await showErrorDialog(
             context,
             "Please enter a name for your workout.",
+          );
+          return;
+        }
+        if (validateTitles(_nameController.text) != null) {
+          await showErrorDialog(
+            context,
+            validateTitles(_nameController.text)!,
           );
           return;
         }

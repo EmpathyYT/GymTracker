@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 
-import '../dialogs/user_info_card_dialog.dart';
+import '../../dialogs/user_info_card_dialog.dart';
 
 class FriendTileWidget extends StatelessWidget {
   final CloudUser user;

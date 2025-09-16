@@ -7,7 +7,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../utils/dialogs/error_dialog.dart';
-import '../../../../utils/widgets/workout_builder_widget.dart';
+import '../../../../utils/widgets/workout/workout_builder_widget.dart';
 
 class NewWorkoutRoute extends StatefulWidget {
   const NewWorkoutRoute({super.key});

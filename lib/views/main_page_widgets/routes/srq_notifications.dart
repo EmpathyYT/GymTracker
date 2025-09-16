@@ -4,11 +4,11 @@ import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
 import '../../../constants/code_constraints.dart';
 import '../../../services/cloud/cloud_user.dart';
-import '../../../utils/widgets/double_widget_flipper.dart';
-import '../../../utils/widgets/error_list_tile.dart';
-import '../../../utils/widgets/loading_list_tile.dart';
-import '../../../utils/widgets/request_notification_tile.dart';
-import '../../../utils/widgets/srq_subtitle.dart';
+import '../../../utils/widgets/misc/double_widget_flipper.dart';
+import '../../../utils/widgets/misc/error_list_tile.dart';
+import '../../../utils/widgets/loading/loading_list_tile.dart';
+import '../../../utils/widgets/misc/request_notification_tile.dart';
+import '../../../utils/widgets/squads/srq_subtitle.dart';
 
 class SrqNotificationsWidget extends StatefulWidget {
   final List<CloudSquadRequest> notifications;

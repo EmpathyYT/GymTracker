@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../constants/code_constraints.dart';
-import '../../views/main_page_widgets/profile_viewer.dart';
+import '../../../constants/code_constraints.dart';
+import '../../../views/main_page_widgets/profile_viewer.dart';
 
 class ProfilePictureWidget extends StatefulWidget {
   final int userLevel;

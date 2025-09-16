@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
 
-import '../../services/cloud/cloud_user.dart';
+import '../../../services/cloud/cloud_user.dart';
 
 class AnimatedRequestTile extends StatefulWidget {
   final int index;

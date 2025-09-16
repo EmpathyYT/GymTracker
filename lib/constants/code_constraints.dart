@@ -120,6 +120,20 @@ String? validateWeightInput(String? value) {
 }
 
 
+String? validateTitles(String? value) {
+  final allowed = RegExp(r'^[a-zA-Z !@#\$%\^&\*\(\)1-9\-,\.<>=\+_]+$');
+
+  if (value == null || value.isEmpty) {
+    return "Please enter a name.";
+  } else if (value.length > 50) {
+    return "Name is too long. "
+        "Please enter a name with less than 50 characters.";
+  } else if (!allowed.hasMatch(value)) {
+    return "Please enter a valid name. "
+        "Only letters, numbers, and special characters are allowed.";
+  }
+  return null;
+}
 
 Color darkenBackgroundColor(BuildContext context) {
   return darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2);

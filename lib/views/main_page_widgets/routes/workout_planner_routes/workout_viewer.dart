@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
-import 'package:gymtracker/utils/widgets/workout_viewer_widget.dart';
 
 import '../../../../constants/code_constraints.dart';
+import '../../../../utils/widgets/workout/workout_viewer_widget.dart';
 
 class WorkoutViewerRoute extends StatefulWidget {
   final CloudWorkout workout;

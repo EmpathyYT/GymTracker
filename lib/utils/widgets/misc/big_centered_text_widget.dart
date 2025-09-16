@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/absolute_centered_widget.dart';
+import 'package:gymtracker/utils/widgets/misc/absolute_centered_widget.dart';
 
 class BigCenteredText extends StatelessWidget {
   final String text;

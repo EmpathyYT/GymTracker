@@ -1,7 +1,6 @@
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../utils/widgets/workout_builder_widget.dart';
 
 part 'workout_json_adapter.g.dart';
 

@@ -11,7 +11,7 @@ import '../../../../services/cloud/cloud_user.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
 import '../../../../utils/dialogs/user_info_card_dialog.dart';
-import '../../../../utils/widgets/big_centered_text_widget.dart';
+import '../../../../utils/widgets/misc/big_centered_text_widget.dart';
 
 class AddMemberRoute extends StatefulWidget {
   final CloudSquad squad;

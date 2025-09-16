@@ -7,11 +7,11 @@ import 'package:gymtracker/cubit/main_page_cubit.dart';
 import 'package:gymtracker/extensions/date_time_extension.dart';
 import 'package:gymtracker/helpers/achievement_sorter.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
-import 'package:gymtracker/utils/widgets/double_widget_flipper.dart';
-import 'package:gymtracker/utils/widgets/universal_card.dart';
+import 'package:gymtracker/utils/widgets/misc/double_widget_flipper.dart';
+import 'package:gymtracker/utils/widgets/misc/universal_card.dart';
 
 import '../../../constants/code_constraints.dart';
+import '../../../utils/widgets/misc/big_centered_text_widget.dart';
 
 class NotificationsRoute extends StatefulWidget {
   final RequestsSortingType notifications;

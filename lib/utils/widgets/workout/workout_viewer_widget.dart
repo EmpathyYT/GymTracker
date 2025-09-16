@@ -2,11 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/rounded_list_builder.dart';
-import 'package:gymtracker/utils/widgets/big_centered_text_widget.dart';
 
-import '../../constants/code_constraints.dart';
-import '../dialogs/exercise_note_dialog.dart';
-import 'navigation_icons_widget.dart';
+import '../../../constants/code_constraints.dart';
+import '../../dialogs/exercise_note_dialog.dart';
+import '../misc/big_centered_text_widget.dart';
+import '../misc/navigation_icons_widget.dart';
 
 class WorkoutViewerWidget extends StatefulWidget {
   final MapEntry<int, List<ExerciseType>> exercise;

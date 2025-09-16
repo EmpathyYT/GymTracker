@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-import '../../constants/code_constraints.dart';
-import '../dialogs/pr_scheduler_dialog.dart';
+import '../../../constants/code_constraints.dart';
+import '../../dialogs/pr_scheduler_dialog.dart';
 
 class PrSchedulerWidget extends StatefulWidget {
   final TextEditingController prDescriptionController;

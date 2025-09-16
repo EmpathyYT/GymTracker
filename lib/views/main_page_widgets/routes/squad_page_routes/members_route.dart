@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/services/cloud/cloud_squad.dart';
-import 'package:gymtracker/utils/widgets/squad_member_tile_widget.dart';
 
 import '../../../../cubit/main_page_cubit.dart';
 import '../../../../services/cloud/cloud_user.dart';
 import '../../../../utils/dialogs/error_dialog.dart';
 import '../../../../utils/dialogs/success_dialog.dart';
-import '../../../../utils/widgets/absolute_centered_widget.dart';
-import '../../../../utils/widgets/double_widget_flipper.dart';
-import '../../../../utils/widgets/error_list_tile.dart';
+import '../../../../utils/widgets/misc/absolute_centered_widget.dart';
+import '../../../../utils/widgets/misc/double_widget_flipper.dart';
+import '../../../../utils/widgets/misc/error_list_tile.dart';
+import '../../../../utils/widgets/squads/squad_member_tile_widget.dart';
 
 class MembersSquadRoute extends StatefulWidget {
   final CloudSquad squad;
