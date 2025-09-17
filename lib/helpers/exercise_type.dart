@@ -11,6 +11,8 @@ class ExerciseType with EquatableMixin {
   Tuple2<double, double> weightRange;
   String notes;
   bool isKg;
+  int? restPeriod;
+  bool? isInMins;
 
   ExerciseType({
     required this.name,

@@ -1,12 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/utils/widgets/workout/new_exercise_tile.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../helpers/exercise_type.dart';
-import '../../dialogs/exercise_edit_dialog.dart';
+import 'exercise_tile.dart';
 
 typedef ExerciseListBuilderType =
     List<Tuple2<Widget, Tuple2<String, ExerciseType>?>>;
@@ -107,10 +105,18 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
       key: ValueKey("$uuid ${index == draggingIndex}"),
       children: [
         _buildTileDivider(index),
-        _buildListTile(index, value),
-        index == exerciseListNotifier.value.length - 1
-            ? _buildTileDivider(index + 1)
-            : const SizedBox.shrink(),
+        ExerciseTile(
+          exercise: value.item2,
+          index: index,
+          uuid: uuid,
+          rebuildList: () {
+            setState(() {
+              _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+            });
+          },
+          onRemoveExercise: (uuid) => onRemoveExercise(uuid),
+        ),
+        _buildFinalDivider(index),
       ],
     );
   }
@@ -133,138 +139,9 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      if (exerciseAdderExists) {
-                        showSnackBar(
-                          context,
-                          this,
-                          "Please use the existing exercise adder.",
-                          darkenColor(
-                            Theme.of(context).scaffoldBackgroundColor,
-                            0.2,
-                          ),
-                        );
-                        return;
-                      }
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      setState(() {
-                        exerciseAdderExists = true;
-                        _listToBuild = _listDataBuilder(
-                          exerciseListNotifier.value,
-                        );
-                        _listToBuild?.insert(
-                          index,
-                          Tuple2(
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              key: ValueKey("newExerciseTile $index"),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white60,
-                                    width: 0.9,
-                                  ),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5),
-                                  ),
-                                ),
-                                child: NewExerciseTile(
-                                  index: index,
-                                  canDelete: true,
-                                  onAddExercise: (exercise, index) {
-                                    onAddExercise(exercise, index);
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(FocusNode());
-                                    setState(() {
-                                      exerciseAdderExists = false;
-                                      _listToBuild = _listDataBuilder(
-                                        exerciseListNotifier.value,
-                                      );
-                                    });
-                                  },
-                                  onDelete: () {
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(FocusNode());
-                                    setState(() {
-                                      exerciseAdderExists = false;
-                                      _listToBuild = _listDataBuilder(
-                                        exerciseListNotifier.value,
-                                      );
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            null,
-                          ),
-                        );
-                      });
-                    },
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: darkenColor(
-                          Theme.of(context).scaffoldBackgroundColor,
-                          0.2,
-                        ),
-                      ),
-                      child: const Text.rich(
-                        textAlign: TextAlign.center,
-                        TextSpan(
-                          children: [
-                            WidgetSpan(
-                              alignment: PlaceholderAlignment.middle,
-                              child: Icon(
-                                Icons.fitness_center,
-                                size: 17,
-                                color: Colors.white60,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'New Exercise',
-                              style: TextStyle(
-                                color: Colors.white60,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  _createNewExerciseTileWidget(index),
                   const SizedBox(width: 20),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: darkenColor(
-                        Theme.of(context).scaffoldBackgroundColor,
-                        0.2,
-                      ),
-                    ),
-                    child: const Text.rich(
-                      textAlign: TextAlign.center,
-                      TextSpan(
-                        children: [
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: Icon(
-                              Icons.electric_bolt,
-                              size: 17,
-                              color: Colors.white60,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'Rest Period',
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _createNewRestTile(index)
                 ],
               ),
             ),
@@ -274,131 +151,133 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     );
   }
 
-  Widget _buildListTile(int index, Tuple2<String, ExerciseType> value) {
-    final ExerciseType exercise = value.item2;
-    final String uuid = value.item1;
-    final noWeight =
-        exercise.weightRange.item1 == 0 && exercise.weightRange.item2 == 0;
-
-    final exerciseName =
-        noWeight
-            ? exercise.name
-            : "${exercise.name} "
-                "(${exercise.exerciseWeightToString})";
-
-    onTap() async {
-      await showWorkoutEditDialog(context, exercise).then((_) {
-        setState(() {
-          _listToBuild = _listDataBuilder(exerciseListNotifier.value);
-        });
-        if (!mounted) return;
-        FocusScope.of(context).requestFocus(FocusNode());
-      });
-    }
-
-    final initWidget = ListTile(
-      minVerticalPadding: 1,
-      visualDensity: const VisualDensity(vertical: -4),
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-      title: Text(
-        exerciseName,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(
-        "${exercise.sets} x ${exercise.reps}",
-        style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            onPressed: () => onRemoveExercise(uuid),
-            icon: const Icon(Icons.remove_circle),
-          ),
-          !exerciseAdderExists ? ReorderableDragStartListener(
-            key: ValueKey(draggingIndex == index),
-            index: index,
-            child: const Icon(Icons.drag_handle),
-          ) : const SizedBox.shrink(),
-        ],
-      ),
-    );
-    final isTop = index == 0;
-    return InkWell(
-      customBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(isTop ? 20 : 0),
-          topRight: Radius.circular(isTop ? 20 : 0),
-          bottomLeft: Radius.circular(!isTop ? 20 : 0),
-          bottomRight: Radius.circular(!isTop ? 20 : 0),
-        ),
-      ),
-      onTap: () => onTap(),
-      child: initWidget,
-    );
-  }
-
   Widget _buildListView() {
-    if (exerciseAdderExists) {
-      return ListView.builder(
-        itemCount: _listToBuild?.length,
-        itemBuilder: (context, index) {
-          return _listToBuild![index].item1;
-        },
-      );
-    } else {
-      return ReorderableListView.builder(
-        buildDefaultDragHandles: false,
-        itemBuilder: (context, index) {
-          return _listToBuild![index].item1;
-        },
-        proxyDecorator: (child, index, animation) {
-          return Material(
-            elevation: 8,
-            color: Colors.transparent,
-            child: ScaleTransition(
-              scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
-              child: child,
-            ),
-          );
-        },
-        itemCount: _listToBuild!.length,
-        onReorder: (oldIndex, newIndex) {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-          final item = _listToBuild!.removeAt(oldIndex);
-          _listToBuild!.insert(newIndex, item);
-          onReorder(newIndex, _listToBuild![newIndex].item2);
-          setState(() {});
-        },
-      );
-    }
+    return exerciseAdderExists
+        ? listBuilderWhileAddingExercise
+        : listBuilderWithoutAddingExercise;
   }
 
-  // ListTile _copyListTileForTap(
-  //   ListTile tile,
-  //   Function onTap,
-  //   String uuid,
-  //   int index,
-  // ) {
-  //   return ListTile(
-  //     key: ValueKey("$uuid ${index == draggingIndex}"),
-  //     title: tile.title,
-  //     dense: tile.dense,
-  //     contentPadding: tile.contentPadding,
-  //     subtitle: tile.subtitle,
-  //     leading: tile.leading,
-  //     trailing: tile.trailing,
-  //     onTap: () => onTap(),
-  //   );
-  // }
+  Widget _buildFinalDivider(int index) {
+    return index == exerciseListNotifier.value.length - 1
+        ? _buildTileDivider(index + 1)
+        : const SizedBox.shrink();
+  }
 
+  void _createNewExerciseTileCallback(int index) {
+    if (exerciseAdderExists) {
+      showSnackBar(
+        context,
+        this,
+        "Please use the existing exercise adder.",
+        darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+      );
+      return;
+    }
+    FocusScope.of(context).requestFocus(FocusNode());
+    setState(() {
+      exerciseAdderExists = true;
+      _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+      _listToBuild?.insert(
+        index,
+        Tuple2(
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            key: ValueKey("newExerciseTile $index"),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white60, width: 0.9),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+              child: NewExerciseTile(
+                index: index,
+                canDelete: true,
+                onAddExercise: (exercise, index) {
+                  onAddExercise(exercise, index);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    exerciseAdderExists = false;
+                    _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+                  });
+                },
+                onDelete: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    exerciseAdderExists = false;
+                    _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+                  });
+                },
+              ),
+            ),
+          ),
+          null,
+        ),
+      );
+    });
+  }
+
+  Widget _createNewExerciseTileWidget(int index) {
+    return InkWell(
+      onTap: () => _createNewExerciseTileCallback(index),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+        ),
+        child: const Text.rich(
+          textAlign: TextAlign.center,
+          TextSpan(
+            children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(
+                  Icons.fitness_center,
+                  size: 17,
+                  color: Colors.white60,
+                ),
+              ),
+              TextSpan(
+                text: 'New Exercise',
+                style: TextStyle(color: Colors.white60, fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _createNewRestTile(int index) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: darkenColor(
+          Theme.of(context).scaffoldBackgroundColor,
+          0.2,
+        ),
+      ),
+      child: const Text.rich(
+        textAlign: TextAlign.center,
+        TextSpan(
+          children: [
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(
+                Icons.electric_bolt,
+                size: 17,
+                color: Colors.white60,
+              ),
+            ),
+            TextSpan(
+              text: 'Rest Period',
+              style: TextStyle(
+                color: Colors.white60,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
   ValueNotifier<List<Tuple2<String, ExerciseType>>> get exerciseListNotifier =>
       widget.exerciseListNotifier;
 
@@ -408,6 +287,40 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   void Function(ExerciseType, int) get onAddExercise => widget.onAddExercise;
 
   void Function(String uuid) get onRemoveExercise => widget.onRemoveExercise;
+
+  Widget get listBuilderWhileAddingExercise => ListView.builder(
+    itemCount: _listToBuild?.length,
+    itemBuilder: (context, index) {
+      return _listToBuild![index].item1;
+    },
+  );
+
+  Widget get listBuilderWithoutAddingExercise => ReorderableListView.builder(
+    buildDefaultDragHandles: false,
+    itemBuilder: (context, index) {
+      return _listToBuild![index].item1;
+    },
+    proxyDecorator: (child, index, animation) {
+      return Material(
+        elevation: 8,
+        color: Colors.transparent,
+        child: ScaleTransition(
+          scale: animation.drive(Tween(begin: 1.0, end: 0.9)),
+          child: child,
+        ),
+      );
+    },
+    itemCount: _listToBuild!.length,
+    onReorder: (oldIndex, newIndex) {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final item = _listToBuild!.removeAt(oldIndex);
+      _listToBuild!.insert(newIndex, item);
+      onReorder(newIndex, _listToBuild![newIndex].item2);
+      setState(() {});
+    },
+  );
 
   int get day => widget.day;
 }

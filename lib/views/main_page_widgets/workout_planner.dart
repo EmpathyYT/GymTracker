@@ -255,7 +255,7 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
     String value,
     CloudWorkout workout,
     int count,
-  ) {
+  ) async {
     if (count >= 7) {
       showErrorDialog(
         context,
@@ -263,6 +263,19 @@ class _WorkoutPlannerWidgetState extends State<WorkoutPlannerWidget> {
         "Please delete an existing workout before creating a new one.",
       );
       return;
+    } else {
+      try {
+        await context.read<MainPageCubit>().duplicateWorkout(workout, value);
+        if (!mounted) return;
+        await showSuccessDialog(
+          context,
+          "Workout Duplicated",
+          "The workout has been duplicated successfully.",
+        );
+      } catch (_) {
+        if (!mounted) return;
+        await showErrorDialog(context, "Please try again later.");
+      }
     }
   };
 }

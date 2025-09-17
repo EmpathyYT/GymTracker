@@ -55,7 +55,7 @@ class _NoInternetState extends State<NoInternet> {
                   textAlign: TextAlign.center,
                   TextSpan(
                     text:
-                    'Without the storm, the warship drifts alone.\n',
+                    'The path of the messenger is lost in the mist.\n',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
