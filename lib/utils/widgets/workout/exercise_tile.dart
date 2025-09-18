@@ -35,12 +35,12 @@ class _ExerciseTileState extends State<ExerciseTile> {
     super.initState();
     isTop = index == 0;
     final weightRange = exercise.weightRange;
-    noWeightRestriction = weightRange.item1 == 0 && weightRange.item2 == 0;
+    noWeightRestriction = weightRange!.item1 == 0 && weightRange.item2 == 0;
     exerciseName =
-        noWeightRestriction
+        (noWeightRestriction
             ? exercise.name
             : "${exercise.name} "
-                "(${exercise.exerciseWeightToString})";
+                "(${exercise.exerciseWeightToString})")!;
   }
 
   @override

@@ -121,6 +121,11 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
         uuid: uuid,
         exerciseAdderExists: exerciseAdderExists,
         onRemoveExercise: onRemoveExercise,
+        rebuildList: () {
+          setState(() {
+            _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+          });
+        },
       );
     } else {
       return ExerciseTile(
@@ -386,5 +391,3 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
   int get day => widget.day;
 }
-
-

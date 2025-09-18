@@ -611,6 +611,7 @@ class MainPageCubit extends Cubit<MainPageState> {
           ),
         );
       } catch (e) {
+        log(e.toString());
         emit(
           WorkoutPlanner(
             workouts: (state as WorkoutPlanner).workouts,

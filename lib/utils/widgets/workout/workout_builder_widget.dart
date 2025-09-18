@@ -3,8 +3,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gymtracker/utils/widgets/workout/exercise_builder_list.dart';
 import 'package:gymtracker/utils/widgets/misc/navigation_icons_widget.dart';
+import 'package:gymtracker/utils/widgets/workout/exercise_builder_list.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
@@ -36,29 +36,12 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
     with SingleTickerProviderStateMixin {
   final ValueNotifier<List<Tuple2<String, ExerciseType>>>
   _exerciseListNotifier = ValueNotifier([]);
-  final ValueNotifier<bool> _isRangeNotifier = ValueNotifier(false);
-  final TextEditingController _exerciseNameController = TextEditingController();
-  final TextEditingController _exerciseRepsController = TextEditingController();
-  final TextEditingController _exerciseSetsController = TextEditingController();
-  final TextEditingController _exerciseLWeightController =
-      TextEditingController();
-  final TextEditingController _exerciseHWeightController =
-      TextEditingController();
   late final StreamSubscription<FilteredExerciseFormat>
   _exerciseStreamSubscription;
   int? draggingIndex;
 
   @override
   void initState() {
-    _exerciseListNotifier.addListener(() {
-      if (_exerciseListNotifier.value.isNotEmpty) {
-        _exerciseNameController.clear();
-        _exerciseRepsController.clear();
-        _exerciseSetsController.clear();
-        _exerciseLWeightController.clear();
-        _exerciseHWeightController.clear();
-      }
-    });
     _exerciseListNotifier.value = _initExercises() ?? [];
     _exerciseStreamSubscription = _exerciseController.listen(
       (event) => _streamEventCallback(event),
@@ -68,14 +51,8 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
 
   @override
   void dispose() {
-    _exerciseNameController.dispose();
-    _exerciseRepsController.dispose();
-    _exerciseSetsController.dispose();
-    _exerciseLWeightController.dispose();
-    _exerciseHWeightController.dispose();
-    _isRangeNotifier.dispose();
-    _exerciseStreamSubscription.cancel();
     _exerciseListNotifier.dispose();
+    _exerciseStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -271,5 +248,3 @@ String? _validateRangesInput(String low, String high) {
   }
   return null;
 }
-
-

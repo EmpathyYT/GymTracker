@@ -129,7 +129,7 @@ class HomePage extends StatelessWidget {
           if (!context.mounted) break;
           log("connected");
           oldStatus = status;
-          context.read<AuthBloc>().add(const AuthEventInitialize());
+          context.read<AuthBloc>().add(const AuthEventReloadUser());
           break;
         case InternetStatus.disconnected:
           if (!context.mounted) break;
@@ -156,6 +156,7 @@ Future<void> _setupLogging() async {
   });
   FlutterError.onError = (FlutterErrorDetails details) {
     _logger.severe('FlutterError', details.exception, details.stack);
+    log(details.toString());
     FlutterError.dumpErrorToConsole(details);
   };
 }

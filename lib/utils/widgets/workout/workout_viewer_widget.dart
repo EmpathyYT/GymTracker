@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/rounded_list_builder.dart';
 
@@ -85,10 +86,19 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                       itemCount: exercise.length,
                       itemBuilder: (context, index) {
                         final exerciseElement = exercise[index];
-                        final exerciseWeightToString =
-                            exerciseElement.exerciseWeightToString;
+                        final rightCell = _rightCellBuilder(
+                          exerciseElement,
+                          groupSize,
+                        );
+                        final leftCell = _leftCellBuilder(
+                          exerciseElement,
+                          groupSize,
+                        );
                         return GestureDetector(
                           onTap: () {
+                            if (exerciseElement.restPeriod != null) {
+                              return;
+                            }
                             showExerciseNoteDialog(
                               context,
                               exerciseElement.notes,
@@ -101,28 +111,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
-                                    child: AutoSizeText.rich(
-                                      TextSpan(
-                                        text: exerciseElement.name,
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                "\n(${exerciseElement.sets} "
-                                                "x ${exerciseElement.reps})",
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.white70,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      group: groupSize,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
+                                    child: leftCell,
                                   ),
                                 ),
                                 const VerticalDivider(
@@ -133,15 +122,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
-                                    child: AutoSizeText(
-                                      exerciseWeightToString,
-                                      group: groupSize,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
+                                    child: rightCell,
                                   ),
                                 ),
                               ],
@@ -173,7 +154,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                           type: _navigationType,
                           arrowNavigationCallback:
                               (bool moveToRight) =>
-                              arrowNavigationCallback(moveToRight),
+                                  arrowNavigationCallback(moveToRight),
                         ),
                       ],
                     ),
@@ -192,6 +173,61 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
       return const BigAbsoluteCenteredText(text: "No exercises for this day.");
     }
     return null;
+  }
+
+  Widget _rightCellBuilder(
+    ExerciseType exerciseElement,
+    AutoSizeGroup groupSize,
+  ) {
+    final restPeriod = exerciseElement.restPeriod;
+    String data;
+    if (restPeriod == null) {
+      data = "${exerciseElement.sets} x ${exerciseElement.reps}";
+    } else {
+      final isMins = exerciseElement.isInMins ?? false;
+      if (isMins) {
+        data =
+            "${restPeriod.removeDecimalIfNecessary} minutes\n"
+            "(${(restPeriod * 60).ceil()} seconds)";
+      } else {
+        data = "${restPeriod.removeDecimalIfNecessary} seconds";
+      }
+    }
+
+    return AutoSizeText(
+      data,
+      group: groupSize,
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+    );
+  }
+
+  Widget _leftCellBuilder(
+    ExerciseType exerciseElement,
+    AutoSizeGroup groupSize,
+  ) {
+    final double? restPeriod = exerciseElement.restPeriod;
+    final List<TextSpan> children = [];
+
+    if (restPeriod == null) {
+      children.add(
+        TextSpan(
+          text:
+              "\n(${exerciseElement.sets} "
+              "x ${exerciseElement.reps})",
+          style: const TextStyle(fontSize: 17, color: Colors.white70),
+        ),
+      );
+    }
+    return AutoSizeText.rich(
+      TextSpan(
+        text: restPeriod == null ? exerciseElement.name : "Rest Period",
+        children: children,
+      ),
+      group: groupSize,
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+    );
   }
 
   List<ExerciseType> get exercise => widget.exercise.value;

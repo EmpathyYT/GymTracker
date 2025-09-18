@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
-import 'package:tuple/tuple.dart';
 
 import '../../../helpers/exercise_type.dart';
 
@@ -127,13 +126,8 @@ class _NewRestPeriodTileState extends State<NewRestPeriodTile>
     widget.onAddExercise(
       ExerciseType(
         type: ExerciseTypesEnum.rest,
-        name: "",
         restPeriod: restPeriod,
         isInMins: _isMinsNotifier.value,
-        reps: 0,
-        sets: 0,
-        weightRange: const Tuple2(0, 0),
-        notes: '',
       ),
       index,
     );

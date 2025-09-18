@@ -159,8 +159,8 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void _startAuthCheck(BuildContext context) async {
-    _timer ??= Timer.periodic(const Duration(seconds: 15), (timer) async {
-      context.read<AuthBloc>().add(const AuthEventInitialize());
+    _timer ??= Timer.periodic(const Duration(seconds: 5), (timer) async {
+      context.read<AuthBloc>().add(const AuthEventReloadUser());
     });
   }
 }

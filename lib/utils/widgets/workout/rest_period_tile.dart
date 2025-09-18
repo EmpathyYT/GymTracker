@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
+import 'package:gymtracker/utils/dialogs/rest_edit_dialog.dart';
 
 class RestPeriodTile extends StatefulWidget {
   final int index;
@@ -10,6 +9,7 @@ class RestPeriodTile extends StatefulWidget {
   final String uuid;
   final bool exerciseAdderExists;
   final Function(String) onRemoveExercise;
+  final VoidCallback rebuildList;
 
   const RestPeriodTile({
     super.key,
@@ -18,6 +18,7 @@ class RestPeriodTile extends StatefulWidget {
     required this.uuid,
     required this.exerciseAdderExists,
     required this.onRemoveExercise,
+    required this.rebuildList,
   });
 
   @override
@@ -96,7 +97,13 @@ class _RestPeriodTileState extends State<RestPeriodTile> {
 
   Function(String) get onRemoveExercise => widget.onRemoveExercise;
 
-  VoidCallback get onTap => () {
-    log("message");
+  VoidCallback get rebuildList => widget.rebuildList;
+
+  VoidCallback get onTap => () async {
+    await showRestEditDialog(context, exercise).then((_) {
+      rebuildList();
+      if (!mounted) return;
+      FocusScope.of(context).requestFocus(FocusNode());
+    });
   };
 }

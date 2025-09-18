@@ -30,7 +30,7 @@ class _NoteInputDialogState extends State<NoteInputDialog>
   @override
   void initState() {
     exerciseNameController =
-        TextEditingController()..text = initialExercise.name;
+        TextEditingController()..text = initialExercise.name!;
     exerciseSetsController =
         TextEditingController()..text = initialExercise.sets.toString();
     exerciseRepsController =
@@ -38,18 +38,18 @@ class _NoteInputDialogState extends State<NoteInputDialog>
     exerciseLWeightController =
         TextEditingController()
           ..text =
-              initialExercise.weightRange.item1.toString() == "0.0"
+              initialExercise.weightRange!.item1.toString() == "0.0"
                   ? ""
-                  : initialExercise.weightRange.item1.toString();
+                  : initialExercise.weightRange!.item1.toString();
     exerciseHWeightController =
         TextEditingController()
           ..text =
-              initialExercise.weightRange.item2.toString() == "0.0"
+              initialExercise.weightRange!.item2.toString() == "0.0"
                   ? ""
-                  : initialExercise.weightRange.item2.toString();
+                  : initialExercise.weightRange!.item2.toString();
     isRangeNotifier = ValueNotifier(
-      initialExercise.weightRange.item1 != initialExercise.weightRange.item2 &&
-          initialExercise.weightRange.item2 != 0,
+      initialExercise.weightRange!.item1 != initialExercise.weightRange!.item2 &&
+          initialExercise.weightRange!.item2 != 0,
     );
     exerciseNoteController =
         TextEditingController()..text = initialExercise.notes;
@@ -157,7 +157,14 @@ class _NoteInputDialogState extends State<NoteInputDialog>
                 isRangeNotifier.value
                     ? exerciseHWeightController.text.trim()
                     : "0.0";
-
+            final notesCheck = validateTitles(
+              exerciseNoteController.text.trim(),
+            );
+            if (notesCheck != null) {
+              showSnackBar(context, this, notesCheck, darkenBackgroundColor(
+                  context));
+              return;
+            }
             initialExercise.json = {
               'name': exerciseNameController.text.trim(),
               'reps': int.parse(exerciseRepsController.text.trim()),

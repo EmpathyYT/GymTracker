@@ -6,21 +6,21 @@ import '../constants/code_constraints.dart';
 
 class ExerciseType with EquatableMixin {
   ExerciseTypesEnum type;
-  String name;
-  int reps;
-  int sets;
-  Tuple2<double, double> weightRange;
+  String? name;
+  int? reps;
+  int? sets;
+  Tuple2<double, double>? weightRange;
   String notes;
-  bool isKg;
+  bool? isKg;
   double? restPeriod;
   bool? isInMins;
 
   ExerciseType({
     required this.type,
-    required this.name,
-    required this.reps,
-    required this.sets,
-    required this.weightRange,
+    this.name,
+    this.reps,
+    this.sets,
+    this.weightRange,
     this.restPeriod,
     this.isInMins,
     this.notes = '',
@@ -28,15 +28,15 @@ class ExerciseType with EquatableMixin {
   });
 
   ExerciseType.fromMap(Map<String, dynamic> map)
-    : name = map['name'] as String,
-      reps = map['reps'] as int,
-      sets = map['sets'] as int,
+    : name = map['name'] as String?,
+      reps = map['reps'] as int?,
+      sets = map['sets'] as int?,
       type =
           map['type'] == 'rest'
               ? ExerciseTypesEnum.rest
               : ExerciseTypesEnum.exercise,
       weightRange = Tuple2<double, double>(
-        double.parse(map['weightRange'][0].toString()),
+        double.tryParse(map['weightRange'][0].toString()) ?? 0,
         double.tryParse(map['weightRange'][1].toString()) ?? 0,
       ),
       notes = map['notes'] as String? ?? '',
@@ -55,22 +55,23 @@ class ExerciseType with EquatableMixin {
         'name': name,
         'reps': reps,
         'sets': sets,
-        'weightRange': [weightRange.item1, weightRange.item2],
+        'weightRange': [weightRange!.item1, weightRange!.item2],
         'notes': notes,
       };
     }
   }
 
   String get exerciseWeightToString {
+    if (type == ExerciseTypesEnum.rest) return noWeightRestrictionMessage;
     String initialWeight =
-        weightRange.item1.removeDecimalIfNecessary.toString();
-    if (initialWeight.isEmpty || weightRange.item1 == 0) {
+        weightRange!.item1.removeDecimalIfNecessary.toString();
+    if (initialWeight.isEmpty || weightRange!.item1 == 0) {
       return noWeightRestrictionMessage;
     }
-    if (weightRange.item2 == 0 || weightRange.item2 == weightRange.item1) {
+    if (weightRange!.item2 == 0 || weightRange!.item2 == weightRange!.item1) {
       initialWeight += " kg";
     } else {
-      initialWeight += " - ${weightRange.item2.removeDecimalIfNecessary} kg";
+      initialWeight += " - ${weightRange!.item2.removeDecimalIfNecessary} kg";
     }
     return initialWeight;
   }
@@ -78,9 +79,9 @@ class ExerciseType with EquatableMixin {
   //todo add an edit method to update the exercise type
 
   set json(Map<String, dynamic> map) {
-    name = map['name'] as String;
-    reps = map['reps'] as int;
-    sets = map['sets'] as int;
+    name = map['name'] as String?;
+    reps = map['reps'] as int?;
+    sets = map['sets'] as int?;
     type =
         map['type'] == 'rest'
             ? ExerciseTypesEnum.rest
