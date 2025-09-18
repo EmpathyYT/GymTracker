@@ -189,6 +189,7 @@ class _NewExerciseTileState extends State<NewExerciseTile>
       return;
     } else {
       final exerciseType = ExerciseType(
+        type: ExerciseTypesEnum.exercise,
         name: exerciseName,
         sets: sets!,
         reps: reps!,

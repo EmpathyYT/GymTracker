@@ -4,20 +4,21 @@ import '../../../helpers/exercise_type.dart';
 import '../../dialogs/exercise_edit_dialog.dart';
 
 class ExerciseTile extends StatefulWidget {
-  final ExerciseType exercise;
+  final ExerciseType exerciseData;
   final String uuid;
   final int index;
   final VoidCallback rebuildList;
   final Function(String) onRemoveExercise;
-  final bool exerciseAdderExists = false;
+  final bool exerciseAdderExists;
 
   const ExerciseTile({
     super.key,
-    required this.exercise,
+    required this.exerciseData,
     required this.index,
     required this.uuid,
     required this.rebuildList,
     required this.onRemoveExercise,
+    required this.exerciseAdderExists,
   });
 
   @override
@@ -92,7 +93,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
 
   int get index => widget.index;
 
-  ExerciseType get exercise => widget.exercise;
+  ExerciseType get exercise => widget.exerciseData;
 
   String get uuid => widget.uuid;
 

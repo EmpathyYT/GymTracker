@@ -95,7 +95,6 @@ class _WorkoutEditorRouteState extends State<WorkoutEditorRoute> {
               controller: _nameController,
               maxLength: 30,
               style: GoogleFonts.oswald(fontSize: appBarTitleSize),
-              autofocus: true,
               decoration: const InputDecoration(
                 counterText: "",
                 hintText: "Workout Name",

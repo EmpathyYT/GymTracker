@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/utils/widgets/workout/new_exercise_tile.dart';
+import 'package:gymtracker/utils/widgets/workout/new_rest_period_tile.dart';
+import 'package:gymtracker/utils/widgets/workout/rest_period_tile.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../helpers/exercise_type.dart';
@@ -99,26 +101,41 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   }
 
   Widget _listWidgetBuilder(index) {
-    final value = exerciseListNotifier.value[index];
-    final String uuid = value.item1;
+    final data = exerciseListNotifier.value[index];
+    final String uuid = data.item1;
+    final newTileData = data.item2;
+    final newTile = _buildFinalListTile(Tuple2(uuid, newTileData), index);
     return Column(
       key: ValueKey("$uuid ${index == draggingIndex}"),
-      children: [
-        _buildTileDivider(index),
-        ExerciseTile(
-          exercise: value.item2,
-          index: index,
-          uuid: uuid,
-          rebuildList: () {
-            setState(() {
-              _listToBuild = _listDataBuilder(exerciseListNotifier.value);
-            });
-          },
-          onRemoveExercise: (uuid) => onRemoveExercise(uuid),
-        ),
-        _buildFinalDivider(index),
-      ],
+      children: [_buildTileDivider(index), newTile, _buildFinalDivider(index)],
     );
+  }
+
+  Widget _buildFinalListTile(Tuple2<String, ExerciseType> data, int index) {
+    final String uuid = data.item1;
+    final newTileData = data.item2;
+    if (newTileData.restPeriod != null) {
+      return RestPeriodTile(
+        index: index,
+        restData: newTileData,
+        uuid: uuid,
+        exerciseAdderExists: exerciseAdderExists,
+        onRemoveExercise: onRemoveExercise,
+      );
+    } else {
+      return ExerciseTile(
+        exerciseData: newTileData,
+        index: index,
+        uuid: uuid,
+        rebuildList: () {
+          setState(() {
+            _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+          });
+        },
+        onRemoveExercise: (uuid) => onRemoveExercise(uuid),
+        exerciseAdderExists: exerciseAdderExists,
+      );
+    }
   }
 
   Widget _buildTileDivider(index) {
@@ -141,7 +158,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                 children: [
                   _createNewExerciseTileWidget(index),
                   const SizedBox(width: 20),
-                  _createNewRestTile(index)
+                  _createNewRestTileWidget(index),
                 ],
               ),
             ),
@@ -164,15 +181,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   }
 
   void _createNewExerciseTileCallback(int index) {
-    if (exerciseAdderExists) {
-      showSnackBar(
-        context,
-        this,
-        "Please use the existing exercise adder.",
-        darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
-      );
-      return;
-    }
+    adderExistsCallback();
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       exerciseAdderExists = true;
@@ -189,6 +198,50 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
               ),
               child: NewExerciseTile(
+                index: index,
+                canDelete: true,
+                onAddExercise: (exercise, index) {
+                  onAddExercise(exercise, index);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    exerciseAdderExists = false;
+                    _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+                  });
+                },
+                onDelete: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    exerciseAdderExists = false;
+                    _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+                  });
+                },
+              ),
+            ),
+          ),
+          null,
+        ),
+      );
+    });
+  }
+
+  void _createNewRestTileCallback(int index) {
+    adderExistsCallback();
+    FocusScope.of(context).requestFocus(FocusNode());
+    setState(() {
+      exerciseAdderExists = true;
+      _listToBuild = _listDataBuilder(exerciseListNotifier.value);
+      _listToBuild?.insert(
+        index,
+        Tuple2(
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            key: ValueKey("newRestTile $index"),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white60, width: 0.9),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+              child: NewRestPeriodTile(
                 index: index,
                 canDelete: true,
                 onAddExercise: (exercise, index) {
@@ -244,40 +297,37 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
       ),
     );
   }
-  
-  Widget _createNewRestTile(int index) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: darkenColor(
-          Theme.of(context).scaffoldBackgroundColor,
-          0.2,
+
+  Widget _createNewRestTileWidget(int index) {
+    return InkWell(
+      onTap: () => _createNewRestTileCallback(index),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
         ),
-      ),
-      child: const Text.rich(
-        textAlign: TextAlign.center,
-        TextSpan(
-          children: [
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Icon(
-                Icons.electric_bolt,
-                size: 17,
-                color: Colors.white60,
+        child: const Text.rich(
+          textAlign: TextAlign.center,
+          TextSpan(
+            children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(
+                  Icons.electric_bolt,
+                  size: 17,
+                  color: Colors.white60,
+                ),
               ),
-            ),
-            TextSpan(
-              text: 'Rest Period',
-              style: TextStyle(
-                color: Colors.white60,
-                fontSize: 15,
+              TextSpan(
+                text: 'Rest Period',
+                style: TextStyle(color: Colors.white60, fontSize: 15),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-  
+
   ValueNotifier<List<Tuple2<String, ExerciseType>>> get exerciseListNotifier =>
       widget.exerciseListNotifier;
 
@@ -322,7 +372,19 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     },
   );
 
+  VoidCallback get adderExistsCallback => () {
+    if (exerciseAdderExists) {
+      showSnackBar(
+        context,
+        this,
+        "Please use the existing exercise adder.",
+        darkenColor(Theme.of(context).scaffoldBackgroundColor, 0.2),
+      );
+      return;
+    }
+  };
+
   int get day => widget.day;
 }
 
-enum WidgetListBuilderTypesEnum { exercise, rest, addExerciseIndicator }
+

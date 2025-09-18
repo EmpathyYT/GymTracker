@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../../helpers/exercise_type.dart';
 
@@ -95,7 +98,7 @@ class _NewRestPeriodTileState extends State<NewRestPeriodTile>
   }
 
   void submitForm() {
-    int? restPeriod = int.tryParse(restPeriodController.text);
+    double? restPeriod = double.tryParse(restPeriodController.text);
     if (restPeriod == null || restPeriod <= 0) {
       showSnackBar(
         context,
@@ -105,20 +108,35 @@ class _NewRestPeriodTileState extends State<NewRestPeriodTile>
       );
       return;
     }
+    restPeriod = double.parse(restPeriod.toStringAsPrecision(2));
+    log(restPeriod.toString());
     if (_isMinsNotifier.value) {
       restPeriod *= 60;
-      if (restPeriod > 3600) {
-        showSnackBar(
-          context,
-          this,
-          "Rest period cannot exceed 60 minutes.",
-          darkenBackgroundColor(context),
-        );
-        return;
-      }
     }
 
+    if (restPeriod > 3600) {
+      showSnackBar(
+        context,
+        this,
+        "Rest period cannot exceed 60 minutes.",
+        darkenBackgroundColor(context),
+      );
+      return;
+    }
 
+    widget.onAddExercise(
+      ExerciseType(
+        type: ExerciseTypesEnum.rest,
+        name: "",
+        restPeriod: restPeriod,
+        isInMins: _isMinsNotifier.value,
+        reps: 0,
+        sets: 0,
+        weightRange: const Tuple2(0, 0),
+        notes: '',
+      ),
+      index,
+    );
   }
 
   int get index => widget.index;

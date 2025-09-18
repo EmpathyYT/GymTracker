@@ -1,11 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 
 class RestPeriodTile extends StatefulWidget {
   final int index;
-  final ExerciseType exercise;
+  final ExerciseType restData;
   final String uuid;
   final bool exerciseAdderExists;
   final Function(String) onRemoveExercise;
@@ -13,7 +14,7 @@ class RestPeriodTile extends StatefulWidget {
   const RestPeriodTile({
     super.key,
     required this.index,
-    required this.exercise,
+    required this.restData,
     required this.uuid,
     required this.exerciseAdderExists,
     required this.onRemoveExercise,
@@ -24,9 +25,9 @@ class RestPeriodTile extends StatefulWidget {
 }
 
 class _RestPeriodTileState extends State<RestPeriodTile> {
-  late final bool isTop;
-  late final bool isMins;
-  late final int restPeriod;
+  late bool isTop;
+  late bool isMins;
+  late double restPeriod;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _RestPeriodTileState extends State<RestPeriodTile> {
     isTop = index == 0;
     restPeriod = exercise.restPeriod ?? 0;
     isMins = exercise.isInMins ?? false;
-    if (isMins) restPeriod *= 60;
+    if (isMins) restPeriod /= 60;
   }
 
   @override
@@ -59,7 +60,7 @@ class _RestPeriodTileState extends State<RestPeriodTile> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          "${exercise.sets} x ${exercise.reps}",
+          "${restPeriod.removeDecimalIfNecessary} ${isMins ? "minutes (${(restPeriod * 60).ceil()} seconds)" : "seconds"}",
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
@@ -89,7 +90,7 @@ class _RestPeriodTileState extends State<RestPeriodTile> {
 
   String get uuid => widget.uuid;
 
-  ExerciseType get exercise => widget.exercise;
+  ExerciseType get exercise => widget.restData;
 
   int get index => widget.index;
 

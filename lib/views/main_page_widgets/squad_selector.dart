@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -118,20 +116,20 @@ class _SquadSelectorWidgetState extends State<SquadSelectorWidget> {
       builder: (context, snapshot) {
         final server = snapshot.data;
 
-        if (snapshot.connectionState == ConnectionState.done) {
-          _squadCache[_squads![index]] = server!;
-        }
-
         if (snapshot.hasError) {
           return const ErrorListTile();
         }
 
-        if (snapshot.data == null) {
+        if (server == null) {
           return const SizedBox.shrink();
         }
 
+        if (snapshot.connectionState == ConnectionState.done) {
+          _squadCache[_squads![index]] = server;
+        }
+
         return SquadTileWidget(
-          title: server!.name,
+          title: server.name,
           hasUnreadNotifications: server.achievements.any(
             (e) =>
                 !e.readBy.contains(

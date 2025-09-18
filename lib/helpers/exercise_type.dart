@@ -5,20 +5,24 @@ import 'package:tuple/tuple.dart';
 import '../constants/code_constraints.dart';
 
 class ExerciseType with EquatableMixin {
+  ExerciseTypesEnum type;
   String name;
   int reps;
   int sets;
   Tuple2<double, double> weightRange;
   String notes;
   bool isKg;
-  int? restPeriod;
+  double? restPeriod;
   bool? isInMins;
 
   ExerciseType({
+    required this.type,
     required this.name,
     required this.reps,
     required this.sets,
     required this.weightRange,
+    this.restPeriod,
+    this.isInMins,
     this.notes = '',
     this.isKg = true,
   });
@@ -27,6 +31,10 @@ class ExerciseType with EquatableMixin {
     : name = map['name'] as String,
       reps = map['reps'] as int,
       sets = map['sets'] as int,
+      type =
+          map['type'] == 'rest'
+              ? ExerciseTypesEnum.rest
+              : ExerciseTypesEnum.exercise,
       weightRange = Tuple2<double, double>(
         double.parse(map['weightRange'][0].toString()),
         double.tryParse(map['weightRange'][1].toString()) ?? 0,
@@ -35,13 +43,22 @@ class ExerciseType with EquatableMixin {
       isKg = true; //todo when settings are added
 
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'reps': reps,
-      'sets': sets,
-      'weightRange': [weightRange.item1, weightRange.item2],
-      'notes': notes,
-    };
+    if (type == ExerciseTypesEnum.rest) {
+      return {
+        'type': 'rest',
+        'restPeriod': restPeriod ?? 0,
+        'isInMins': isInMins ?? false,
+      };
+    } else {
+      return {
+        'type': 'exercise',
+        'name': name,
+        'reps': reps,
+        'sets': sets,
+        'weightRange': [weightRange.item1, weightRange.item2],
+        'notes': notes,
+      };
+    }
   }
 
   String get exerciseWeightToString {
@@ -64,6 +81,10 @@ class ExerciseType with EquatableMixin {
     name = map['name'] as String;
     reps = map['reps'] as int;
     sets = map['sets'] as int;
+    type =
+        map['type'] == 'rest'
+            ? ExerciseTypesEnum.rest
+            : ExerciseTypesEnum.exercise;
     weightRange = Tuple2<double, double>(
       double.tryParse(map['weightRange'][0].toString()) ?? 0,
       double.tryParse(map['weightRange'][1].toString()) ?? 0,
@@ -77,5 +98,17 @@ class ExerciseType with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => [name, reps, sets, weightRange, notes];
+  List<Object?> get props => [
+    name,
+    reps,
+    sets,
+    weightRange,
+    notes,
+    type,
+    restPeriod,
+    isInMins,
+    isKg,
+  ];
 }
+
+enum ExerciseTypesEnum { exercise, rest, addExerciseIndicator }
