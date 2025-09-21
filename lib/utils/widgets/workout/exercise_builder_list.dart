@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/utils/widgets/workout/new_exercise_tile.dart';
@@ -38,9 +40,11 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     with TickerProviderStateMixin {
   final TextEditingController exerciseSetsController = TextEditingController();
   final TextEditingController exerciseRepsController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool exerciseAdderExists = false;
   String exerciseName = "";
   int? draggingIndex;
+  double scrollingPosition = 0.0;
   ExerciseListBuilderType? _listToBuild;
 
   @override
@@ -55,6 +59,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     exerciseSetsController.dispose();
     exerciseRepsController.dispose();
     super.dispose();
@@ -62,7 +67,11 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
   @override
   Widget build(BuildContext context) {
+    if (_listToBuild != null) {
+      scrollingPosition = _scrollController.position.pixels;
+    }
     _listToBuild ??= _listDataBuilder(exerciseListNotifier.value);
+
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.9,
       child: DecoratedBox(
@@ -106,7 +115,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
     final newTileData = data.item2;
     final newTile = _buildFinalListTile(Tuple2(uuid, newTileData), index);
     return Column(
-      key: ValueKey("$uuid ${index == draggingIndex}"),
+      key: ValueKey(uuid),
       children: [_buildTileDivider(index), newTile, _buildFinalDivider(index)],
     );
   }
@@ -114,7 +123,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   Widget _buildFinalListTile(Tuple2<String, ExerciseType> data, int index) {
     final String uuid = data.item1;
     final newTileData = data.item2;
-    if (newTileData.restPeriod != null) {
+    if (newTileData.type == ExerciseTypesEnum.rest) {
       return RestPeriodTile(
         index: index,
         restData: newTileData,
@@ -174,6 +183,23 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   }
 
   Widget _buildListView() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      log(draggingIndex.toString());
+      log(exerciseAdderExists.toString());
+      if (draggingIndex != null) {
+        if (draggingIndex! == 0 ) {
+          scrollingPosition = 0.0;
+        } else {
+          final itemHeight = _scrollController.position.maxScrollExtent /
+              (_listToBuild?.length ?? 1);
+          scrollingPosition += itemHeight;
+        }
+        _scrollController.jumpTo(scrollingPosition); //todo test if this works
+        if (!exerciseAdderExists) {
+          draggingIndex = null;
+        }
+      }
+    });
     return exerciseAdderExists
         ? listBuilderWhileAddingExercise
         : listBuilderWithoutAddingExercise;
@@ -186,6 +212,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   }
 
   void _createNewExerciseTileCallback(int index) {
+    draggingIndex = index;
     adderExistsCallback();
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
@@ -196,7 +223,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
         Tuple2(
           Padding(
             padding: const EdgeInsets.all(10.0),
-            key: ValueKey("newExerciseTile $index"),
+            key: ValueKey("newTile $index"),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white60, width: 0.9),
@@ -207,6 +234,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                 canDelete: true,
                 onAddExercise: (exercise, index) {
                   onAddExercise(exercise, index);
+                  draggingIndex = index;
                   FocusScope.of(context).requestFocus(FocusNode());
                   setState(() {
                     exerciseAdderExists = false;
@@ -216,6 +244,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                 onDelete: () {
                   FocusScope.of(context).requestFocus(FocusNode());
                   setState(() {
+                    draggingIndex = index;
                     exerciseAdderExists = false;
                     _listToBuild = _listDataBuilder(exerciseListNotifier.value);
                   });
@@ -230,6 +259,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
   }
 
   void _createNewRestTileCallback(int index) {
+    draggingIndex = index;
     adderExistsCallback();
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
@@ -240,7 +270,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
         Tuple2(
           Padding(
             padding: const EdgeInsets.all(10.0),
-            key: ValueKey("newRestTile $index"),
+            key: ValueKey("newTile $index"),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white60, width: 0.9),
@@ -253,6 +283,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                   onAddExercise(exercise, index);
                   FocusScope.of(context).requestFocus(FocusNode());
                   setState(() {
+                    draggingIndex = index;
                     exerciseAdderExists = false;
                     _listToBuild = _listDataBuilder(exerciseListNotifier.value);
                   });
@@ -260,6 +291,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
                 onDelete: () {
                   FocusScope.of(context).requestFocus(FocusNode());
                   setState(() {
+                    draggingIndex = index;
                     exerciseAdderExists = false;
                     _listToBuild = _listDataBuilder(exerciseListNotifier.value);
                   });
@@ -343,14 +375,20 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
   void Function(String uuid) get onRemoveExercise => widget.onRemoveExercise;
 
-  Widget get listBuilderWhileAddingExercise => ListView.builder(
-    itemCount: _listToBuild?.length,
-    itemBuilder: (context, index) {
-      return _listToBuild![index].item1;
-    },
-  );
+  Widget get listBuilderWhileAddingExercise {
+    final listView = ListView.builder(
+      controller: _scrollController,
+      itemCount: _listToBuild?.length,
+      itemBuilder: (context, index) {
+        return _listToBuild![index].item1;
+      },
+    );
+
+    return listView;
+  }
 
   Widget get listBuilderWithoutAddingExercise => ReorderableListView.builder(
+    scrollController: _scrollController,
     buildDefaultDragHandles: false,
     itemBuilder: (context, index) {
       return _listToBuild![index].item1;

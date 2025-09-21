@@ -96,7 +96,8 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                         );
                         return GestureDetector(
                           onTap: () {
-                            if (exerciseElement.restPeriod != null) {
+                            if (exerciseElement.type ==
+                                ExerciseTypesEnum.rest) {
                               return;
                             }
                             showExerciseNoteDialog(

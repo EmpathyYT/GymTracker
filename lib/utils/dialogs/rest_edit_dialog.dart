@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 
 import '../../constants/code_constraints.dart';
@@ -18,13 +18,15 @@ class NoteInputDialog extends StatefulWidget {
 class _NoteInputDialogState extends State<NoteInputDialog>
     with TickerProviderStateMixin {
   late final TextEditingController restPeriodController;
-  late final bool isMins;
+  late bool isMins;
 
   @override
   void initState() {
     restPeriodController =
-        TextEditingController()..text = initialExercise.restPeriod.toString();
-
+        TextEditingController()
+          ..text =
+              initialExercise.restPeriod!.removeDecimalIfNecessary.toString();
+    isMins = initialExercise.isInMins!;
     super.initState();
   }
 
@@ -40,47 +42,37 @@ class _NoteInputDialogState extends State<NoteInputDialog>
       title: const Text("Edit Rest"),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.6,
-        child: Column(
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white60, width: 0.9),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: SizedBox(
-                  width: 150,
-                  child: InkWell(
-                    onDoubleTap: toggleForm,
-                    child: TextField(
-                      textAlign: TextAlign.start,
-                      controller: restPeriodController,
-                      decoration: InputDecoration(
-                        counterText: "",
-                        labelText: isMins ? "Rest (mins)" : "Rest (secs)",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: const TextStyle(
-                          color: Colors.white60,
-                          fontSize: 14,
-                        ),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(3)),
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 18),
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: SizedBox(
+            width: 150,
+            child: InkWell(
+              onDoubleTap: toggleForm,
+              child: TextField(
+                textAlign: TextAlign.start,
+                controller: restPeriodController,
+                decoration: InputDecoration(
+                  counterText: "",
+                  labelText: isMins ? "Rest (mins)" : "Rest (secs)",
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  labelStyle: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 14,
+                  ),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                  ),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
                   ),
                 ),
+                keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 18),
               ),
             ),
-          ],
+          ),
         ),
       ),
       actions: [
@@ -116,6 +108,11 @@ class _NoteInputDialogState extends State<NoteInputDialog>
               );
               return;
             }
+            initialExercise.json = {
+              "type": "rest",
+              "restPeriod": restPeriod,
+              "isInMins": isMins,
+            };
 
             Navigator.of(context).pop();
           },

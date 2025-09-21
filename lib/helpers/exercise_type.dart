@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
 import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:tuple/tuple.dart';
@@ -35,20 +37,21 @@ class ExerciseType with EquatableMixin {
           map['type'] == 'rest'
               ? ExerciseTypesEnum.rest
               : ExerciseTypesEnum.exercise,
-      weightRange = Tuple2<double, double>(
-        double.tryParse(map['weightRange'][0].toString()) ?? 0,
-        double.tryParse(map['weightRange'][1].toString()) ?? 0,
-      ),
+      weightRange =
+          map['type'] == 'rest'
+              ? null
+              : Tuple2<double, double>(
+                double.tryParse(map['weightRange'][0].toString()) ?? 0.0,
+                double.tryParse(map['weightRange'][1].toString()) ?? 0.0,
+              ),
+      restPeriod = double.tryParse(map['restPeriod'].toString()),
+      isInMins = bool.tryParse(map['isInMins'].toString()),
       notes = map['notes'] as String? ?? '',
       isKg = true; //todo when settings are added
 
   Map<String, dynamic> toMap() {
     if (type == ExerciseTypesEnum.rest) {
-      return {
-        'type': 'rest',
-        'restPeriod': restPeriod ?? 0,
-        'isInMins': isInMins ?? false,
-      };
+      return {'type': 'rest', 'restPeriod': restPeriod!, 'isInMins': isInMins!};
     } else {
       return {
         'type': 'exercise',
@@ -86,11 +89,20 @@ class ExerciseType with EquatableMixin {
         map['type'] == 'rest'
             ? ExerciseTypesEnum.rest
             : ExerciseTypesEnum.exercise;
-    weightRange = Tuple2<double, double>(
-      double.tryParse(map['weightRange'][0].toString()) ?? 0,
-      double.tryParse(map['weightRange'][1].toString()) ?? 0,
-    );
+    weightRange = setWeightRange(map);
+    restPeriod = double.tryParse(map['restPeriod'].toString());
+    isInMins = bool.tryParse(map['isInMins'].toString());
     notes = map['notes'] as String? ?? '';
+  }
+
+  Tuple2<double, double>? setWeightRange(Map<String, dynamic> map) {
+    if (type == ExerciseTypesEnum.rest) return null;
+
+    weightRange = Tuple2<double, double>(
+      double.tryParse(map['weightRange'][0].toString()) ?? 0.0,
+      double.tryParse(map['weightRange'][1].toString()) ?? 0.0,
+    );
+    return weightRange;
   }
 
   @override

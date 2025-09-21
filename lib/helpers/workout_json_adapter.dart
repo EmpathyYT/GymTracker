@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -22,7 +24,9 @@ class WorkoutJsonAdapter {
     final Map<int, List<ExerciseType>> workouts = {};
     json['workouts'].forEach((key, value) {
       workouts[int.parse(key)] = (value as List)
-          .map((e) => ExerciseType.fromMap(e as Map<String, dynamic>))
+          .map((e) {
+        return ExerciseType.fromMap(e as Map<String, dynamic>);
+      })
           .toList();
     });
     return workouts;

@@ -30,17 +30,13 @@ class _RestPeriodTileState extends State<RestPeriodTile> {
   late bool isMins;
   late double restPeriod;
 
+
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
     isTop = index == 0;
     restPeriod = exercise.restPeriod ?? 0;
     isMins = exercise.isInMins ?? false;
     if (isMins) restPeriod /= 60;
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return InkWell(
       customBorder: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(

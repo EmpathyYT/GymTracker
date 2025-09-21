@@ -38,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       } catch (e) {
         emit(
-          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+          AuthStateUnauthenticated(exception: e, isLoading: false),
         );
       }
     });
@@ -66,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         emit(
           AuthStateSettingUpProfile(
-            exception: e as Exception,
+            exception: e ,
             isLoading: false,
           ),
         );
@@ -97,7 +97,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthStateNeedsVerification(isLoading: false, user: user));
       } catch (e) {
-        emit(AuthStateRegistering(exception: e as Exception, isLoading: false));
+        emit(AuthStateRegistering(exception: e , isLoading: false));
       }
     });
 
@@ -111,14 +111,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventInitialize>((event, emit) async {
       try {
-        try {
-          await _provider.initialize();
-          await _databaseController.initialize();
-          await DatabaseController.initCloudObjects(dbController);
-        } catch (_) {}
+        await _provider.initialize();
+        await _databaseController.initialize();
+        await DatabaseController.initCloudObjects(dbController);
 
         log("initializing");
         final user = _provider.currentUser;
+
         var newState = await _stateSelectorByUser(user);
 
         emit(newState);
@@ -148,7 +147,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
         emit(
-          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+          AuthStateUnauthenticated(exception: e , isLoading: false),
         );
       }
     });
@@ -159,7 +158,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } catch (e) {
         emit(
-          AuthStateUnauthenticated(exception: e as Exception, isLoading: false),
+          AuthStateUnauthenticated(exception: e , isLoading: false),
         );
       }
     });
@@ -185,7 +184,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       bool didSendEmail;
-      Exception? exception;
+      Object? exception;
 
       try {
         await _provider.sendPasswordReset(email: email);
@@ -193,7 +192,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         exception = null;
       } catch (e) {
         didSendEmail = false;
-        exception = e as Exception;
+        exception = e;
       }
 
       emit(

@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _internetSubscription ??= _createInternetConnectionChecks(context);
-    //context.read<AuthBloc>().add(const AuthEventInitialize());
+    context.read<AuthBloc>().add(const AuthEventInitialize());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.isLoading) {
@@ -155,8 +155,7 @@ Future<void> _setupLogging() async {
     logSink.write(log);
   });
   FlutterError.onError = (FlutterErrorDetails details) {
-    _logger.severe('FlutterError', details.exception, details.stack);
-    log(details.toString());
+    _logger.severe('FlutterError', details, details.stack);
     FlutterError.dumpErrorToConsole(details);
   };
 }

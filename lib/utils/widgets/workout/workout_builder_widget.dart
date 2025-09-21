@@ -191,7 +191,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
   if (validationErrors.isNotEmpty) {
     return (false, validationErrors.first);
   } else if (hWeight.isNotEmpty && lWeight.isEmpty && isRange) {
-    log("message");
     return (
       false,
       "Please enter a low weight if you are entering a high weight.",

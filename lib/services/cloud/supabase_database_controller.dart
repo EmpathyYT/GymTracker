@@ -520,6 +520,7 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(workoutTableName)
         .select()
         .eq(ownerUserFieldName, userId);
+
     return resWorkouts.map((e) => CloudWorkout.fromSupabaseMap(e)).toList();
   }
 

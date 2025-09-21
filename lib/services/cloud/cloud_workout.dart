@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/helpers/workout_json_adapter.dart';
