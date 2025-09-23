@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +7,6 @@ import 'package:gymtracker/utils/widgets/workout/exercise_builder_list.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../../constants/code_constraints.dart';
 import '../../../helpers/exercise_type.dart';
 
@@ -195,8 +193,6 @@ class _WorkoutBuilderWidgetState extends State<WorkoutBuilderWidget>
       false,
       "Please enter a low weight if you are entering a high weight.",
     );
-  } else if (exerciseName.isEmpty) {
-    return (false, "Please enter an exercise name.");
   } else if (lWeight.isNotEmpty && hWeight.isNotEmpty && isRange) {
     final rangesValidation = _validateRangesInput(lWeight, hWeight);
     if (rangesValidation != null) {

@@ -108,7 +108,6 @@ class _NewRestPeriodTileState extends State<NewRestPeriodTile>
       return;
     }
     restPeriod = double.parse(restPeriod.toStringAsPrecision(2));
-    log(restPeriod.toString());
     if (_isMinsNotifier.value) {
       restPeriod *= 60;
     }

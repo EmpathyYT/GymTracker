@@ -8,16 +8,16 @@ import '../../constants/code_constraints.dart';
 import '../../cubit/main_page_cubit.dart';
 import '../widgets/workout/workout_builder_widget.dart';
 
-class NoteInputDialog extends StatefulWidget {
+class ExerciseEditDialog extends StatefulWidget {
   final ExerciseType initialExercise;
 
-  const NoteInputDialog({super.key, required this.initialExercise});
+  const ExerciseEditDialog({super.key, required this.initialExercise});
 
   @override
-  State<NoteInputDialog> createState() => _NoteInputDialogState();
+  State<ExerciseEditDialog> createState() => _ExerciseEditDialogState();
 }
 
-class _NoteInputDialogState extends State<NoteInputDialog>
+class _ExerciseEditDialogState extends State<ExerciseEditDialog>
     with TickerProviderStateMixin {
   late final TextEditingController exerciseNameController;
   late final TextEditingController exerciseSetsController;
@@ -26,6 +26,7 @@ class _NoteInputDialogState extends State<NoteInputDialog>
   late final TextEditingController exerciseHWeightController;
   late final ValueNotifier<bool> isRangeNotifier;
   late final TextEditingController exerciseNoteController;
+  final List<AnimationController> _animationControllers = [];
 
   @override
   void initState() {
@@ -48,7 +49,8 @@ class _NoteInputDialogState extends State<NoteInputDialog>
                   ? ""
                   : initialExercise.weightRange!.item2.toString();
     isRangeNotifier = ValueNotifier(
-      initialExercise.weightRange!.item1 != initialExercise.weightRange!.item2 &&
+      initialExercise.weightRange!.item1 !=
+              initialExercise.weightRange!.item2 &&
           initialExercise.weightRange!.item2 != 0,
     );
     exerciseNoteController =
@@ -144,7 +146,13 @@ class _NoteInputDialogState extends State<NoteInputDialog>
                 Theme.of(context).scaffoldBackgroundColor,
                 0.2,
               );
-              showSnackBar(context, this, errorMessage!, color);
+              final controller = showSnackBar(
+                context,
+                this,
+                errorMessage!,
+                color,
+              );
+              _animationControllers.add(controller);
               return;
             }
 
@@ -160,9 +168,15 @@ class _NoteInputDialogState extends State<NoteInputDialog>
             final notesCheck = validateTitles(
               exerciseNoteController.text.trim(),
             );
-            if (notesCheck != null) {
-              showSnackBar(context, this, notesCheck, darkenBackgroundColor(
-                  context));
+            if (notesCheck != null &&
+                exerciseNoteController.text.trim().isNotEmpty) {
+              final controller = showSnackBar(
+                context,
+                this,
+                notesCheck,
+                darkenBackgroundColor(context),
+              );
+              _animationControllers.add(controller);
               return;
             }
             initialExercise.json = {
@@ -171,6 +185,7 @@ class _NoteInputDialogState extends State<NoteInputDialog>
               'sets': int.parse(exerciseSetsController.text.trim()),
               'weightRange': [lWeight, hWeight],
               'notes': exerciseNoteController.text.trim(),
+              'type': initialExercise.type,
             };
             Navigator.of(context).pop();
           },
@@ -200,7 +215,7 @@ Future<void> showWorkoutEditDialog(
               builder: (context) {
                 return Scaffold(
                   backgroundColor: Colors.transparent,
-                  body: NoteInputDialog(initialExercise: exercise),
+                  body: ExerciseEditDialog(initialExercise: exercise),
                 );
               },
             ),

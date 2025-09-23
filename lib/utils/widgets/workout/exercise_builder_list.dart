@@ -184,8 +184,6 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
 
   Widget _buildListView() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      log(draggingIndex.toString());
-      log(exerciseAdderExists.toString());
       if (draggingIndex != null) {
         if (draggingIndex! == 0 ) {
           scrollingPosition = 0.0;
@@ -194,7 +192,7 @@ class _ExerciseBuilderListState extends State<ExerciseBuilderList>
               (_listToBuild?.length ?? 1);
           scrollingPosition += itemHeight;
         }
-        _scrollController.jumpTo(scrollingPosition); //todo test if this works
+        _scrollController.jumpTo(scrollingPosition);
         if (!exerciseAdderExists) {
           draggingIndex = null;
         }

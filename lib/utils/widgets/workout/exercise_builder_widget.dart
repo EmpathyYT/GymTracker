@@ -40,14 +40,14 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 20,
+              width: 25,
               child: Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: TextField(
                   controller: exerciseSetsController,
                   style: GoogleFonts.montserrat(
                   color: Colors.grey,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.w500,
                   ),
                   keyboardType: TextInputType.number,
@@ -57,7 +57,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                     hintText: "S",
                     hintStyle: GoogleFonts.montserrat(
                       color: Colors.grey,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -70,7 +70,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
             Text("X", style: GoogleFonts.oswald(fontSize: 17)),
             const SizedBox(width: 3),
             SizedBox(
-              width: 20,
+              width: 25,
               child: Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: TextField(
@@ -78,7 +78,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                   keyboardType: TextInputType.number,
                   style: GoogleFonts.montserrat(
                     color: Colors.grey,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
@@ -88,7 +88,7 @@ class _ExerciseBuilderWidgetState extends State<ExerciseBuilderWidget> {
                     hintText: "R",
                     hintStyle: GoogleFonts.montserrat(
                       color: Colors.grey,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
