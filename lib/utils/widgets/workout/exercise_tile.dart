@@ -26,25 +26,13 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
-  late final bool isTop;
-  late final String exerciseName;
-  late final bool noWeightRestriction;
-
-  @override
-  void initState() {
-    super.initState();
-    isTop = index == 0;
-    final weightRange = exercise.weightRange;
-    noWeightRestriction = weightRange!.item1 == 0 && weightRange.item2 == 0;
-    exerciseName =
-        (noWeightRestriction
-            ? exercise.name
-            : "${exercise.name} "
-                "(${exercise.exerciseWeightToString})")!;
-  }
+  late bool isTop;
+  late String exerciseName;
+  late bool noWeightRestriction;
 
   @override
   Widget build(BuildContext context) {
+    updateData();
     return InkWell(
       customBorder: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -100,6 +88,17 @@ class _ExerciseTileState extends State<ExerciseTile> {
   bool get exerciseAdderExists => widget.exerciseAdderExists;
 
   VoidCallback get rebuildList => widget.rebuildList;
+
+  VoidCallback get updateData => () {
+    isTop = index == 0;
+    final weightRange = exercise.weightRange;
+    noWeightRestriction = weightRange!.item1 == 0 && weightRange.item2 == 0;
+    exerciseName =
+        (noWeightRestriction
+            ? exercise.name
+            : "${exercise.name} "
+                "(${exercise.exerciseWeightToString})")!;
+  };
 
   VoidCallback get onTap => () async {
     await showWorkoutEditDialog(context, exercise).then((_) {

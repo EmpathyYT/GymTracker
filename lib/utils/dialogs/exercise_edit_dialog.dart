@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gymtracker/extensions/remove_decimal_if_necessary.dart';
 import 'package:gymtracker/helpers/exercise_type.dart';
 import 'package:gymtracker/utils/widgets/workout/exercise_builder_widget.dart';
 
@@ -30,37 +31,15 @@ class _ExerciseEditDialogState extends State<ExerciseEditDialog>
 
   @override
   void initState() {
-    exerciseNameController =
-        TextEditingController()..text = initialExercise.name!;
-    exerciseSetsController =
-        TextEditingController()..text = initialExercise.sets.toString();
-    exerciseRepsController =
-        TextEditingController()..text = initialExercise.reps.toString();
-    exerciseLWeightController =
-        TextEditingController()
-          ..text =
-              initialExercise.weightRange!.item1.toString() == "0.0"
-                  ? ""
-                  : initialExercise.weightRange!.item1.toString();
-    exerciseHWeightController =
-        TextEditingController()
-          ..text =
-              initialExercise.weightRange!.item2.toString() == "0.0"
-                  ? ""
-                  : initialExercise.weightRange!.item2.toString();
-    isRangeNotifier = ValueNotifier(
-      initialExercise.weightRange!.item1 !=
-              initialExercise.weightRange!.item2 &&
-          initialExercise.weightRange!.item2 != 0,
-    );
-    exerciseNoteController =
-        TextEditingController()..text = initialExercise.notes;
-
+    initData();
     super.initState();
   }
 
   @override
   void dispose() {
+    for (final controller in _animationControllers) {
+      controller.dispose();
+    }
     exerciseNameController.dispose();
     exerciseSetsController.dispose();
     exerciseRepsController.dispose();
@@ -185,7 +164,7 @@ class _ExerciseEditDialogState extends State<ExerciseEditDialog>
               'sets': int.parse(exerciseSetsController.text.trim()),
               'weightRange': [lWeight, hWeight],
               'notes': exerciseNoteController.text.trim(),
-              'type': initialExercise.type,
+              'type': initialExercise.type.toString(),
             };
             Navigator.of(context).pop();
           },
@@ -195,6 +174,36 @@ class _ExerciseEditDialogState extends State<ExerciseEditDialog>
       scrollable: true,
     );
   }
+
+  VoidCallback get initData => () {
+    exerciseNameController =
+        TextEditingController()..text = initialExercise.name!;
+    exerciseSetsController =
+        TextEditingController()..text = initialExercise.sets.toString();
+    exerciseRepsController =
+        TextEditingController()..text = initialExercise.reps.toString();
+    exerciseLWeightController =
+        TextEditingController()
+          ..text =
+              initialExercise.weightRange!.item1.toString() == "0.0"
+                  ? ""
+                  : initialExercise.weightRange!.item1.removeDecimalIfNecessary
+                      .toString();
+    exerciseHWeightController =
+        TextEditingController()
+          ..text =
+              initialExercise.weightRange!.item2.toString() == "0.0"
+                  ? ""
+                  : initialExercise.weightRange!.item2.removeDecimalIfNecessary
+                      .toString();
+    isRangeNotifier = ValueNotifier(
+      initialExercise.weightRange!.item1 !=
+              initialExercise.weightRange!.item2 &&
+          initialExercise.weightRange!.item2 != 0,
+    );
+    exerciseNoteController =
+        TextEditingController()..text = initialExercise.notes;
+  };
 
   ExerciseType get initialExercise => widget.initialExercise;
 }

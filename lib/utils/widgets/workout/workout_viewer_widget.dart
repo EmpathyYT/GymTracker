@@ -106,7 +106,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
                             );
                           },
                           child: SizedBox(
-                            height: 60,
+                            height: 72,
                             child: Row(
                               children: [
                                 Expanded(
@@ -182,20 +182,21 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
   ) {
     final restPeriod = exerciseElement.restPeriod;
     String data;
-    if (restPeriod == null) {
-      data = "${exerciseElement.sets} x ${exerciseElement.reps}";
+    if (exerciseElement.type == ExerciseTypesEnum.exercise) {
+      data = exerciseElement.exerciseWeightToString;
     } else {
       final isMins = exerciseElement.isInMins ?? false;
       if (isMins) {
         data =
-            "${restPeriod.removeDecimalIfNecessary} minutes\n"
+            "${restPeriod!.removeDecimalIfNecessary} minutes\n"
             "(${(restPeriod * 60).ceil()} seconds)";
       } else {
-        data = "${restPeriod.removeDecimalIfNecessary} seconds";
+        data = "${restPeriod!.removeDecimalIfNecessary} seconds";
       }
     }
 
     return AutoSizeText(
+      minFontSize: 10,
       data,
       group: groupSize,
       textAlign: TextAlign.center,
@@ -210,7 +211,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
     final double? restPeriod = exerciseElement.restPeriod;
     final List<TextSpan> children = [];
 
-    if (restPeriod == null) {
+    if (exerciseElement.type == ExerciseTypesEnum.exercise) {
       children.add(
         TextSpan(
           text:
@@ -221,6 +222,7 @@ class _WorkoutViewerWidgetState extends State<WorkoutViewerWidget> {
       );
     }
     return AutoSizeText.rich(
+      minFontSize: 10,
       TextSpan(
         text: restPeriod == null ? exerciseElement.name : "Rest Period",
         children: children,
