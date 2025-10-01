@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/bloc/auth_state.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import '../bloc/auth_bloc.dart';
 import '../exceptions/auth_exceptions.dart';
@@ -160,7 +162,9 @@ class _LoginViewState extends State<LoginView> {
 
   void _startAuthCheck(BuildContext context) async {
     _timer ??= Timer.periodic(const Duration(seconds: 5), (timer) async {
-      context.read<AuthBloc>().add(const AuthEventReloadUser());
+      final internetStatus = await InternetConnection().internetStatus;
+      if (!context.mounted) return;
+      context.read<AuthBloc>().add(AuthEventReloadUser(internetStatus));
     });
   }
 }

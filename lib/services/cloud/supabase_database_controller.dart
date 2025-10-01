@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:gymtracker/constants/cloud_contraints.dart';
+import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/exceptions/auth_exceptions.dart';
 import 'package:gymtracker/exceptions/cloud_exceptions.dart';
 import 'package:gymtracker/services/cloud/cloud_notification.dart';
@@ -634,9 +635,7 @@ class SupabaseDatabaseController implements DatabaseController {
     double targetWeight,
   ) async {
     if (_auth.currentUser == null) throw UserNotLoggedInException();
-    log(
-      "Adding PR: $exercise, $userId, $date, $targetWeight",
-    );
+    log("Adding PR: $exercise, $userId, $date, $targetWeight");
     await _supabase.from(prTableName).insert({
       userIdFieldName: userId,
       exerciseNameFieldName: exercise,
@@ -675,5 +674,23 @@ class SupabaseDatabaseController implements DatabaseController {
         .from(prTableName)
         .update({prActualWeightFieldName: weight})
         .eq(idFieldName, prId);
+  }
+
+  @override
+  Future<Map<String, bool>> getAllowedVersions() async {
+    final allowedVersions = await _supabase
+        .schema(internalSchemaName)
+        .from(buildTableName)
+        .select()
+        .eq(isOutdatedColumnName, false);
+
+    return {}..addEntries(
+      allowedVersions.map(
+        (e) => MapEntry(
+          e[versionCodeColumnName].toString(),
+          e[isOutdatedColumnName],
+        ),
+      ),
+    );
   }
 }

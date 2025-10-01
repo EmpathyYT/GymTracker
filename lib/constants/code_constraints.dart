@@ -16,6 +16,10 @@ const noWeightRestrictionMessage = 'No Weight Range';
 const workoutCacheField = "workouts";
 const mainSizeIcon = 26.0;
 const logFileDirectory = "GymTrackerAppLogs";
+const internalSchemaName = "internal";
+const buildTableName = 'builds';
+const versionCodeColumnName = 'version_code';
+const isOutdatedColumnName = 'is_outdated';
 
 
 const Color maxLevelColor = Color(0xff8e0cf3);

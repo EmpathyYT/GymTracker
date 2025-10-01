@@ -56,11 +56,10 @@ class AuthStateForgotPassword extends AuthState {
   final Object? exception;
   final bool hasSentEmail;
 
-  const AuthStateForgotPassword(
-      {required super.isLoading,
-      super.loadingText,
-      required this.exception,
-      required this.hasSentEmail});
+  const AuthStateForgotPassword({required super.isLoading,
+    super.loadingText,
+    required this.exception,
+    required this.hasSentEmail});
 }
 
 class AuthStateNeedsVerification extends AuthState {
@@ -80,4 +79,8 @@ class AuthStateSettingUpProfile extends AuthState {
 
 class AuthStateNoInternet extends AuthState {
   const AuthStateNoInternet({required super.isLoading});
+}
+
+class AuthStateOutDatedBuild extends AuthState {
+  const AuthStateOutDatedBuild({required super.isLoading});
 }

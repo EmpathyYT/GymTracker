@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:gymtracker/services/auth/auth_user.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 @immutable
 abstract class AuthEvent {
@@ -16,11 +17,14 @@ class AuthEventNoInternet extends AuthEvent {
 
 class AuthEventSendEmailVerification extends AuthEvent {
   final AuthUser user;
+
   const AuthEventSendEmailVerification({required this.user});
 }
 
 class AuthEventReloadUser extends AuthEvent {
-  const AuthEventReloadUser();
+  final InternetStatus status;
+
+  const AuthEventReloadUser(this.status);
 }
 
 class AuthEventRegister extends AuthEvent {
@@ -32,6 +36,7 @@ class AuthEventRegister extends AuthEvent {
 
 class AuthEventListenForVerification extends AuthEvent {
   final AuthUser? user;
+
   const AuthEventListenForVerification({this.user});
 }
 
@@ -46,7 +51,6 @@ class AuthEventSignIn extends AuthEvent {
   const AuthEventSignIn(this.email, this.password);
 }
 
-
 class AuthEventSignOut extends AuthEvent {
   const AuthEventSignOut();
 }
@@ -54,9 +58,7 @@ class AuthEventSignOut extends AuthEvent {
 class AuthEventForgotPassword extends AuthEvent {
   final String? email;
 
-
   const AuthEventForgotPassword({this.email});
-
 }
 
 class AuthEventShouldSetUpProfile extends AuthEvent {
@@ -70,8 +72,3 @@ class AuthEventSetUpProfile extends AuthEvent {
 
   const AuthEventSetUpProfile(this.name, this.bio, this.gender);
 }
-
-
-
-
-

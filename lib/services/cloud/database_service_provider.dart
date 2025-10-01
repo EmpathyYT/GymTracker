@@ -219,4 +219,6 @@ class DatabaseServiceProvider implements DatabaseController {
   Future<void> confirmPrWeight(String prId, double weight) =>
       _provider.confirmPrWeight(prId, weight);
 
+  @override
+  Future<Map<String, bool>> getAllowedVersions() => _provider.getAllowedVersions();
 }

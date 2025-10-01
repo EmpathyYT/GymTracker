@@ -7,13 +7,14 @@ import 'package:gymtracker/bloc/auth_bloc.dart';
 import 'package:gymtracker/bloc/auth_event.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
 import 'package:gymtracker/cubit/main_page_cubit.dart';
-import 'package:gymtracker/utils/widgets/profile/edit_profile_button.dart';
 import 'package:gymtracker/utils/widgets/kin/friend_adder_button.dart';
+import 'package:gymtracker/utils/widgets/profile/edit_profile_button.dart';
 import 'package:gymtracker/utils/widgets/squads/squad_creator_button.dart';
 import 'package:gymtracker/views/main_page_widgets/kins_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/profile_viewer.dart';
 import 'package:gymtracker/views/main_page_widgets/squad_selector.dart';
 import 'package:gymtracker/views/main_page_widgets/workshop.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import '../bloc/auth_state.dart';
 import '../helpers/loading/loading_dialog.dart';
@@ -226,7 +227,9 @@ class _MainPageState extends State<MainPage> {
 
   void _startAppLoop(BuildContext context) async {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      context.read<AuthBloc>().add(const AuthEventReloadUser());
+      final internetStatus = await InternetConnection().internetStatus;
+      if (!context.mounted) return;
+      context.read<AuthBloc>().add(AuthEventReloadUser(internetStatus));
       await context.read<MainPageCubit>().reloadUser();
     });
   }

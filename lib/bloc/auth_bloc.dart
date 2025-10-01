@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:bloc/bloc.dart';
 import 'package:gymtracker/constants/code_constraints.dart';
@@ -8,6 +9,8 @@ import 'package:gymtracker/services/auth/auth_user.dart';
 import 'package:gymtracker/services/cloud/cloud_user.dart';
 import 'package:gymtracker/services/cloud/cloud_workout.dart';
 import 'package:gymtracker/services/cloud/database_controller.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../exceptions/cloud_exceptions.dart';
 import '../services/auth/auth_provider.dart';
@@ -29,6 +32,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await _provider.refreshSession();
         final user = _provider.currentUser;
+        final versionIsAllowed = await isBuildValid;
+        final internetStatus = event.status;
+
+        if (internetStatus == InternetStatus.disconnected) {
+          emit(const AuthStateNoInternet(isLoading: false));
+        }
+
+        if (!versionIsAllowed) {
+          emit(const AuthStateOutDatedBuild(isLoading: false));
+          return;
+        }
+
         final newState = await _stateSelectorByUser(user);
 
         if (newState.runtimeType == state.runtimeType) {
@@ -37,9 +52,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(newState);
         }
       } catch (e) {
-        emit(
-          AuthStateUnauthenticated(exception: e, isLoading: false),
-        );
+        log(e.toString());
+        emit(AuthStateUnauthenticated(exception: e, isLoading: false));
       }
     });
 
@@ -64,12 +78,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       } catch (e) {
-        emit(
-          AuthStateSettingUpProfile(
-            exception: e ,
-            isLoading: false,
-          ),
-        );
+        emit(AuthStateSettingUpProfile(exception: e, isLoading: false));
       }
     });
 
@@ -97,7 +106,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthStateNeedsVerification(isLoading: false, user: user));
       } catch (e) {
-        emit(AuthStateRegistering(exception: e , isLoading: false));
+        emit(AuthStateRegistering(exception: e, isLoading: false));
       }
     });
 
@@ -114,6 +123,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _provider.initialize();
         await _databaseController.initialize();
         await DatabaseController.initCloudObjects(dbController);
+        final internetConnection = await InternetConnection().internetStatus;
+        if (internetConnection == InternetStatus.disconnected) {
+          emit(const AuthStateNoInternet(isLoading: false));
+          return;
+        }
+        final versionIsAllowed = await isBuildValid;
+        if (!versionIsAllowed) {
+          emit(const AuthStateOutDatedBuild(isLoading: false));
+          return;
+        }
 
         log("initializing");
         final user = _provider.currentUser;
@@ -146,9 +165,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } on EmailNotConfirmedAuthException {
         emit(const AuthStateNeedsVerification(isLoading: false));
       } catch (e) {
-        emit(
-          AuthStateUnauthenticated(exception: e , isLoading: false),
-        );
+        emit(AuthStateUnauthenticated(exception: e, isLoading: false));
       }
     });
 
@@ -157,9 +174,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _provider.logOut();
         emit(const AuthStateUnauthenticated(exception: null, isLoading: false));
       } catch (e) {
-        emit(
-          AuthStateUnauthenticated(exception: e , isLoading: false),
-        );
+        emit(AuthStateUnauthenticated(exception: e, isLoading: false));
       }
     });
 
@@ -254,5 +269,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<CloudUser?> get currentDbUser async {
     if (currentAuthUser == null) return null;
     return CloudUser.fetchUser(currentAuthUser?.id, true);
+  }
+
+  Future<bool> get isBuildValid async {
+    log("checking build");
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final data = await _databaseController.getAllowedVersions();
+    final currentVersion = packageInfo.version;
+    return data.keys.contains(currentVersion);
   }
 }

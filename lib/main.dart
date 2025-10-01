@@ -20,6 +20,7 @@ import 'package:gymtracker/views/main_page_widgets/routes/add_warrior.dart';
 import 'package:gymtracker/views/main_page_widgets/routes/krq_notifications.dart';
 import 'package:gymtracker/views/no_internet_page.dart';
 import 'package:gymtracker/views/profile_setup_page.dart';
+import 'package:gymtracker/views/update_app_page.dart';
 import 'package:gymtracker/views/verify_email_page.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:logging/logging.dart';
@@ -110,6 +111,8 @@ class HomePage extends StatelessWidget {
           return const ProfileSetupView();
         } else if (state is AuthStateNoInternet) {
           return const NoInternet();
+        } else if (state is AuthStateOutDatedBuild) {
+          return const UpdateAppPage();
         } else {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -129,7 +132,7 @@ class HomePage extends StatelessWidget {
           if (!context.mounted) break;
           log("connected");
           oldStatus = status;
-          context.read<AuthBloc>().add(const AuthEventReloadUser());
+          context.read<AuthBloc>().add(AuthEventReloadUser(status));
           break;
         case InternetStatus.disconnected:
           if (!context.mounted) break;

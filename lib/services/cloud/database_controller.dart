@@ -128,6 +128,8 @@ abstract class DatabaseController {
 
   Future<void> confirmPrWeight(String prId, double weight);
 
+  Future<Map<String, bool>> getAllowedVersions();
+
 
   static Future<void> initCloudObjects(DatabaseController controller) async {
     CloudSquad.dbController = controller;
